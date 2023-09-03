@@ -1,0 +1,16 @@
+fig:unnamed-chunk-14
+fig:variogram2-1
+chapter2.-recognizing-statistical-dependency
+linear-regression-applied-to-spatial-data
+visualization
+dependency
+fit-the-model
+model-validation
+check-homogeinity-and-model-misfit
+check-spatial-dependence
+gam-applied-to-temporal-data
+subnivium-temperature-data
+sources-of-dependency
+the-model
+model-validation-1
+glmm-applied-on-hierarchical-and-spatial-data

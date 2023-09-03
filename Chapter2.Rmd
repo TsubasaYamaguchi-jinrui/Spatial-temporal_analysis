@@ -1,0 +1,379 @@
+# Chapter2. Recognizing statistical dependency  
+## Linear regression applied to spatial data  
+本節では、@Cruikshanks2006 のデータを用いる。この研究では、アイルランドの257の川において、川の`pH`が`SDI`(Sodium Dominance Index; 陽イオン中のナトリウムイオン)と関連しているかを、緯度(`Altitude`)やその場所が森林化されているか(`Forested`)も考慮したうえで調べている。  
+
+### Visualization  
+データは以下の通り。  
+```{r}
+iph <- read_delim("data/Irishph.txt") %>% 
+  mutate(fForested = ifelse(Forested == "1", "yes", "no")) %>% 
+  data.frame()
+
+datatable(iph,
+          options = list(scrollX = 20),
+          filter = "top")
+```
+<br/>  
+
+各説明変数との関連は以下の通り。  
+```{r}
+iph %>% 
+  select(Altitude, pH, fForested, SDI) %>% 
+  pivot_longer(cols = c(Altitude, SDI)) %>% 
+  ggplot(aes(x = value, y = pH))+
+  geom_point(aes(color = fForested))+
+  geom_smooth(aes(color = fForested),
+              method = "lm")+
+  facet_rep_wrap(~ name,
+                 scales = "free_x",
+                 repeat.tick.labels = TRUE)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "Covariates")
+```
+
+### Dependency  
+以下の線形モデルを適用するとする。  
+
+$$
+\begin{aligned}
+pH_i &\sim N(0,\sigma^2)\\
+\mu_i &= \beta_1 + \beta_2 \times SDI_i\\
+\end{aligned}
+$$
+
+結果を図示すると以下のようになる。  
+
+```{r}
+m2_1 <- lm(pH ~ SDI,
+           data = iph)
+```
+
+```{r}
+ggpredict(m2_1,
+          terms = "SDI[7:72,by=0.1]",
+          interval = "prediction") %>% 
+  data.frame() %>% 
+  mutate(type = "prediction") %>% 
+  bind_rows(ggpredict(m2_1,
+          terms = "SDI[7:72,by=0.1]",
+          interval = "confidence") %>% 
+  data.frame() %>% 
+    mutate(type = "confidence")) %>% 
+  rename(SDI = x) %>% 
+  ggplot(aes(x = SDI, y = predicted))+
+  geom_ribbon(aes(ymin = conf.high,
+                  ymax = conf.low,
+                  fill = type),
+              alpha = 0.5)+
+  scale_fill_grey()+
+  geom_line()+
+  geom_point(data = iph,
+             aes(y = pH),
+             shape = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)
+```
+
+### Fit the model  
+全部の交互作用を含むモデルを考える。  
+```{r}
+iph %>% 
+  mutate(logAltitude = log(Altitude)) -> iph
+
+m2_2 <- lm(pH ~ SDI*fForested*logAltitude,
+           data = iph)
+```
+
+結果は以下の通り。
+```{r}
+summary(m2_2)
+```
+
+あまりに煩雑なのでAICによるモデル選択を行う。  
+```{r}
+stepAIC(m2_2)
+```
+
+AICが最小のモデルは以下の通り。  
+```{r}
+m2_3 <- lm(pH ~ SDI + logAltitude*fForested,
+           data = iph)
+```
+
+### Model validation  
+#### Check homogeinity and model misfit  
+標準化残差と予測値、各共変量の関係は問題ないよう。  
+```{r}
+resid <- rstandard(m2_3)
+
+data.frame(resid = resid,
+           fitted = predict(m2_3)) %>% 
+  ggplot(aes(x = fitted, y = resid))+
+  geom_point(shape = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  geom_hline(yintercept = 0,
+             linetype = "dashed") 
+```
+
+```{r}
+iph %>% 
+  mutate(resid = resid) %>% 
+  select(resid, SDI,  logAltitude) %>% 
+  pivot_longer(cols = c(SDI, logAltitude)) %>% 
+  ggplot(aes(x = value, y = resid))+
+  geom_point(shape = 1)+
+  geom_hline(yintercept = 0,
+             linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  facet_rep_wrap(~ name,
+                 repeat.tick.labels = TRUE,
+                 scales = "free")+
+  theme_bw()+
+  labs(x = "") 
+```
+
+```{r}
+iph %>% 
+  mutate(resid = resid) %>% 
+  select(resid, fForested) %>% 
+  ggplot(aes(x = fForested, y = resid))+
+  geom_boxplot()+
+  theme_bw()+
+  theme(aspect.ratio = 1)
+```
+
+### Check spatial dependence  
+地理的空間上に残差を図示してもパターンがあるかはわかりにくい。  
+```{r, fig.cap = "Residuals plotted versus spatial position. The width of a point is proportional to the (absolute) value of a residual. Filled circles are positive residuals and open circles are negative residuals. It would be useful to add the contour lines of the Irish borders."}  
+
+iph %>% 
+  mutate(resid = resid) %>% 
+  ggplot(aes(x = Easting, y = Northing))+
+  geom_point(shape = 21,
+             aes(fill = resid >= 0,
+                 size = abs(resid)))+
+  scale_fill_manual(values = c("white","black"))+
+  theme_bw()+
+  theme(aspect.ratio = 1)
+```
+<br/>  
+
+そこで、**バリオグラム**を作成する。  
+
+バリオグラムではまず、データ間の距離がある特定の範囲内にあるデータのペアを抽出する。例えば、図\@ref(fig:variogram2-1)は10kmずつに区切った範囲内にある2つのデータをつないだものである。そのうえで、ある距離範囲カテゴリ(e.g., 10km < dist < 20km)において各データペアの残差の差の二乗を平均したものを算出する。これを全距離範囲カテゴリについて行い、それを図示したものをバリオグラムという。なお、<u>各範囲カテゴリには、少なくとも100ペアくらいはあった方がよい</u>。         
+
+```{r variogram2-1, fig.cap = "Each panel shows c ombinations of any two sampling locations with distances of certain threshold values."}
+crossing(ID1 = iph$ID,
+         ID2 = iph$ID) %>% 
+  left_join(iph %>% select(ID,Easting, Northing),
+            by = c("ID1" = "ID")) %>% 
+  rename(Easting1 = Easting,
+         Northing1 = Northing) %>% 
+  left_join(iph %>% select(ID,Easting, Northing),
+            by = c("ID2" = "ID")) %>% 
+  rename(Easting2 = Easting,
+         Northing2 = Northing) %>% 
+  filter(ID1 != ID2) %>% 
+  mutate(dist = sqrt((Easting1 - Easting2)^2 + (Northing1 - Northing2)^2)/1000) %>% 
+  mutate(cat = ifelse(dist < 10, "Distances < 10 km",
+                      ifelse(dist < 20, "10 km < Distances < 20 km",
+                             ifelse(dist < 30, "20 km < Distances < 30 km",
+                                    ifelse(dist < 40, "30 km < Distances < 40 km", "NA"))))) %>% 
+  mutate(cat2 = ifelse(dist < 40, 1,
+                       ifelse(dist < 30, 2,
+                              ifelse(dist < 20, 3,
+                                     ifelse(dist < 10, 4, "NA"))))) %>% 
+  filter(cat != "NA") %>% 
+  mutate(cat = fct_relevel(cat, "Distances < 10 km")) %>% 
+  ggplot()+
+  geom_segment(aes(x = Easting1, xend = Easting2, y = Northing1, yend = Northing2),
+               data = . %>% filter(cat2 == "1"))+
+  geom_segment(aes(x = Easting1, xend = Easting2, y = Northing1, yend = Northing2),
+               data = . %>% filter(cat2 == "2"))+
+  geom_segment(aes(x = Easting1, xend = Easting2, y = Northing1, yend = Northing2),
+               data = . %>% filter(cat2 == "3"))+
+  geom_segment(aes(x = Easting1, xend = Easting2, y = Northing1, yend = Northing2),
+               data = . %>% filter(cat2 == "4"))+
+  facet_rep_wrap(~cat,
+                 repeat.tick.labels = TRUE)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "Easting", y = "Northing")
+```
+<br/>  
+
+もしデータに空間的な相関がないのであれば、距離の範囲カテゴリに関わらずデータペアの残差の差の平均は一定になるはずである(= バリオグラムはx軸と平行になる)。一方で、例えば空間的に近いデータほど似た残差をとるのであれば、近い距離範囲カテゴリではデータペアの残差の差の平均が小さくなる。  
+
+Rでは以下のように実行できる。`cressie = TRUE`とすることで推定がより頑強になり、外れ値の影響を小さくすることができる。`np`は各距離範囲カテゴリのデータ数を、`dist`はそれぞれの距離カテゴリーにおけるデータ間の平均距離、`gamma`は計算されたバリオグラムの値を表す。明らかにプロットは一定の値をとっておらず、強い空間相関があることが予想される。  
+
+```{r}
+vario_2_3 <- data.frame(resid = rstandard(m2_3),
+                        Easting.km = iph$Easting/1000,
+                        Northing.km = iph$Northing/1000)
+
+sp::coordinates(vario_2_3) <- c("Easting.km", "Northing.km")
+
+vario_2_3 %>% 
+  variogram(resid ~ 1, data = .,
+            cressie = TRUE,
+            ## 距離が150km以下のデータのみ使用
+            cutoff = 150,
+            ## 各距離範囲カテゴリの範囲
+            width = 10) %>% 
+  ggplot(aes(x = dist, y = gamma))+
+  geom_point(aes(size = np))+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "semivariogram")
+```
+<br/>  
+
+南北方向と東西方向の距離を分けて調べることもできる。特に東西方向では明確にバリオグラムが水平ではなく、空間的な独立性がないことが分かる。  
+```{r}
+vario_2_3 %>% 
+  variogram(resid ~ Easting.km + Northing.km, data = .,
+            ## 0が南北方向、90が東西方向
+            alpha = c(0, 90),
+            cressie = TRUE,
+            cutoff = 150,
+            width = 10) %>% 
+  ggplot(aes(x = dist, y = gamma))+
+  geom_point(aes(size = np))+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  facet_rep_wrap(~ dir.hor,
+                 labeller = as_labeller(c("0" = "North-South",
+                                          "90" = "East-West")))+
+  labs(y = "semivariogram")
+```
+
+## GAM applied to temporal data  
+### Subnivium temperature data  
+本節では、 @Petty2015 のデータを用いる。この論文では雪下と地面の間の環境(subnivium)の温度を調べている。積雪量が温度に与える影響を、米ウィスコンシン州の3か所の3つの異なる環境(tall grass prailies, deciduous, coniferous)で検討している。  
+
+2013年12月から2014年3月における、日ごとの平均温度が記録されている。各環境に4つずつデータロガーが置かれている。そのため、$3 \times 4 = 12$個の時系列データがある。    
+
+```{r}
+sn <- read_csv("data/Snow.csv") %>% 
+  mutate(date = as_datetime(str_c(Year,Month, Day, sep = "-"))) %>% 
+  mutate(date_num = as.numeric((date - min(date))/(3600*24)) + 1)
+
+datatable(sn,
+          options = list(scrollX = 20),
+          filter = "top")
+```
+<br/>  
+
+論文に倣い、2013年12月5日から2014年3月3日までのデータを用いる(`4 <= date_num <= 92`)。  
+```{r}
+sn2 <- sn %>% 
+  filter(date_num >= 4 & date_num <= 92)
+```
+
+各環境における温度の変化は以下の通り。  
+```{r}
+sn2 %>% 
+  ggplot(aes(x = date_num, y = Temp))+
+  geom_line(aes(linetype = Logger))+
+  facet_rep_wrap(~Type)+
+  theme_bw()+
+  theme(aspect.ratio = 1.2)
+```
+
+### Sources of dependency  
+同じ環境のロガーはそれぞれ10mしか離れていないので、同じ日におけるこれらのロガーのデータは独立ではない。また、同じロガーのデータについても、時間的な相関があると考えられる(t-1日目の温度とt日目の温度が独立とは考えにくい)。各環境間は距離が離れているので、独立性があると仮定してよさそう。  
+
+以下では、こうした非独立性を考慮せずに分析をした場合にどのような問題がが生じるかを見ていく。  
+
+### The model  
+以下のGAMMを適用する。ロガーIDをランダム切片として入れている。環境ごとにsmootherを推定する。$t$は経過日数(`date_num`)、$i$はロガーのidを表す。       
+
+$$
+\begin{aligned}
+T_{it} &\sim N(\mu_t, \sigma^2)\\
+\mu_{it} &= \alpha + f_j(date\_num_t) + Type_i + a_i\\
+a_i &\sim N(0, \sigma_{Logger}^2)
+\end{aligned}
+$$
+
+Rでは以下のように実行する。  
+```{r}
+m2_4 <- gamm(Temp ~ s(date_num, by = Type) + Type,
+             random = list(Logger =~ 1),
+             data = sn2 %>% mutate(Type = as.factor(Type)))
+```
+
+結果は以下の通り。  
+```{r}
+summary(m2_4$gam)
+```
+
+```{r}
+summary(m2_4$lme)
+```
+
+### Model validation  
+ロガーごとの標準化残差を時系列的に図示したのが下図である。ここからパターンを読み取るのは難しい。  
+```{r}
+sn2 %>% 
+  mutate(resid = resid(m2_4$lme, type = "n")) %>% 
+  ggplot(aes(x = date_num, y = resid))+
+  geom_point()+
+  geom_smooth(color = "grey23")+
+  facet_rep_wrap(~Logger,
+                 scales = "free_y")
+```
+<br/>  
+
+時系列相関があるかを調べるためには、自己相関関数(acf)を描くことが有効である。自己相関関数は、k時点前のデータとの相関をkの関数としてあらわしたものである。  
+
+以下で、ロガーごとに時系列相関を算出する。  
+```{r}
+sn2 %>% 
+  mutate(resid = resid(m2_4$lme, type = "n")) %>% 
+  group_by(Logger) %>% 
+  arrange(date_num, .by_group = TRUE) -> sn3
+
+Loggerid <- unique(sn3$Logger)
+all.out <- NULL
+
+for(i in seq_along(Loggerid)){
+  data <- sn3 %>% filter(Logger == Loggerid[i])
+  
+  ## 各ロガーについて時系列相関を算出  
+  out.acf <- acf(data$resid, 
+                 lag.max = 15,
+                 plot = FALSE)
+  
+  ## 出力をデータフレームに
+  out.df <- data.frame(Timelag = out.acf$lag,
+                       Acf = out.acf$acf,
+                       SE = qnorm(0.975)/sqrt(out.acf$n.used),
+                       ID = Loggerid[i])
+  
+  ## 全て結合  
+  all.out <- bind_rows(all.out, out.df)
+}
+```
+
+図示したのが下図である。グレーの塗りつぶしは95%信頼区間を表している。図から、全てのロガーにおいて1時点前のデータとの相関が高いことが示唆される。これは、残差に時系列相関があることを示しており、これを考慮したモデルを作成する必要性を示唆している。  
+
+```{r}
+all.out %>% 
+  ggplot(aes(x = Timelag, y = 0))+
+  geom_segment(aes(xend = Timelag, yend = Acf))+
+  geom_ribbon(aes(ymax = SE, ymin = -SE),
+              alpha = 0.3)+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  facet_rep_wrap(~ID, repeat.tick.labels = TRUE)+
+  labs(y = "Auto-correlation")
+```
+<br />  
+
+acfの代わりにバリオグラムを用いることもできる。これは、時間間隔が一定でない場合などに有効である。これについては後でもう一度触れる。  
+
+## GLMM applied on hierarchical and spatial data  
