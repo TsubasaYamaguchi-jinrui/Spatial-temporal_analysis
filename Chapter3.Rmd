@@ -1,0 +1,368 @@
+# Time series and GLS    
+本章では、時系列データに対して用いることができる回帰モデルについて解説する。  
+
+## Ospreys  
+@Steidl1991 は、ミサゴの卵の厚さが殺虫剤の崩壊産物(DDD)によって変わるかを調べ、有意な関連を見つけた。本節ではこのデータを用いる。  
+
+```{r}
+osp <- read_csv("data/Ospreys.csv")
+
+datatable(osp,
+          options = list(scrollX = 20),
+          filter = "top")
+```
+
+## Covariance and correlation coefficients  
+DDDと卵の殻の厚さの関連は以下の通り。  
+```{r}
+osp %>% 
+  ggplot(aes(x = DDD, y = THICK))+
+  geom_point(shape = 1, size = 2)+
+  theme_bw()+
+  theme(aspect.ratio=1)
+```
+<br/>  
+
+相関係数は-0.42である。  
+```{r}
+cor(osp$THICK, osp$DDD)
+```
+
+## Linear regression models  
+以下のモデルを考える。  
+
+$$
+\begin{aligned}
+Thichness_i &= \beta_1 + \beta_2 \times DDD_i + \epsilon_i \\
+\epsilon_i &\sim N(0, \sigma^2)
+\end{aligned}
+$$
+
+Rでは以下のように実行する。  
+```{r}
+m3_1 <- lm(THICK ~ DDD, data = osp)
+```
+
+## Focusing on the residual covariance matrix  
+
+残差$\epsilon_i$は行列式で以下のように書ける。なお、$\bf{I}$は単位行列である。  
+$$
+\bf{\epsilon} \sim N(0, \bf{\sigma^2} \times \mathbf{I})
+$$
+
+より一般的に、残差$\epsilon_i$は以下のように書ける。$\bf{\Sigma}$は**分散共分散行列**と呼ばれる。    
+$$
+\bf{\epsilon} \sim N(0, \bf{\Sigma})
+$$
+
+通常の線形回帰モデルでは、$\bf{\Sigma}$は以下のようになる。ここで、$sigma^2$に単位行列を書けるということは、残差間が独立であることを仮定していることになる。例えば、1行2列目は$\epsilon_1$と$\epsilon_2$の共分散を表すが、単位行列ではこれが0になる。同様に、単位行列は対角成分以外が全て0になるので、異なる残差同士の共分散が全て0になると仮定していることになる。     
+$$
+\bf{\Sigma} = \sigma^2 \times \mathbf{I}
+$$
+
+より一般的には、分散共分散行列$\bf{\Sigma}$は以下のように書ける。これは対称行列である。$\phi_{i,j}$は$\epsilon_i$と$\epsilon_j$の共分散である。通常の回帰分析ではこれらが全て0と仮定された。共分散が０以外の値をとる場合、異なる残差は独立ではなくなる。      
+
+$$
+\bf{\Sigma} =
+\begin{pmatrix}
+\sigma^2 & \phi_{1,2} & \phi_{1,3} & \phi_{1,4} & \cdots &\phi_{1,25} \\
+ & \sigma^2 & \phi_{2,3} & \phi_{2,4} & \cdots& \phi_{2,25}\\
+ & & \sigma^2 & \phi_{3,4} & \cdots & \phi_{3,25} \\
+ & & & \sigma^2 & \ddots & \vdots \\
+ & & & & \sigma^2 & \phi_{24,25}\\
+ & & & & & \sigma^2
+\end{pmatrix}
+(\#eq:covmatrix)
+$$
+
+## Dependency and the covariance matrix  
+ここで、回帰モデルにおける分散共分散行列の役割について理解するためにシミュレーションを行う。変数$z_1$と$z_2$が以下に従って1000個ずつ得られるとする。  
+
+$$
+\begin{aligned}
+z_1 &\sim N(10,1)\\
+z_2 &\sim N(15,1)
+\end{aligned}
+$$  
+
+Rでは以下のように得る。  
+
+```{r}
+set.seed(1234)
+z1 <- rnorm(1000, 10, 1)
+z2 <- rnorm(1000, 15, 1)
+```
+
+`MASS`パッケージの`mvrnorm`関数を用い、多変量正規分布から同様に値を行列として得ることもできる。  
+```{r}
+sigma <- diag(2)
+Z <- mvrnorm(1000,
+             mu = c(10, 15),
+             Sigma = sigma) %>% 
+  data.frame() %>% 
+  rename(z1 = 1, z2 = 2)
+```
+
+```{r}
+datatable(Z)
+```
+
+このとき、$z_1$と$z_2$は行列を用いると以下のように多変量正規分布から得られていると書くことができる。これは、平均がそれぞれ10と15で、分散共分散行列$\bf{\Sigma}$が単位行列の多変量正規分布から値が得られたことを示す。  
+$$
+\begin{pmatrix}
+z_1 \\
+z_2
+\end{pmatrix} = 
+
+N \Bigl( 
+\begin{pmatrix}
+10 \\
+15
+\end{pmatrix},
+\begin{pmatrix}
+1 & 0 \\
+0 & 1 \\
+\end{pmatrix}
+
+\Bigl)
+$$
+
+得られたデータをプロ通して分かるように、分散共分散行列が単位行列であり、$z_1$と$z_2$の間の共分散はゼロとなっているため、これらに相関が全くないことが分かる。  
+```{r}
+Z %>% 
+  ggplot(aes(x = z1, y = z2))+
+  geom_point(shape = 1, size = 2)+
+  theme_bw()+
+  theme(aspect.ratio = 1)
+```
+<br/>  
+
+今度は、$z_1$と$z_2$が正の相関を持つような場合を考える。このようなときは、以下のように$\bf{\Sigma}$の$\phi$成分を0でなく正の値にしてやればよい(ここでは0.9)。分散を1にしているので、この値はそのまま相関係数になる。    
+
+```{r}
+sigma <- diag(2)  
+sigma[1,2] <- 0.9
+sigma[2,1] <- 0.9
+
+sigma
+```
+
+実際に得られた値をプロットしても、$z_1$と$z_2$が強い相関を持つことが分かる。このように、$\bf{Sigma}$の非対角成分に0以外の値を割り当てることで、多変量正規分布から得られる値が非独立であることを表現できる。     
+```{r}
+Z <- mvrnorm(1000,
+             mu = c(10, 15),
+             Sigma = sigma) %>% 
+  data.frame() %>% 
+  rename(z1 = 1, z2 = 2)
+
+Z %>% 
+  ggplot(aes(x = z1, y = z2))+
+  geom_point(shape = 1, size = 2)+
+  theme_bw()+
+  theme(aspect.ratio = 1)
+```
+
+## Dealing with temporal dependency  
+同様に、時系列データに対しても、残差の分散共分散行列の非対角成分$\phi_{i,j}$を0以外の値にすることで、データの非独立性に対処することができる。そのような方法の一つがGLS(Generalized least square)と呼ばれる方法である。  
+
+### Adelie penguins  
+ここでは、 @Barbraud2006 が南極の海鳥が到着する日と産卵日について調査したデータを用いる。ここでは、特に産卵日について着目する。  
+
+データは以下の通り。各年について1つのデータがある。
+```{r}
+bird <- read_csv("data/Phenology_Data_Antarcticbirds_AFZ1.csv")
+
+datatable(bird,
+          options = list(scrollX = 20),
+          filter = "top")
+```
+<br/>  
+
+分析では、海氷面積によって産卵日に違いが出るかを調べる。海氷面積の直接的なデータはないので、その近似として海中のメタルスルホン酸(`MSA`: 海氷が多いと多くなる)を用いる。  
+
+産卵日の年変動と、MSAと産卵日の関係は以下のようになる。  
+```{r}
+bird %>% 
+  ggplot(aes(x = Year, y = LayingAP))+
+  geom_line()+
+  geom_point()+
+  theme_bw()+
+  theme(aspect.ratio = 0.7)+
+  labs(y = "Laying date") -> p1
+
+bird %>% 
+  ggplot(aes(x = MSA, y = LayingAP))+
+  geom_point(shape = 1, size = 2)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Laying date") -> p2
+
+p1 + p2
+```
+
+### Do we have dependency?  
+産卵日に影響する様々な要因(成熟したメスの数、病気の流行、ホルモンレベル)などは年ごとに独立ではなく、t年のデータがt+1年のデータに影響を及ぼしていると考えられる。よって、各年の産卵日は独立ではないと考えられる。  
+
+### Formulation of the linear regression model  
+まずは時系列を考慮しない通常の線形回帰モデルを適用する。モデル式は以下の通り。  
+
+$$
+\begin{aligned}
+LD_t &= \beta_1 + \beta_2 \times MSA_t + \epsilon_t \\
+\epsilon_t &\sim N(0,\sigma^2)
+\end{aligned}
+$$
+
+### Application of the linear regression model  
+Rでは以下のように実行する。ここでは、`nlme`パッケージの`gls`関数を用いる(もちろん、`lm`関数でも実行できる)。    
+
+```{r}
+m3_2a <- gls(LayingAP ~ MSA,
+            data = bird,
+            na.action = na.omit)
+```
+
+結果は以下の通り。MSAの効果は弱いことが分かる。  
+```{r}
+summary(m3_2a)
+```
+
+モデルの標準化残差と予測値、MSAとの関連をプロットしたのが以下の図である。数字は観察年の下２桁を表す。明確なパターンは見当たらない。しかし、よく見てみると観察年が近いと似た残差をとる傾向があるように思える。例えば、60年代のデータは全て残差が負の値になっている。  
+```{r}
+data.frame(resid = resid(m3_2a, type = "n"),
+           Year = bird %>% drop_na(LayingAP, MSA) %>% .$Year,
+           fitted = predict(m3_2a),
+           MSA = bird %>% drop_na(LayingAP, MSA) %>% .$Year) %>% 
+  mutate(Year2 = str_sub(Year, 3,4)) -> fitted_m3_2a
+  
+fitted_m3_2a %>% 
+  ggplot(aes(x = fitted, y = resid))+
+  geom_point(shape = 1, size = 2)+
+  geom_text_repel(aes(label = Year2))+
+  geom_hline(yintercept = 0, linetype = "dashed")+
+  theme_bw(base_size = 14)+
+  theme(aspect.ratio = 1) -> p1
+
+fitted_m3_2a %>% 
+  ggplot(aes(x = MSA, y = resid))+
+  geom_point(shape = 1, size = 2)+
+  geom_text_repel(aes(label = Year2))+
+  geom_hline(yintercept = 0, linetype = "dashed")+
+  theme_bw(base_size = 14)+
+  theme(aspect.ratio = 1) -> p2
+
+p1 + p2
+```
+
+自己相関関数をプロットしてみると、あまり明確にはわからないが有意に自己相関が高いところがあることが分かる。  
+```{r}
+resid <- rep(NA, nrow(bird))
+i <- !is.na(bird$LayingAP) & !is.na(bird$MSA)
+resid[i] <- resid(m3_2a, type = "n")
+
+acf <- acf(resid,
+           lag.max = 20,
+           na.action = na.pass,
+           plot = FALSE) 
+
+data.frame(lag = 0:20,
+           acf = acf$acf,
+           SE = qnorm(0.975)/sqrt(acf$n.used)) %>% 
+  ggplot(aes(x = lag, y = 0))+
+  geom_segment(aes(xend = lag, yend = acf))+
+  geom_hline(aes(yintercept = -SE),
+              linetype = "dashed",
+             color = "navy")+
+  geom_hline(aes(yintercept = SE),
+              linetype = "dashed",
+             color = "navy")+
+  theme_bw()+
+  labs(y = "acf")+
+  theme(aspect.ratio = 1)+
+  scale_x_continuous(breaks = seq(0,20,1))
+```
+<br/>  
+
+欠損値が多いので、バリオグラムで見た方が適切かもしれない。バリオグラムは以下のようになる。バリオグラムは水平にならず、やはり残差に時間的な相関があることが示唆される。  
+```{r}
+vario_3_2a <- data.frame(resid = resid,
+                         Year = bird$Year,
+                         zero = 0) %>% 
+  drop_na()
+
+sp::coordinates(vario_3_2a) <- c("Year", "zero")
+
+vario_3_2a %>% 
+  variogram(resid ~ 1, data = .,
+            cutoff = 9,
+            width = 1) %>% 
+  ggplot(aes(x = dist, y = gamma))+
+  geom_line()+
+  geom_point(size = 3,
+             shape = 21,
+             fill = "black",
+             color = "white",
+             stroke = 2)+
+  theme_bw(base_size = 14)+
+  theme(aspect.ratio = 1)+
+  labs(y = "semivariogram", x = "Time lag")+
+  coord_cartesian(ylim = c(0,1.4))+
+  scale_x_continuous(breaks = seq(1,9,1))+
+  scale_y_continuous(breaks = seq(0,1.4,0.2))
+```
+<br/>  
+
+こうした時系列相関が問題になりうるかを判断するためには、時系列相関を考慮したモデルを作成し、それを考慮しないモデルと比較する必要がある。  
+
+### Formulation of the GLS model  
+通常の回帰モデルでは異なる残差同士が独立(相関が0)なので、以下のように書くことができる。  
+
+$$
+\begin{aligned}
+LD_t &= \beta_1 + \beta_2 \times MSA_t + \epsilon_t \\
+\epsilon_t &\sim N(0,\sigma^2)\\
+cor(\epsilon_t, \epsilon_s) &= 
+\begin{cases}
+0 \; \bf{if} \;t \neq s \\
+1 \; \bf{if} \;t = s
+\end{cases}
+\end{aligned}
+$$
+
+これまでに見てきたように、時系列相関を考慮するためには異なる残差同士の相関が0でないと仮定すればよい。これは、以下のように書ける。なお、$h()$は残差同士の相関を決める関数で$\phi$はその関数におけるパラメータである。    
+$$
+\begin{aligned}
+LD_t &= \beta_1 + \beta_2 \times MSA_t + \epsilon_t \\
+\epsilon_t &\sim N(0,\sigma^2)\\
+cor(\epsilon_t, \epsilon_s) &= h(\phi, \epsilon_t, \epsilon_s)
+\end{aligned}
+$$
+
+時系列相関を考慮したモデルでは、この$h()$に様々な関数を想定することで、データの非独立性に対応する。最も一般的なものは、AR1と呼ばれるもので、以下のように書ける。なお、$\phi$は0から1の値をとる。    
+
+$$
+\begin{aligned}
+\epsilon_t &= \phi \times \epsilon_{t-1} + \nu_t \\
+\nu_t &\sim N(0, \sigma_\nu^2)
+\end{aligned}
+$$
+
+関数$h()$は以下のように書ける。このとき、残差は**定常性**を持つといわれる。これは、残差の共分散は時間差のみに依存しているということである。  
+$$
+h(\phi, \epsilon_t, \epsilon_s) = \phi^{|t-s|}
+$$
+
+AR1で残差の分散共分散行列$\bf{\Sigma}$は以下のように書ける。行列中のパラメータは$\phi$1つなので、これさえ推定できれば良い。
+
+$$
+\bf{\Sigma} = cov(\bf{\epsilon}) = \frac{\sigma_{\nu}^2}{1-\phi^2} \times 
+\begin{pmatrix}
+1 & \phi & \phi^2 & \phi^3 & \cdots & \phi^{54} \\
+\phi & 1 & \phi & \phi^2 & \ddots & \vdots\\
+\phi^2 & \phi & \ddots & \ddots & \ddots & \phi^3 \\
+\phi^3 & \phi^2 & \ddots & \ddots & \ddots & \phi^2 \\
+\vdots & \ddots & \ddots & \phi & 1 & \phi \\
+\phi^{54} & \cdots & \phi^2 & \phi^2 & \phi & 1
+
+\end{pmatrix}
+$$

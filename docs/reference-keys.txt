@@ -1,6 +1,7 @@
 fig:unnamed-chunk-14
 fig:variogram2-1
-chapter2.-recognizing-statistical-dependency
+eq:covmatrix
+recognizing-statistical-dependency
 linear-regression-applied-to-spatial-data
 visualization
 dependency
@@ -13,4 +14,15 @@ subnivium-temperature-data
 sources-of-dependency
 the-model
 model-validation-1
-glmm-applied-on-hierarchical-and-spatial-data
+time-series-and-gls
+ospreys
+covariance-and-correlation-coefficients
+linear-regression-models
+focusing-on-the-residual-covariance-matrix
+dependency-and-the-covariance-matrix
+dealing-with-temporal-dependency
+adelie-penguins
+do-we-have-dependency
+formulation-of-the-linear-regression-model
+application-of-the-linear-regression-model
+formulation-of-the-gls-model

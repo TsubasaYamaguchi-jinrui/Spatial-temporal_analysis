@@ -23,7 +23,7 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-04" />
+<meta name="date" content="2023-09-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -175,7 +175,7 @@ div.csl-indent {
 <ul class="summary">
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>本稿の目的</a></li>
 <li class="chapter" data-level="" data-path="Chapter0.html"><a href="Chapter0.html"><i class="fa fa-check"></i>0. パッケージの読み込み</a></li>
-<li class="chapter" data-level="1" data-path="Chapter2.html"><a href="Chapter2.html"><i class="fa fa-check"></i><b>1</b> Chapter2. Recognizing statistical dependency</a>
+<li class="chapter" data-level="1" data-path="Chapter2.html"><a href="Chapter2.html"><i class="fa fa-check"></i><b>1</b> Recognizing statistical dependency</a>
 <ul>
 <li class="chapter" data-level="1.1" data-path="Chapter2.html"><a href="Chapter2.html#linear-regression-applied-to-spatial-data"><i class="fa fa-check"></i><b>1.1</b> Linear regression applied to spatial data</a>
 <ul>
@@ -195,7 +195,22 @@ div.csl-indent {
 <li class="chapter" data-level="1.2.3" data-path="Chapter2.html"><a href="Chapter2.html#the-model"><i class="fa fa-check"></i><b>1.2.3</b> The model</a></li>
 <li class="chapter" data-level="1.2.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation-1"><i class="fa fa-check"></i><b>1.2.4</b> Model validation</a></li>
 </ul></li>
-<li class="chapter" data-level="1.3" data-path="Chapter2.html"><a href="Chapter2.html#glmm-applied-on-hierarchical-and-spatial-data"><i class="fa fa-check"></i><b>1.3</b> GLMM applied on hierarchical and spatial data</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="Chapter3.html"><a href="Chapter3.html"><i class="fa fa-check"></i><b>2</b> Time series and GLS</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="Chapter3.html"><a href="Chapter3.html#ospreys"><i class="fa fa-check"></i><b>2.1</b> Ospreys</a></li>
+<li class="chapter" data-level="2.2" data-path="Chapter3.html"><a href="Chapter3.html#covariance-and-correlation-coefficients"><i class="fa fa-check"></i><b>2.2</b> Covariance and correlation coefficients</a></li>
+<li class="chapter" data-level="2.3" data-path="Chapter3.html"><a href="Chapter3.html#linear-regression-models"><i class="fa fa-check"></i><b>2.3</b> Linear regression models</a></li>
+<li class="chapter" data-level="2.4" data-path="Chapter3.html"><a href="Chapter3.html#focusing-on-the-residual-covariance-matrix"><i class="fa fa-check"></i><b>2.4</b> Focusing on the residual covariance matrix</a></li>
+<li class="chapter" data-level="2.5" data-path="Chapter3.html"><a href="Chapter3.html#dependency-and-the-covariance-matrix"><i class="fa fa-check"></i><b>2.5</b> Dependency and the covariance matrix</a></li>
+<li class="chapter" data-level="2.6" data-path="Chapter3.html"><a href="Chapter3.html#dealing-with-temporal-dependency"><i class="fa fa-check"></i><b>2.6</b> Dealing with temporal dependency</a>
+<ul>
+<li class="chapter" data-level="2.6.1" data-path="Chapter3.html"><a href="Chapter3.html#adelie-penguins"><i class="fa fa-check"></i><b>2.6.1</b> Adelie penguins</a></li>
+<li class="chapter" data-level="2.6.2" data-path="Chapter3.html"><a href="Chapter3.html#do-we-have-dependency"><i class="fa fa-check"></i><b>2.6.2</b> Do we have dependency?</a></li>
+<li class="chapter" data-level="2.6.3" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.3</b> Formulation of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.4" data-path="Chapter3.html"><a href="Chapter3.html#application-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.4</b> Application of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.5" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-gls-model"><i class="fa fa-check"></i><b>2.6.5</b> Formulation of the GLS model</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -229,42 +244,45 @@ div.csl-indent {
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="Chapter0.html#cb1-1" tabindex="-1"></a><span class="do">## GAM</span></span>
 <span id="cb1-2"><a href="Chapter0.html#cb1-2" tabindex="-1"></a><span class="fu">library</span>(mgcv)</span>
 <span id="cb1-3"><a href="Chapter0.html#cb1-3" tabindex="-1"></a><span class="fu">library</span>(gamm4)</span>
-<span id="cb1-4"><a href="Chapter0.html#cb1-4" tabindex="-1"></a><span class="fu">library</span>(gamlss)</span>
-<span id="cb1-5"><a href="Chapter0.html#cb1-5" tabindex="-1"></a><span class="fu">library</span>(gratia)</span>
-<span id="cb1-6"><a href="Chapter0.html#cb1-6" tabindex="-1"></a><span class="fu">library</span>(gstat)</span>
-<span id="cb1-7"><a href="Chapter0.html#cb1-7" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
-<span id="cb1-8"><a href="Chapter0.html#cb1-8" tabindex="-1"></a><span class="fu">library</span>(brms)</span>
-<span id="cb1-9"><a href="Chapter0.html#cb1-9" tabindex="-1"></a><span class="fu">library</span>(rstan)</span>
-<span id="cb1-10"><a href="Chapter0.html#cb1-10" tabindex="-1"></a><span class="fu">library</span>(cmdstanr)</span>
-<span id="cb1-11"><a href="Chapter0.html#cb1-11" tabindex="-1"></a><span class="fu">library</span>(DHARMa)</span>
-<span id="cb1-12"><a href="Chapter0.html#cb1-12" tabindex="-1"></a><span class="fu">library</span>(DHARMa.helpers)</span>
-<span id="cb1-13"><a href="Chapter0.html#cb1-13" tabindex="-1"></a><span class="fu">library</span>(ggeffects)</span>
-<span id="cb1-14"><a href="Chapter0.html#cb1-14" tabindex="-1"></a><span class="do">## データハンドリング</span></span>
-<span id="cb1-15"><a href="Chapter0.html#cb1-15" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-16"><a href="Chapter0.html#cb1-16" tabindex="-1"></a><span class="fu">library</span>(easystats)</span>
-<span id="cb1-17"><a href="Chapter0.html#cb1-17" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
-<span id="cb1-18"><a href="Chapter0.html#cb1-18" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
-<span id="cb1-19"><a href="Chapter0.html#cb1-19" tabindex="-1"></a><span class="do">## グラフや表関連</span></span>
-<span id="cb1-20"><a href="Chapter0.html#cb1-20" tabindex="-1"></a><span class="fu">library</span>(sp)</span>
-<span id="cb1-21"><a href="Chapter0.html#cb1-21" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
-<span id="cb1-22"><a href="Chapter0.html#cb1-22" tabindex="-1"></a><span class="fu">library</span>(htmlwidgets)</span>
-<span id="cb1-23"><a href="Chapter0.html#cb1-23" tabindex="-1"></a><span class="fu">library</span>(ggnewscale)</span>
-<span id="cb1-24"><a href="Chapter0.html#cb1-24" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
-<span id="cb1-25"><a href="Chapter0.html#cb1-25" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb1-26"><a href="Chapter0.html#cb1-26" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
-<span id="cb1-27"><a href="Chapter0.html#cb1-27" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
-<span id="cb1-28"><a href="Chapter0.html#cb1-28" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
-<span id="cb1-29"><a href="Chapter0.html#cb1-29" tabindex="-1"></a><span class="fu">library</span>(dagitty)</span>
-<span id="cb1-30"><a href="Chapter0.html#cb1-30" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span>
-<span id="cb1-31"><a href="Chapter0.html#cb1-31" tabindex="-1"></a><span class="fu">library</span>(ggforce)</span>
-<span id="cb1-32"><a href="Chapter0.html#cb1-32" tabindex="-1"></a><span class="fu">library</span>(concaveman)</span>
-<span id="cb1-33"><a href="Chapter0.html#cb1-33" tabindex="-1"></a><span class="fu">library</span>(ggsci)</span>
-<span id="cb1-34"><a href="Chapter0.html#cb1-34" tabindex="-1"></a><span class="fu">library</span>(lemon)</span>
-<span id="cb1-35"><a href="Chapter0.html#cb1-35" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
-<span id="cb1-36"><a href="Chapter0.html#cb1-36" tabindex="-1"></a><span class="do">## フォント関連</span></span>
-<span id="cb1-37"><a href="Chapter0.html#cb1-37" tabindex="-1"></a><span class="fu">library</span>(extrafont)</span>
-<span id="cb1-38"><a href="Chapter0.html#cb1-38" tabindex="-1"></a><span class="fu">require</span>(systemfonts)</span>
-<span id="cb1-39"><a href="Chapter0.html#cb1-39" tabindex="-1"></a><span class="fu">require</span>(fontregisterer)</span></code></pre></div>
+<span id="cb1-4"><a href="Chapter0.html#cb1-4" tabindex="-1"></a><span class="fu">library</span>(nlme)</span>
+<span id="cb1-5"><a href="Chapter0.html#cb1-5" tabindex="-1"></a><span class="fu">library</span>(gamlss)</span>
+<span id="cb1-6"><a href="Chapter0.html#cb1-6" tabindex="-1"></a><span class="fu">library</span>(gratia)</span>
+<span id="cb1-7"><a href="Chapter0.html#cb1-7" tabindex="-1"></a><span class="fu">library</span>(gstat)</span>
+<span id="cb1-8"><a href="Chapter0.html#cb1-8" tabindex="-1"></a><span class="fu">library</span>(MASS)</span>
+<span id="cb1-9"><a href="Chapter0.html#cb1-9" tabindex="-1"></a><span class="fu">library</span>(brms)</span>
+<span id="cb1-10"><a href="Chapter0.html#cb1-10" tabindex="-1"></a><span class="fu">library</span>(rstan)</span>
+<span id="cb1-11"><a href="Chapter0.html#cb1-11" tabindex="-1"></a><span class="fu">library</span>(cmdstanr)</span>
+<span id="cb1-12"><a href="Chapter0.html#cb1-12" tabindex="-1"></a><span class="fu">library</span>(DHARMa)</span>
+<span id="cb1-13"><a href="Chapter0.html#cb1-13" tabindex="-1"></a><span class="fu">library</span>(DHARMa.helpers)</span>
+<span id="cb1-14"><a href="Chapter0.html#cb1-14" tabindex="-1"></a><span class="fu">library</span>(ggeffects)</span>
+<span id="cb1-15"><a href="Chapter0.html#cb1-15" tabindex="-1"></a><span class="do">## データハンドリング</span></span>
+<span id="cb1-16"><a href="Chapter0.html#cb1-16" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-17"><a href="Chapter0.html#cb1-17" tabindex="-1"></a><span class="fu">library</span>(easystats)</span>
+<span id="cb1-18"><a href="Chapter0.html#cb1-18" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-19"><a href="Chapter0.html#cb1-19" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb1-20"><a href="Chapter0.html#cb1-20" tabindex="-1"></a><span class="do">## グラフや表関連</span></span>
+<span id="cb1-21"><a href="Chapter0.html#cb1-21" tabindex="-1"></a><span class="fu">library</span>(geoR)</span>
+<span id="cb1-22"><a href="Chapter0.html#cb1-22" tabindex="-1"></a><span class="fu">library</span>(sp)</span>
+<span id="cb1-23"><a href="Chapter0.html#cb1-23" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb1-24"><a href="Chapter0.html#cb1-24" tabindex="-1"></a><span class="fu">library</span>(htmlwidgets)</span>
+<span id="cb1-25"><a href="Chapter0.html#cb1-25" tabindex="-1"></a><span class="fu">library</span>(ggnewscale)</span>
+<span id="cb1-26"><a href="Chapter0.html#cb1-26" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
+<span id="cb1-27"><a href="Chapter0.html#cb1-27" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
+<span id="cb1-28"><a href="Chapter0.html#cb1-28" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-29"><a href="Chapter0.html#cb1-29" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
+<span id="cb1-30"><a href="Chapter0.html#cb1-30" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-31"><a href="Chapter0.html#cb1-31" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-32"><a href="Chapter0.html#cb1-32" tabindex="-1"></a><span class="fu">library</span>(dagitty)</span>
+<span id="cb1-33"><a href="Chapter0.html#cb1-33" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span>
+<span id="cb1-34"><a href="Chapter0.html#cb1-34" tabindex="-1"></a><span class="fu">library</span>(ggforce)</span>
+<span id="cb1-35"><a href="Chapter0.html#cb1-35" tabindex="-1"></a><span class="fu">library</span>(concaveman)</span>
+<span id="cb1-36"><a href="Chapter0.html#cb1-36" tabindex="-1"></a><span class="fu">library</span>(ggsci)</span>
+<span id="cb1-37"><a href="Chapter0.html#cb1-37" tabindex="-1"></a><span class="fu">library</span>(lemon)</span>
+<span id="cb1-38"><a href="Chapter0.html#cb1-38" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
+<span id="cb1-39"><a href="Chapter0.html#cb1-39" tabindex="-1"></a><span class="do">## フォント関連</span></span>
+<span id="cb1-40"><a href="Chapter0.html#cb1-40" tabindex="-1"></a><span class="fu">library</span>(extrafont)</span>
+<span id="cb1-41"><a href="Chapter0.html#cb1-41" tabindex="-1"></a><span class="fu">require</span>(systemfonts)</span>
+<span id="cb1-42"><a href="Chapter0.html#cb1-42" tabindex="-1"></a><span class="fu">require</span>(fontregisterer)</span></code></pre></div>
 
 </div>
             </section>

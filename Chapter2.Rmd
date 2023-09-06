@@ -1,4 +1,4 @@
-# Chapter2. Recognizing statistical dependency  
+# Recognizing statistical dependency  
 ## Linear regression applied to spatial data  
 本節では、@Cruikshanks2006 のデータを用いる。この研究では、アイルランドの257の川において、川の`pH`が`SDI`(Sodium Dominance Index; 陽イオン中のナトリウムイオン)と関連しているかを、緯度(`Altitude`)やその場所が森林化されているか(`Forested`)も考慮したうえで調べている。  
 
@@ -374,6 +374,5 @@ all.out %>%
 ```
 <br />  
 
-acfの代わりにバリオグラムを用いることもできる。これは、時間間隔が一定でない場合などに有効である。これについては後でもう一度触れる。  
+acfの代わりにバリオグラムを用いることもできる。これは、時間間隔が一定でない場合などに有効である。これについては後でもう一度触れる。
 
-## GLMM applied on hierarchical and spatial data  

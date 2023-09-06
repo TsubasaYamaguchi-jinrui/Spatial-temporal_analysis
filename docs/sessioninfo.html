@@ -23,14 +23,14 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-04" />
+<meta name="date" content="2023-09-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="Chapter2.html"/>
+<link rel="prev" href="Chapter3.html"/>
 
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
@@ -175,7 +175,7 @@ div.csl-indent {
 <ul class="summary">
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>本稿の目的</a></li>
 <li class="chapter" data-level="" data-path="Chapter0.html"><a href="Chapter0.html"><i class="fa fa-check"></i>0. パッケージの読み込み</a></li>
-<li class="chapter" data-level="1" data-path="Chapter2.html"><a href="Chapter2.html"><i class="fa fa-check"></i><b>1</b> Chapter2. Recognizing statistical dependency</a>
+<li class="chapter" data-level="1" data-path="Chapter2.html"><a href="Chapter2.html"><i class="fa fa-check"></i><b>1</b> Recognizing statistical dependency</a>
 <ul>
 <li class="chapter" data-level="1.1" data-path="Chapter2.html"><a href="Chapter2.html#linear-regression-applied-to-spatial-data"><i class="fa fa-check"></i><b>1.1</b> Linear regression applied to spatial data</a>
 <ul>
@@ -195,7 +195,22 @@ div.csl-indent {
 <li class="chapter" data-level="1.2.3" data-path="Chapter2.html"><a href="Chapter2.html#the-model"><i class="fa fa-check"></i><b>1.2.3</b> The model</a></li>
 <li class="chapter" data-level="1.2.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation-1"><i class="fa fa-check"></i><b>1.2.4</b> Model validation</a></li>
 </ul></li>
-<li class="chapter" data-level="1.3" data-path="Chapter2.html"><a href="Chapter2.html#glmm-applied-on-hierarchical-and-spatial-data"><i class="fa fa-check"></i><b>1.3</b> GLMM applied on hierarchical and spatial data</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="Chapter3.html"><a href="Chapter3.html"><i class="fa fa-check"></i><b>2</b> Time series and GLS</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="Chapter3.html"><a href="Chapter3.html#ospreys"><i class="fa fa-check"></i><b>2.1</b> Ospreys</a></li>
+<li class="chapter" data-level="2.2" data-path="Chapter3.html"><a href="Chapter3.html#covariance-and-correlation-coefficients"><i class="fa fa-check"></i><b>2.2</b> Covariance and correlation coefficients</a></li>
+<li class="chapter" data-level="2.3" data-path="Chapter3.html"><a href="Chapter3.html#linear-regression-models"><i class="fa fa-check"></i><b>2.3</b> Linear regression models</a></li>
+<li class="chapter" data-level="2.4" data-path="Chapter3.html"><a href="Chapter3.html#focusing-on-the-residual-covariance-matrix"><i class="fa fa-check"></i><b>2.4</b> Focusing on the residual covariance matrix</a></li>
+<li class="chapter" data-level="2.5" data-path="Chapter3.html"><a href="Chapter3.html#dependency-and-the-covariance-matrix"><i class="fa fa-check"></i><b>2.5</b> Dependency and the covariance matrix</a></li>
+<li class="chapter" data-level="2.6" data-path="Chapter3.html"><a href="Chapter3.html#dealing-with-temporal-dependency"><i class="fa fa-check"></i><b>2.6</b> Dealing with temporal dependency</a>
+<ul>
+<li class="chapter" data-level="2.6.1" data-path="Chapter3.html"><a href="Chapter3.html#adelie-penguins"><i class="fa fa-check"></i><b>2.6.1</b> Adelie penguins</a></li>
+<li class="chapter" data-level="2.6.2" data-path="Chapter3.html"><a href="Chapter3.html#do-we-have-dependency"><i class="fa fa-check"></i><b>2.6.2</b> Do we have dependency?</a></li>
+<li class="chapter" data-level="2.6.3" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.3</b> Formulation of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.4" data-path="Chapter3.html"><a href="Chapter3.html#application-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.4</b> Application of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.5" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-gls-model"><i class="fa fa-check"></i><b>2.6.5</b> Formulation of the GLS model</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -217,7 +232,7 @@ div.csl-indent {
             <section class="normal" id="section-">
 <div id="実行環境" class="section level1 unnumbered hasAnchor">
 <h1>実行環境<a href="sessioninfo.html#実行環境" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="sessioninfo.html#cb31-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="sessioninfo.html#cb51-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 4.2.2 (2022-10-31 ucrt)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
 ## Running under: Windows 10 x64 (build 22621)
@@ -241,85 +256,93 @@ div.csl-indent {
 ##  [9] ggdag_0.2.7               dagitty_0.3-1            
 ## [11] kableExtra_1.3.4          knitr_1.43               
 ## [13] DT_0.27                   patchwork_1.1.2          
-## [15] GGally_2.1.2              ggnewscale_0.4.9         
-## [17] htmlwidgets_1.6.2         plotly_4.10.1            
-## [19] sp_1.5-1                  lubridate_1.9.0          
-## [21] timechange_0.1.1          data.table_1.14.6        
-## [23] see_0.7.5.5               report_0.5.7.4           
-## [25] parameters_0.20.3         performance_0.10.3       
-## [27] modelbased_0.8.6.3        insight_0.19.1.4         
-## [29] effectsize_0.8.3.6        datawizard_0.7.1.1       
-## [31] correlation_0.8.4         bayestestR_0.13.1        
-## [33] easystats_0.6.0.8         forcats_1.0.0            
-## [35] stringr_1.5.0             dplyr_1.1.2              
-## [37] purrr_1.0.0               readr_2.1.3              
-## [39] tidyr_1.2.1               tibble_3.2.1             
-## [41] ggplot2_3.4.2             tidyverse_1.3.2          
-## [43] ggeffects_1.1.4           DHARMa.helpers_0.0.0.9000
-## [45] DHARMa_0.4.6              cmdstanr_0.5.3           
-## [47] rstan_2.26.13             StanHeaders_2.26.13      
-## [49] brms_2.18.0               Rcpp_1.0.11              
-## [51] gstat_2.1-1               gratia_0.8.1.34          
-## [53] gamlss_5.4-12             gamlss.dist_6.0-5        
-## [55] MASS_7.3-58.1             gamlss.data_6.0-2        
-## [57] gamm4_0.2-6               lme4_1.1-34              
-## [59] Matrix_1.5-1              mgcv_1.8-41              
-## [61] nlme_3.1-160             
+## [15] ggrepel_0.9.2             GGally_2.1.2             
+## [17] ggnewscale_0.4.9          htmlwidgets_1.6.2        
+## [19] plotly_4.10.1             sp_1.5-1                 
+## [21] geoR_1.9-2                lubridate_1.9.0          
+## [23] timechange_0.1.1          data.table_1.14.6        
+## [25] see_0.7.5.5               report_0.5.7.4           
+## [27] parameters_0.20.3         performance_0.10.3       
+## [29] modelbased_0.8.6.3        insight_0.19.1.4         
+## [31] effectsize_0.8.3.6        datawizard_0.7.1.1       
+## [33] correlation_0.8.4         bayestestR_0.13.1        
+## [35] easystats_0.6.0.8         forcats_1.0.0            
+## [37] stringr_1.5.0             dplyr_1.1.2              
+## [39] purrr_1.0.0               readr_2.1.3              
+## [41] tidyr_1.2.1               tibble_3.2.1             
+## [43] ggplot2_3.4.2             tidyverse_1.3.2          
+## [45] ggeffects_1.1.4           DHARMa.helpers_0.0.0.9000
+## [47] DHARMa_0.4.6              cmdstanr_0.5.3           
+## [49] rstan_2.26.13             StanHeaders_2.26.13      
+## [51] brms_2.18.0               Rcpp_1.0.11              
+## [53] gstat_2.1-1               gratia_0.8.1.34          
+## [55] gamlss_5.4-12             gamlss.dist_6.0-5        
+## [57] MASS_7.3-58.1             gamlss.data_6.0-2        
+## [59] gamm4_0.2-6               lme4_1.1-34              
+## [61] Matrix_1.5-1              mgcv_1.8-41              
+## [63] nlme_3.1-160             
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] utf8_1.2.2           tidyselect_1.2.0     grid_4.2.2          
-##   [4] munsell_0.5.0        codetools_0.2-18     miniUI_0.1.1.1      
-##   [7] withr_2.5.0          Brobdingnag_1.2-9    colorspace_2.0-3    
-##  [10] highr_0.10           rstudioapi_0.15.0    stats4_4.2.2        
-##  [13] Rttf2pt1_1.3.8       bayesplot_1.10.0     labeling_0.4.2      
-##  [16] emmeans_1.8.3        polyclip_1.10-4      bit64_4.0.5         
-##  [19] farver_2.1.1         bridgesampling_1.1-2 coda_0.19-4         
-##  [22] vctrs_0.6.2          generics_0.1.3       xfun_0.39           
-##  [25] R6_2.5.1             markdown_1.7         reshape_0.8.9       
-##  [28] cachem_1.0.6         assertthat_0.2.1     vroom_1.6.0         
-##  [31] promises_1.2.0.1     scales_1.2.1         googlesheets4_1.0.1 
-##  [34] gtable_0.3.3         processx_3.8.0       ggokabeito_0.1.0    
-##  [37] tidygraph_1.2.2      rlang_1.1.1          extrafontdb_1.0     
-##  [40] lazyeval_0.2.2       gargle_1.2.1         broom_1.0.2         
-##  [43] checkmate_2.1.0      inline_0.3.19        yaml_2.3.7          
-##  [46] reshape2_1.4.4       abind_1.4-5          modelr_0.1.10       
-##  [49] threejs_0.3.3        crosstalk_1.2.0      backports_1.4.1     
-##  [52] httpuv_1.6.7         tensorA_0.36.2       tools_4.2.2         
-##  [55] bookdown_0.34        ellipsis_0.3.2       RColorBrewer_1.1-3  
-##  [58] jquerylib_0.1.4      posterior_1.3.1      plyr_1.8.8          
-##  [61] progress_1.2.2       base64enc_0.1-3      ps_1.7.2            
-##  [64] prettyunits_1.1.1    zoo_1.8-11           haven_2.5.1         
-##  [67] fs_1.5.2             magrittr_2.0.3       magick_2.7.4        
-##  [70] spacetime_1.3-0      colourpicker_1.2.0   reprex_2.0.2        
-##  [73] mvnfast_0.2.8        googledrive_2.0.0    mvtnorm_1.1-3       
-##  [76] matrixStats_0.63.0   hms_1.1.3            shinyjs_2.1.0       
-##  [79] mime_0.12            evaluate_0.21        xtable_1.8-4        
-##  [82] shinystan_2.6.0      readxl_1.4.1         gridExtra_2.3       
-##  [85] rstantools_2.2.0     compiler_4.2.2       V8_4.2.2            
-##  [88] crayon_1.5.2         minqa_1.2.5          htmltools_0.5.4     
-##  [91] later_1.3.0          tzdb_0.3.0           RcppParallel_5.1.6  
-##  [94] DBI_1.1.3            tweenr_2.0.2         dbplyr_2.2.1        
-##  [97] boot_1.3-28          cli_3.6.0            igraph_1.3.5        
-## [100] pkgconfig_2.0.3      xml2_1.3.5           svglite_2.1.1       
-## [103] dygraphs_1.1.1.6     bslib_0.4.2          webshot_0.5.4       
-## [106] estimability_1.4.1   rvest_1.0.3          distributional_0.3.2
-## [109] callr_3.7.3          digest_0.6.31        rmarkdown_2.23      
-## [112] cellranger_1.1.0     intervals_0.15.4     curl_4.3.3          
-## [115] shiny_1.7.4          gtools_3.9.4         nloptr_2.0.3        
-## [118] lifecycle_1.0.3      jsonlite_1.8.4       viridisLite_0.4.2   
-## [121] fansi_1.0.3          pillar_1.9.0         lattice_0.20-45     
-## [124] loo_2.5.1            fastmap_1.1.0        httr_1.4.4          
-## [127] pkgbuild_1.4.0       survival_3.5-5       glue_1.6.2          
-## [130] xts_0.12.2           FNN_1.1.3.2          shinythemes_1.2.0   
-## [133] bit_4.0.5            stringi_1.7.8        sass_0.4.5</code></pre>
+##   [1] estimability_1.4.1   spacetime_1.3-0      coda_0.19-4         
+##   [4] intervals_0.15.4     bit64_4.0.5          dygraphs_1.1.1.6    
+##   [7] inline_0.3.19        generics_0.1.3       callr_3.7.3         
+##  [10] mvnfast_0.2.8        bit_4.0.5            tzdb_0.3.0          
+##  [13] webshot_0.5.4        xml2_1.3.5           httpuv_1.6.7        
+##  [16] assertthat_0.2.1     gargle_1.2.1         xfun_0.39           
+##  [19] hms_1.1.3            jquerylib_0.1.4      bayesplot_1.10.0    
+##  [22] evaluate_0.21        promises_1.2.0.1     fansi_1.0.3         
+##  [25] progress_1.2.2       dbplyr_2.2.1         readxl_1.4.1        
+##  [28] igraph_1.3.5         DBI_1.1.3            reshape_0.8.9       
+##  [31] tensorA_0.36.2       googledrive_2.0.0    stats4_4.2.2        
+##  [34] ellipsis_0.3.2       crosstalk_1.2.0      backports_1.4.1     
+##  [37] V8_4.2.2             bookdown_0.34        markdown_1.7        
+##  [40] RcppParallel_5.1.6   vctrs_0.6.2          abind_1.4-5         
+##  [43] cachem_1.0.6         withr_2.5.0          checkmate_2.1.0     
+##  [46] vroom_1.6.0          emmeans_1.8.3        xts_0.12.2          
+##  [49] prettyunits_1.1.1    svglite_2.1.1        splancs_2.01-44     
+##  [52] lazyeval_0.2.2       crayon_1.5.2         pkgconfig_2.0.3     
+##  [55] labeling_0.4.2       tweenr_2.0.2         rlang_1.1.1         
+##  [58] lifecycle_1.0.3      miniUI_0.1.1.1       colourpicker_1.2.0  
+##  [61] extrafontdb_1.0      modelr_0.1.10        cellranger_1.1.0    
+##  [64] distributional_0.3.2 tcltk_4.2.2          polyclip_1.10-4     
+##  [67] matrixStats_0.63.0   loo_2.5.1            boot_1.3-28         
+##  [70] zoo_1.8-11           reprex_2.0.2         base64enc_0.1-3     
+##  [73] processx_3.8.0       googlesheets4_1.0.1  viridisLite_0.4.2   
+##  [76] shinystan_2.6.0      scales_1.2.1         magrittr_2.0.3      
+##  [79] plyr_1.8.8           threejs_0.3.3        compiler_4.2.2      
+##  [82] rstantools_2.2.0     RColorBrewer_1.1-3   cli_3.6.0           
+##  [85] ps_1.7.2             Brobdingnag_1.2-9    tidyselect_1.2.0    
+##  [88] stringi_1.7.8        highr_0.10           yaml_2.3.7          
+##  [91] bridgesampling_1.1-2 grid_4.2.2           sass_0.4.5          
+##  [94] tools_4.2.2          rstudioapi_0.15.0    gridExtra_2.3       
+##  [97] posterior_1.3.1      farver_2.1.1         digest_0.6.31       
+## [100] FNN_1.1.3.2          shiny_1.7.4          broom_1.0.2         
+## [103] later_1.3.0          httr_1.4.4           colorspace_2.0-3    
+## [106] rvest_1.0.3          fs_1.5.2             shinythemes_1.2.0   
+## [109] xtable_1.8-4         jsonlite_1.8.4       nloptr_2.0.3        
+## [112] tidygraph_1.2.2      R6_2.5.1             pillar_1.9.0        
+## [115] htmltools_0.5.4      mime_0.12            glue_1.6.2          
+## [118] fastmap_1.1.0        minqa_1.2.5          codetools_0.2-18    
+## [121] ggokabeito_0.1.0     pkgbuild_1.4.0       mvtnorm_1.1-3       
+## [124] utf8_1.2.2           lattice_0.20-45      bslib_0.4.2         
+## [127] curl_4.3.3           gtools_3.9.4         magick_2.7.4        
+## [130] shinyjs_2.1.0        Rttf2pt1_1.3.8       survival_3.5-5      
+## [133] rmarkdown_2.23       munsell_0.5.0        haven_2.5.1         
+## [136] reshape2_1.4.4       gtable_0.3.3</code></pre>
 <p><strong>References</strong></p>
 
 <div id="refs" class="references csl-bib-body hanging-indent">
+<div class="csl-entry">
+Barbraud C, Weimerskirch H (2006) Antarctic birds breed later in response to climate change. Proc Natl Acad Sci U S A 103:6248–6251
+</div>
 <div class="csl-entry">
 Cruikshanks R, Lauridsen R, Harrison A, et al (2006) Evaluation of the use of the sodium dominance index as a potential measure of acid sensitivity
 </div>
 <div class="csl-entry">
 Petty SK, Zuckerberg B, Pauli JN (2015) Winter conditions and land cover structure the subnivium, a seasonal refuge beneath the snow. PLoS One 10:e0127613
+</div>
+<div class="csl-entry">
+Steidl RJ, Griffin CR, Niles LJ (1991) Contaminant levels of osprey eggs and prey reflect regional differences in reproductive success. J Wildl Manage 55:601–608
 </div>
 </div>
 </div>
@@ -328,7 +351,7 @@ Petty SK, Zuckerberg B, Pauli JN (2015) Winter conditions and land cover structu
           </div>
         </div>
       </div>
-<a href="Chapter2.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="Chapter3.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 
     </div>
   </div>

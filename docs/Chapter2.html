@@ -4,18 +4,18 @@
 
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>1 Chapter2. Recognizing statistical dependency | Introduction to spatial-temporal data anlysis using R</title>
-  <meta name="description" content="1 Chapter2. Recognizing statistical dependency | Introduction to spatial-temporal data anlysis using R" />
+  <title>1 Recognizing statistical dependency | Introduction to spatial-temporal data anlysis using R</title>
+  <meta name="description" content="1 Recognizing statistical dependency | Introduction to spatial-temporal data anlysis using R" />
   <meta name="generator" content="bookdown 0.34 and GitBook 2.6.7" />
 
-  <meta property="og:title" content="1 Chapter2. Recognizing statistical dependency | Introduction to spatial-temporal data anlysis using R" />
+  <meta property="og:title" content="1 Recognizing statistical dependency | Introduction to spatial-temporal data anlysis using R" />
   <meta property="og:type" content="book" />
   
   
   
 
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="1 Chapter2. Recognizing statistical dependency | Introduction to spatial-temporal data anlysis using R" />
+  <meta name="twitter:title" content="1 Recognizing statistical dependency | Introduction to spatial-temporal data anlysis using R" />
   
   
   
@@ -23,7 +23,7 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-04" />
+<meta name="date" content="2023-09-06" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="Chapter0.html"/>
-<link rel="next" href="sessioninfo.html"/>
+<link rel="next" href="Chapter3.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -175,7 +175,7 @@ div.csl-indent {
 <ul class="summary">
 <li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>本稿の目的</a></li>
 <li class="chapter" data-level="" data-path="Chapter0.html"><a href="Chapter0.html"><i class="fa fa-check"></i>0. パッケージの読み込み</a></li>
-<li class="chapter" data-level="1" data-path="Chapter2.html"><a href="Chapter2.html"><i class="fa fa-check"></i><b>1</b> Chapter2. Recognizing statistical dependency</a>
+<li class="chapter" data-level="1" data-path="Chapter2.html"><a href="Chapter2.html"><i class="fa fa-check"></i><b>1</b> Recognizing statistical dependency</a>
 <ul>
 <li class="chapter" data-level="1.1" data-path="Chapter2.html"><a href="Chapter2.html#linear-regression-applied-to-spatial-data"><i class="fa fa-check"></i><b>1.1</b> Linear regression applied to spatial data</a>
 <ul>
@@ -195,7 +195,22 @@ div.csl-indent {
 <li class="chapter" data-level="1.2.3" data-path="Chapter2.html"><a href="Chapter2.html#the-model"><i class="fa fa-check"></i><b>1.2.3</b> The model</a></li>
 <li class="chapter" data-level="1.2.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation-1"><i class="fa fa-check"></i><b>1.2.4</b> Model validation</a></li>
 </ul></li>
-<li class="chapter" data-level="1.3" data-path="Chapter2.html"><a href="Chapter2.html#glmm-applied-on-hierarchical-and-spatial-data"><i class="fa fa-check"></i><b>1.3</b> GLMM applied on hierarchical and spatial data</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="Chapter3.html"><a href="Chapter3.html"><i class="fa fa-check"></i><b>2</b> Time series and GLS</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="Chapter3.html"><a href="Chapter3.html#ospreys"><i class="fa fa-check"></i><b>2.1</b> Ospreys</a></li>
+<li class="chapter" data-level="2.2" data-path="Chapter3.html"><a href="Chapter3.html#covariance-and-correlation-coefficients"><i class="fa fa-check"></i><b>2.2</b> Covariance and correlation coefficients</a></li>
+<li class="chapter" data-level="2.3" data-path="Chapter3.html"><a href="Chapter3.html#linear-regression-models"><i class="fa fa-check"></i><b>2.3</b> Linear regression models</a></li>
+<li class="chapter" data-level="2.4" data-path="Chapter3.html"><a href="Chapter3.html#focusing-on-the-residual-covariance-matrix"><i class="fa fa-check"></i><b>2.4</b> Focusing on the residual covariance matrix</a></li>
+<li class="chapter" data-level="2.5" data-path="Chapter3.html"><a href="Chapter3.html#dependency-and-the-covariance-matrix"><i class="fa fa-check"></i><b>2.5</b> Dependency and the covariance matrix</a></li>
+<li class="chapter" data-level="2.6" data-path="Chapter3.html"><a href="Chapter3.html#dealing-with-temporal-dependency"><i class="fa fa-check"></i><b>2.6</b> Dealing with temporal dependency</a>
+<ul>
+<li class="chapter" data-level="2.6.1" data-path="Chapter3.html"><a href="Chapter3.html#adelie-penguins"><i class="fa fa-check"></i><b>2.6.1</b> Adelie penguins</a></li>
+<li class="chapter" data-level="2.6.2" data-path="Chapter3.html"><a href="Chapter3.html#do-we-have-dependency"><i class="fa fa-check"></i><b>2.6.2</b> Do we have dependency?</a></li>
+<li class="chapter" data-level="2.6.3" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.3</b> Formulation of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.4" data-path="Chapter3.html"><a href="Chapter3.html#application-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.4</b> Application of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.5" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-gls-model"><i class="fa fa-check"></i><b>2.6.5</b> Formulation of the GLS model</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -215,8 +230,8 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="chapter2.-recognizing-statistical-dependency" class="section level1 hasAnchor" number="1">
-<h1><span class="header-section-number">1</span> Chapter2. Recognizing statistical dependency<a href="Chapter2.html#chapter2.-recognizing-statistical-dependency" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="recognizing-statistical-dependency" class="section level1 hasAnchor" number="1">
+<h1><span class="header-section-number">1</span> Recognizing statistical dependency<a href="Chapter2.html#recognizing-statistical-dependency" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <div id="linear-regression-applied-to-spatial-data" class="section level2 hasAnchor" number="1.1">
 <h2><span class="header-section-number">1.1</span> Linear regression applied to spatial data<a href="Chapter2.html#linear-regression-applied-to-spatial-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>本節では、<span class="citation">Cruikshanks et al. (<a href="#ref-Cruikshanks2006">2006</a>)</span> のデータを用いる。この研究では、アイルランドの257の川において、川の<code>pH</code>が<code>SDI</code>(Sodium Dominance Index; 陽イオン中のナトリウムイオン)と関連しているかを、緯度(<code>Altitude</code>)やその場所が森林化されているか(<code>Forested</code>)も考慮したうえで調べている。</p>
@@ -247,7 +262,7 @@ div.csl-indent {
 <span id="cb3-11"><a href="Chapter2.html#cb3-11" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
 <span id="cb3-12"><a href="Chapter2.html#cb3-12" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
 <span id="cb3-13"><a href="Chapter2.html#cb3-13" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Covariates&quot;</span>)</span></code></pre></div>
-<p><img src="Introduction-to-GAM-using-R_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="dependency" class="section level3 hasAnchor" number="1.1.2">
 <h3><span class="header-section-number">1.1.2</span> Dependency<a href="Chapter2.html#dependency" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -284,7 +299,7 @@ pH_i &amp;\sim N(0,\sigma^2)\\
 <span id="cb5-21"><a href="Chapter2.html#cb5-21" tabindex="-1"></a>             <span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
 <span id="cb5-22"><a href="Chapter2.html#cb5-22" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
 <span id="cb5-23"><a href="Chapter2.html#cb5-23" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)</span></code></pre></div>
-<p><img src="Introduction-to-GAM-using-R_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="fit-the-model" class="section level3 hasAnchor" number="1.1.3">
 <h3><span class="header-section-number">1.1.3</span> Fit the model<a href="Chapter2.html#fit-the-model" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -383,7 +398,7 @@ pH_i &amp;\sim N(0,\sigma^2)\\
 <span id="cb13-8"><a href="Chapter2.html#cb13-8" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
 <span id="cb13-9"><a href="Chapter2.html#cb13-9" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>,</span>
 <span id="cb13-10"><a href="Chapter2.html#cb13-10" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>) </span></code></pre></div>
-<p><img src="Introduction-to-GAM-using-R_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="Chapter2.html#cb14-1" tabindex="-1"></a>iph <span class="sc">%&gt;%</span> </span>
 <span id="cb14-2"><a href="Chapter2.html#cb14-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">resid =</span> resid) <span class="sc">%&gt;%</span> </span>
 <span id="cb14-3"><a href="Chapter2.html#cb14-3" tabindex="-1"></a>  <span class="fu">select</span>(resid, SDI,  logAltitude) <span class="sc">%&gt;%</span> </span>
@@ -399,7 +414,7 @@ pH_i &amp;\sim N(0,\sigma^2)\\
 <span id="cb14-13"><a href="Chapter2.html#cb14-13" tabindex="-1"></a>                 <span class="at">scales =</span> <span class="st">&quot;free&quot;</span>)<span class="sc">+</span></span>
 <span id="cb14-14"><a href="Chapter2.html#cb14-14" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
 <span id="cb14-15"><a href="Chapter2.html#cb14-15" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;&quot;</span>) </span></code></pre></div>
-<p><img src="Introduction-to-GAM-using-R_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="Chapter2.html#cb15-1" tabindex="-1"></a>iph <span class="sc">%&gt;%</span> </span>
 <span id="cb15-2"><a href="Chapter2.html#cb15-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">resid =</span> resid) <span class="sc">%&gt;%</span> </span>
 <span id="cb15-3"><a href="Chapter2.html#cb15-3" tabindex="-1"></a>  <span class="fu">select</span>(resid, fForested) <span class="sc">%&gt;%</span> </span>
@@ -407,7 +422,7 @@ pH_i &amp;\sim N(0,\sigma^2)\\
 <span id="cb15-5"><a href="Chapter2.html#cb15-5" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>()<span class="sc">+</span></span>
 <span id="cb15-6"><a href="Chapter2.html#cb15-6" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
 <span id="cb15-7"><a href="Chapter2.html#cb15-7" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)</span></code></pre></div>
-<p><img src="Introduction-to-GAM-using-R_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="check-spatial-dependence" class="section level3 hasAnchor" number="1.1.5">
@@ -423,7 +438,7 @@ pH_i &amp;\sim N(0,\sigma^2)\\
 <span id="cb16-8"><a href="Chapter2.html#cb16-8" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
 <span id="cb16-9"><a href="Chapter2.html#cb16-9" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:unnamed-chunk-14"></span>
-<img src="Introduction-to-GAM-using-R_files/figure-html/unnamed-chunk-14-1.png" alt="Residuals plotted versus spatial position. The width of a point is proportional to the (absolute) value of a residual. Filled circles are positive residuals and open circles are negative residuals. It would be useful to add the contour lines of the Irish borders." width="672" />
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-14-1.png" alt="Residuals plotted versus spatial position. The width of a point is proportional to the (absolute) value of a residual. Filled circles are positive residuals and open circles are negative residuals. It would be useful to add the contour lines of the Irish borders." width="672" />
 <p class="caption">
 図1.1: Residuals plotted versus spatial position. The width of a point is proportional to the (absolute) value of a residual. Filled circles are positive residuals and open circles are negative residuals. It would be useful to add the contour lines of the Irish borders.
 </p>
@@ -468,7 +483,7 @@ pH_i &amp;\sim N(0,\sigma^2)\\
 <span id="cb17-35"><a href="Chapter2.html#cb17-35" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
 <span id="cb17-36"><a href="Chapter2.html#cb17-36" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Easting&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Northing&quot;</span>)</span></code></pre></div>
 <div class="figure" style="text-align: center"><span style="display:block;" id="fig:variogram2-1"></span>
-<img src="Introduction-to-GAM-using-R_files/figure-html/variogram2-1-1.png" alt="Each panel shows c ombinations of any two sampling locations with distances of certain threshold values." width="672" />
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/variogram2-1-1.png" alt="Each panel shows c ombinations of any two sampling locations with distances of certain threshold values." width="672" />
 <p class="caption">
 図1.2: Each panel shows c ombinations of any two sampling locations with distances of certain threshold values.
 </p>
@@ -494,7 +509,7 @@ pH_i &amp;\sim N(0,\sigma^2)\\
 <span id="cb18-16"><a href="Chapter2.html#cb18-16" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
 <span id="cb18-17"><a href="Chapter2.html#cb18-17" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
 <span id="cb18-18"><a href="Chapter2.html#cb18-18" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;semivariogram&quot;</span>)</span></code></pre></div>
-<p><img src="Introduction-to-GAM-using-R_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" />
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" />
 <br/></p>
 <p>南北方向と東西方向の距離を分けて調べることもできる。特に東西方向では明確にバリオグラムが水平ではなく、空間的な独立性がないことが分かる。</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="Chapter2.html#cb19-1" tabindex="-1"></a>vario_2_3 <span class="sc">%&gt;%</span> </span>
@@ -512,7 +527,7 @@ pH_i &amp;\sim N(0,\sigma^2)\\
 <span id="cb19-13"><a href="Chapter2.html#cb19-13" tabindex="-1"></a>                 <span class="at">labeller =</span> <span class="fu">as_labeller</span>(<span class="fu">c</span>(<span class="st">&quot;0&quot;</span> <span class="ot">=</span> <span class="st">&quot;North-South&quot;</span>,</span>
 <span id="cb19-14"><a href="Chapter2.html#cb19-14" tabindex="-1"></a>                                          <span class="st">&quot;90&quot;</span> <span class="ot">=</span> <span class="st">&quot;East-West&quot;</span>)))<span class="sc">+</span></span>
 <span id="cb19-15"><a href="Chapter2.html#cb19-15" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;semivariogram&quot;</span>)</span></code></pre></div>
-<p><img src="Introduction-to-GAM-using-R_files/figure-html/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 <div id="gam-applied-to-temporal-data" class="section level2 hasAnchor" number="1.2">
@@ -541,7 +556,7 @@ pH_i &amp;\sim N(0,\sigma^2)\\
 <span id="cb22-4"><a href="Chapter2.html#cb22-4" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>Type)<span class="sc">+</span></span>
 <span id="cb22-5"><a href="Chapter2.html#cb22-5" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
 <span id="cb22-6"><a href="Chapter2.html#cb22-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="fl">1.2</span>)</span></code></pre></div>
-<p><img src="Introduction-to-GAM-using-R_files/figure-html/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="sources-of-dependency" class="section level3 hasAnchor" number="1.2.2">
 <h3><span class="header-section-number">1.2.2</span> Sources of dependency<a href="Chapter2.html#sources-of-dependency" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -652,7 +667,7 @@ a_i &amp;\sim N(0, \sigma_{Logger}^2)
 <span id="cb28-5"><a href="Chapter2.html#cb28-5" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">color =</span> <span class="st">&quot;grey23&quot;</span>)<span class="sc">+</span></span>
 <span id="cb28-6"><a href="Chapter2.html#cb28-6" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>Logger,</span>
 <span id="cb28-7"><a href="Chapter2.html#cb28-7" tabindex="-1"></a>                 <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>)</span></code></pre></div>
-<p><img src="Introduction-to-GAM-using-R_files/figure-html/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto;" />
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto;" />
 <br/></p>
 <p>時系列相関があるかを調べるためには、自己相関関数(acf)を描くことが有効である。自己相関関数は、k時点前のデータとの相関をkの関数としてあらわしたものである。</p>
 <p>以下で、ロガーごとに時系列相関を算出する。</p>
@@ -691,14 +706,11 @@ a_i &amp;\sim N(0, \sigma_{Logger}^2)
 <span id="cb30-7"><a href="Chapter2.html#cb30-7" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="fl">0.8</span>)<span class="sc">+</span></span>
 <span id="cb30-8"><a href="Chapter2.html#cb30-8" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>ID, <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>)<span class="sc">+</span></span>
 <span id="cb30-9"><a href="Chapter2.html#cb30-9" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;Auto-correlation&quot;</span>)</span></code></pre></div>
-<p><img src="Introduction-to-GAM-using-R_files/figure-html/unnamed-chunk-25-1.png" width="672" style="display: block; margin: auto;" />
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-25-1.png" width="672" style="display: block; margin: auto;" />
 <br /></p>
 <p>acfの代わりにバリオグラムを用いることもできる。これは、時間間隔が一定でない場合などに有効である。これについては後でもう一度触れる。</p>
-</div>
-</div>
-<div id="glmm-applied-on-hierarchical-and-spatial-data" class="section level2 hasAnchor" number="1.3">
-<h2><span class="header-section-number">1.3</span> GLMM applied on hierarchical and spatial data<a href="Chapter2.html#glmm-applied-on-hierarchical-and-spatial-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 
+</div>
 </div>
 </div>
 <h3>References</h3>
@@ -716,7 +728,7 @@ Petty SK, Zuckerberg B, Pauli JN (2015) Winter conditions and land cover structu
         </div>
       </div>
 <a href="Chapter0.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="sessioninfo.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="Chapter3.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>
