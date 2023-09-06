@@ -338,7 +338,7 @@ cor(\epsilon_t, \epsilon_s) &= h(\phi, \epsilon_t, \epsilon_s)
 \end{aligned}
 $$
 
-時系列相関を考慮したモデルでは、この$h()$に様々な関数を想定することで、データの非独立性に対応する。最も一般的なものは、AR1と呼ばれるもので、以下のように書ける。なお、$\phi$は0から1の値をとる。    
+時系列相関を考慮したモデルでは、この$h()$に様々な関数を想定することで、データの非独立性に対応する。最も一般的なものは、AR1過程と呼ばれるもので、以下のように書ける。なお、$\phi$は0から1の値をとる。    
 
 $$
 \begin{aligned}
@@ -366,3 +366,40 @@ $$
 
 \end{pmatrix}
 $$
+
+相関行列は以下のように書ける。  
+$$
+cor(\bf{\epsilon}) = 
+\begin{pmatrix}
+1 & \phi & \phi^2 & \phi^3 & \cdots & \phi^{54} \\
+\phi & 1 & \phi & \phi^2 & \ddots & \vdots\\
+\phi^2 & \phi & \ddots & \ddots & \ddots & \phi^3 \\
+\phi^3 & \phi^2 & \ddots & \ddots & \ddots & \phi^2 \\
+\vdots & \ddots & \ddots & \phi & 1 & \phi \\
+\phi^{54} & \cdots & \phi^3 & \phi^2 & \phi & 1
+
+\end{pmatrix}
+$$
+
+AR1では、回帰係数の推定値とその分散共分散行列は以下のようになる。  
+$$
+\begin{aligned}
+\bf{\hat{\beta}} &= (\bf{X^t} \times \bf{\Sigma^{-1}} \times \bf{X})^{-1} \times \bf{X^t} \times \bf{\Sigma^{-1}} \times \bf{y}\\
+cov(\hat{\beta}) &= (\bf{X^t} \times \bf{\Sigma^{-1}} \times \bf{X})^{-1}
+\end{aligned}
+$$
+
+AR1過程モデルの代わりに、残差が他の相関構造をもつものを仮定することもできる。例えば、**交換可能**な相関を持つ場合、相関行列は以下のように書ける。これは、時間差に依らず全ての異なる残差が同じ相関$\phi$を持つことを仮定している。これは、短い時系列を持つデータに対しては有効である場合がある。    
+$$
+cor(\bf{\epsilon}) = 
+\begin{pmatrix}
+1 & \phi & \phi & \phi & \cdots & \phi \\
+\phi & 1 & \phi & \phi & \ddots & \vdots\\
+\phi & \phi & \ddots & \ddots & \ddots & \phi\\
+\phi & \phi & \ddots & \ddots & \ddots & \phi\\
+\vdots & \ddots & \ddots & \phi & 1 & \phi \\
+\phi & \cdots & \phi & \phi & \phi & 1
+
+\end{pmatrix}
+$$
+
