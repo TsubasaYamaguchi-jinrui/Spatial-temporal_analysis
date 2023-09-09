@@ -1,0 +1,50 @@
+# Modelling space explicitly  
+本章では、混合モデルのように残差ではなく応答変数に直接従属構造を仮定して空間的相関に対処する方法を見ていく。ただし、通常の混合モデルのランダム切片が正規分布からそれぞれ独立に得られると仮定する一方で、今回はランダム切片が空間的相関を持つことを仮定してモデリングを行う。こうしたモデルの実装を頻度論的な手法で行うことは難しいため、実際のモデリングは次章でベイズ統計について学んでから行う。    
+
+## Model formulation  
+ここでは、前章と同じくシュバシコウのデータ[@Bouriach2015]を用いて話を進める。  
+
+まず通常の線形回帰モデルから始めよう。巣IDや雛IDの効果について無視したとき、以下のように書ける。$i$はデータの番号を表し、全部で1438ある。      
+$$
+\begin{aligned}
+BL_i &= \alpha + Age_i \times \beta + \epsilon_i \\
+\epsilon_i &\sim N(0,\sigma^2)
+\end{aligned}
+$$
+
+このモデルは以下のようにも書ける。なお、$z_i = (1, Age_i)$である。1列目の1は切片を表している。$\bf{\beta} = \begin{pmatrix} \alpha\\ \beta \end{pmatrix}$である。    
+$$
+\begin{aligned}
+BL_i &= z_i \times \bf{\beta} + \epsilon_i\\
+\epsilon_i &\sim N(0,\sigma^2)
+\end{aligned}
+(\#eq:lm)
+$$
+
+式\@ref(eq:lm)は単純な線形回帰モデルであり、残差はそれぞれ正規分布から独立に得られると仮定されている。$\bf{\epsilon} = (\epsilon_1, \epsilon_2, \dots, \epsilon_{1438})$とするとき、$\bf{\epsilon} \sim N(0,\bf{\Sigma})$と書ける。なお、$\bf{\Sigma}$は$\bf{I}$を単位行列とするとき$\sigma^2 \times \bf{I}$と書ける。第\@ref(c3)で見たように、このとき$\bf{\Sigma}$は対角成分以外が0の行列なので、残差同士の相関は0であると仮定されている。  
+
+そこで、空間的な相関に対処するために式\@ref(eq:lm)に空間的相関を表す要素を付け足す。本書では、これを$u_i$と表す。  
+
+$$
+\begin{aligned}
+BL_i &= z_i \times \bf{\beta} + u_i + \epsilon_i\\
+epsilon_i &\sim N(0,\sigma^2)\\\
+\end{aligned}
+(\#eq:spatial)
+$$
+
+ここで、$u_i$は平均が0で、分散共分散行列が$\bf{\Omega}$に従う正規分布から得られると考える。ただし、$\bf{\Omega}$は通常のランダム切片のように対角行列(対角成分以外が0の行列)ではなく、空間相関を考慮している。  
+
+よって、このモデルは以下のように書ける。  
+
+$$
+\begin{aligned}
+BL_i &= z_i \times \bf{\beta} + u_i + \epsilon_i\\
+\bf{\epsilon} &\sim N(0,\sigma^2 \times \bf{I})\\
+\bf{u} &\sim N(0, \bf{\Omega})
+\end{aligned}
+(\#eq:spatial)
+$$
+
+## Covariance matrix of the spatial random effect  
+$\bf{\Omega}$の成分全てを推定するのは非常に難しい。今回のように1438個のデータがあるのであれば、$1438 \times 1437 \times 1/2 = 1033203$このパラメータを推定してければいけなくなる。

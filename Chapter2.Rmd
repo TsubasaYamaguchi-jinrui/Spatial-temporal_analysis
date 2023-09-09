@@ -1,5 +1,84 @@
 # Recognizing statistical dependency  
-## Linear regression applied to spatial data  
+## Pseudoreplication  
+### 疑似反復とは  
+**疑似反復(pseudoreplication)**とは、応答変数のデータが独立ではないにもかかわらず、統計解析にそのことが考慮されていないことを指す。多くの統計解析は全てのデータが独立であることを仮定しているので、**もし疑似反復が生じている状態で分析を行うと正しい結果が得られない**ことが多い。  
+
+疑似反復の典型的な例としては、同じ個体から複数のデータが得られている場合が挙げられる。例えば、ある治療薬の効果を調べる場合、各患者について治療前のデータと治療薬を飲んだ後のデータを収集する。もし100人分データを収集するとすれば200個のデータが集まるが、これらのデータが独立であると考えることはできない。なぜなら、同じ患者のデータはその患者特有の属性など(年齢、性別、あるいは観測できない要因など)によって他の患者のデータよりも類似している可能性が高くなるからである。**もし独立であると仮定して分析を行うと、実際よりもデータの標準誤差が小さく推定されてしまい、第一種の過誤を犯しやすくなってしまう**。  
+
+他にも、例えば10個の植木鉢にそれぞれ5個ずつ種子を植えて、その成長度合いを調べる場合を考えてみよう。このとき、合計50個のデータが得られるが、同じ植木鉢に植えられた種子のデータを独立であると考えることはできない。なぜなら、同じ植木鉢の種子はその植木鉢特有の属性(土中の栄養分、日照度合い、あるいは観測できない要因など)によって、他の植木鉢の種子のデータよりも類似している可能性が高くなるからである。  
+こうした疑似反復に対処するためのアプローチは、混合モデルと呼ばれるものを適用することである[@Zuur2013]。  
+
+### 時空間的な疑似反復  
+上記のような疑似反復の他にも、**時間的あるいは空間的な疑似反復**が生じることがある。例えば、あるニホンザルの群れで発情しているメスの数を毎日記録するとしよう。このとき、時間的に近い日のデータ同士はそうでないデータ同士よりも類似する確率が高い。なぜなら、ある日発情していたメスは、その次の日も発情している可能性が高いからである。 
+
+図\@ref(fig:no-est)は実際に宮城県金華山島で収集された発情メス数のデータである。実際に、近い日は類似した値をとることが多いことが分かる。このように、**時系列データは互いに独立していないことが多い**。こうした時間的な疑似相関を考慮せずに分析を行ってしまう(e.g., 毎日の発情メス数が気温によって変わるかを調べるなど)と、誤った結論を導いてしまいかねない。  
+
+```{r no-est, fig.dim = c(9,4), fig.cap = "2021年の金華山島B1群における各観察日の発情メス数"}
+daily_data <- read_csv("data/daily_data_2021.csv")
+
+daily_data %>% 
+  filter(duration >= 300) %>%
+  ggplot(aes(x = date))+
+  geom_line(aes(y = no_est))+ 
+  scale_x_date(date_breaks = "1 week")+
+  scale_y_continuous(breaks = seq(0,16,2))+
+  theme_bw(base_size=15)+
+  theme(axis.text.x = element_text(angle=30,
+                                   hjust=1),
+        axis.title.y = element_text(angle = 0,
+                                   vjust = 0.5),
+        aspect.ratio=0.5,
+        legend.position = c(0.2,0.9),
+        legend.text = element_text(size=10.5,
+                                   family = "Yu Mincho"),
+        axis.text = element_text(family = "Times New Roman"))+
+  labs(x = "",
+       y = "発\n情\nメ\nス\n数")+
+  guides(linetype = guide_legend(title=NULL))
+```
+<br/>  
+
+地理空間データについても同様のことがいえる。例えば、日本の各都道府県における納豆の消費量について分析するとする(データは[こちら](https://todo-ran.com/)から)。このとき、各都道府県のデータを独立と考えることはできない。なぜなら、地理的に近い都道府県は食文化や気候などが類似しており、納豆の消費量も類似している可能性が高くなるからである。  
+
+実際、地図上に納豆消費量を図示すると(図\@ref(fig:natto))、地理的に近い県は納豆の消費量も類似していることが分かる。このように、**空間的データについてもデータ同士に非独立性が生じやすい**。  
+
+```{r natto, fig.cap = "各都道府県の納豆消費量(円)"}
+natto <- read_csv("data/natto.csv")
+gyuniku <- read_csv("data/gyuniku.csv")
+shp <- system.file("shapes/jpn.shp", package = "NipponMap")[1]
+pref <- read_sf(shp) %>% 
+  rename(prefecture = name)
+
+natto %>% 
+  left_join(gyuniku) %>% 
+  left_join(pref) -> japan_data
+
+japan_data %>% 
+  filter(prefecture != "Okinawa") %>% 
+  ggplot()+
+  geom_sf(aes(geometry = geometry,
+              fill = natto))+
+  theme_void()+
+  theme(aspect.ratio = 1)+
+  scale_fill_gradient2(high = muted("blue"), low = muted("red"), mid = "white",
+                       midpoint = 3700)+
+  labs(fill = "納豆消費量(円)")
+```
+<br/>  
+
+こうした空間的な疑似反復を考慮せずに分析を行ってしまうと、誤った結論を導いてしまうことになる。例えば、各都道府県の納豆消費量と牛肉消費量が関連しているかを分析するとしよう。図\@ref(fig:natto-gyuniku)は両者の関連をプロットしたものであるが、プロットだけを見ると両社は強い負の相関を持つように見える(実際、相関係数は`r round(cor(japan_data$natto, japan_data$gyuniku),3)`。しかし、先ほど見たように各都道府県のデータは独立ではないので、空間的な非独立性を考慮した分析を行わなければいけない。空間的相関を考慮した分析を行うと、両者の関連はなくなる([こちら](https://norimune.net/3313)を参照)。  
+
+```{r natto-gyuniku, fig.cap = "各都道府県の納豆消費量と牛肉消費量"}
+japan_data %>% 
+  ggplot(aes(x = gyuniku, y = natto))+
+  geom_point(shape = 1, size = 2)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "納豆消費量(円)", x = "牛肉消費量(g)")
+```
+
+
+## Linear regression applied to spatial data {#s1-2}    
 本節では、@Cruikshanks2006 のデータを用いる。この研究では、アイルランドの257の川において、川の`pH`が`SDI`(Sodium Dominance Index; 陽イオン中のナトリウムイオン)と関連しているかを、緯度(`Altitude`)やその場所が森林化されているか(`Forested`)も考慮したうえで調べている。  
 
 ### Visualization  
@@ -79,7 +158,7 @@ ggpredict(m2_1,
 全部の交互作用を含むモデルを考える。  
 ```{r}
 iph %>% 
-  mutate(logAltitude = log(Altitude)) -> iph
+  mutate(logAltitude = log(Altitude,10)) -> iph
 
 m2_2 <- lm(pH ~ SDI*fForested*logAltitude,
            data = iph)
@@ -103,7 +182,8 @@ m2_3 <- lm(pH ~ SDI + logAltitude*fForested,
 
 ### Model validation  
 #### Check homogeinity and model misfit  
-標準化残差と予測値、各共変量の関係は問題ないよう。  
+標準化残差と予測値、各共変量の関係は特にパターンが見られず、問題ないよう。  
+
 ```{r}
 resid <- rstandard(m2_3)
 
@@ -207,9 +287,9 @@ crossing(ID1 = iph$ID,
 
 もしデータに空間的な相関がないのであれば、距離の範囲カテゴリに関わらずデータペアの残差の差の平均は一定になるはずである(= バリオグラムはx軸と平行になる)。一方で、例えば空間的に近いデータほど似た残差をとるのであれば、近い距離範囲カテゴリではデータペアの残差の差の平均が小さくなる。  
 
-Rでは以下のように実行できる。`cressie = TRUE`とすることで推定がより頑強になり、外れ値の影響を小さくすることができる。`np`は各距離範囲カテゴリのデータ数を、`dist`はそれぞれの距離カテゴリーにおけるデータ間の平均距離、`gamma`は計算されたバリオグラムの値を表す。明らかにプロットは一定の値をとっておらず、強い空間相関があることが予想される。  
+Rでは以下のように実行できる。`cressie = TRUE`とすることで推定がより頑強になり、外れ値の影響を小さくすることができる。`np`は各距離範囲カテゴリのデータ数を、`dist`はそれぞれの距離カテゴリーにおけるデータ間の平均距離、`gamma`は計算されたバリオグラムの値を表す。明らかにプロットは一定の値をとっておらず、強い空間相関があることが予想される(図\@ref(fig:vario2-3))。  
 
-```{r}
+```{r vario2-3}
 vario_2_3 <- data.frame(resid = rstandard(m2_3),
                         Easting.km = iph$Easting/1000,
                         Northing.km = iph$Northing/1000)
@@ -250,7 +330,7 @@ vario_2_3 %>%
   labs(y = "semivariogram")
 ```
 
-## GAM applied to temporal data  
+## GAM applied to temporal data {#s2-2} 
 ### Subnivium temperature data  
 本節では、 @Petty2015 のデータを用いる。この論文では雪下と地面の間の環境(subnivium)の温度を調べている。積雪量が温度に与える影響を、米ウィスコンシン州の3か所の3つの異なる環境(tall grass prailies, deciduous, coniferous)で検討している。  
 
@@ -289,7 +369,7 @@ sn2 %>%
 以下では、こうした非独立性を考慮せずに分析をした場合にどのような問題がが生じるかを見ていく。  
 
 ### The model  
-以下のGAMMを適用する。ロガーIDをランダム切片として入れている。環境ごとにsmootherを推定する。$t$は経過日数(`date_num`)、$i$はロガーのidを表す。       
+以下のGAMMを適用する(回帰係数は省略している)。ロガーIDをランダム切片として入れている。環境ごとにsmootherを推定する。$t$は経過日数(`date_num`)、$i$はロガーのidを表す。       
 
 $$
 \begin{aligned}
@@ -297,6 +377,7 @@ T_{it} &\sim N(\mu_t, \sigma^2)\\
 \mu_{it} &= \alpha + f_j(date\_num_t) + Type_i + a_i\\
 a_i &\sim N(0, \sigma_{Logger}^2)
 \end{aligned}
+(\#eq:m2.4)
 $$
 
 Rでは以下のように実行する。  

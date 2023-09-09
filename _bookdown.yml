@@ -3,7 +3,9 @@ rmd_files:
   - index.Rmd
   - Chapter0.Rmd
   - Chapter2.Rmd  
-  - Chapter3.Rmd
+  - Chapter3.Rmd  
+  - Chapter4.Rmd  
+  - Chapter5.Rmd
   - sessioninfo.Rmd
 output_dir: "docs"  
 language:

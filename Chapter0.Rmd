@@ -12,6 +12,10 @@
 使用するパッケージは以下のとおりである。GAMの実行は主に`gam`パッケージ[@Hastie2018]を用い、結果の作図についてはggplotパッケージでGAMの結果を可視化することに特化した`gratia`[パッケージ](https://gavinsimpson.github.io/gratia/)を用いる。  
 
 ```{r}
+## 地理データ  
+library(sp)
+library(sf)
+library(NipponMap)
 ## GAM
 library(mgcv)
 library(gamm4)
@@ -32,6 +36,7 @@ library(easystats)
 library(data.table)
 library(lubridate)
 ## グラフや表関連
+library(scales)
 library(geoR)
 library(sp)
 library(plotly)

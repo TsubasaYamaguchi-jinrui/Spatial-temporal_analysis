@@ -1,4 +1,4 @@
-# Time series and GLS    
+# Time series and GLS {#c3}   
 本章では、時系列データに対して用いることができる回帰モデルについて解説する。  
 
 ## Ospreys  
@@ -113,7 +113,6 @@ $$
 z_1 \\
 z_2
 \end{pmatrix} = 
-
 N \Bigl( 
 \begin{pmatrix}
 10 \\
@@ -123,11 +122,10 @@ N \Bigl(
 1 & 0 \\
 0 & 1 \\
 \end{pmatrix}
-
 \Bigl)
 $$
 
-得られたデータをプロ通して分かるように、分散共分散行列が単位行列であり、$z_1$と$z_2$の間の共分散はゼロとなっているため、これらに相関が全くないことが分かる。  
+得られたデータをプロットして分かるように、分散共分散行列が単位行列であり、$z_1$と$z_2$の間の共分散はゼロとなっているため、これらに相関が全くないことが分かる。  
 ```{r}
 Z %>% 
   ggplot(aes(x = z1, y = z2))+
@@ -363,7 +361,6 @@ $$
 \phi^3 & \phi^2 & \ddots & \ddots & \ddots & \phi^2 \\
 \vdots & \ddots & \ddots & \phi & 1 & \phi \\
 \phi^{54} & \cdots & \phi^2 & \phi^2 & \phi & 1
-
 \end{pmatrix}
 $$
 
@@ -377,7 +374,6 @@ cor(\bf{\epsilon}) =
 \phi^3 & \phi^2 & \ddots & \ddots & \ddots & \phi^2 \\
 \vdots & \ddots & \ddots & \phi & 1 & \phi \\
 \phi^{54} & \cdots & \phi^3 & \phi^2 & \phi & 1
-
 \end{pmatrix}
 $$
 
@@ -389,7 +385,8 @@ cov(\hat{\beta}) &= (\bf{X^t} \times \bf{\Sigma^{-1}} \times \bf{X})^{-1}
 \end{aligned}
 $$
 
-AR1過程モデルの代わりに、残差が他の相関構造をもつものを仮定することもできる。例えば、**交換可能**な相関を持つ場合、相関行列は以下のように書ける。これは、時間差に依らず全ての異なる残差が同じ相関$\phi$を持つことを仮定している。これは、短い時系列を持つデータに対しては有効である場合がある。    
+AR1過程モデルの代わりに、残差が他の相関構造をもつものを仮定することもできる。例えば、**交換可能(exchangable)**な相関を持つ場合、相関行列は以下のように書ける。これは、時間差に依らず全ての異なる残差が同じ相関$\phi$を持つことを仮定している。これは、短い時系列を持つデータに対しては有効である場合がある。    
+
 $$
 cor(\bf{\epsilon}) = 
 \begin{pmatrix}
@@ -398,8 +395,188 @@ cor(\bf{\epsilon}) =
 \phi & \phi & \ddots & \ddots & \ddots & \phi\\
 \phi & \phi & \ddots & \ddots & \ddots & \phi\\
 \vdots & \ddots & \ddots & \phi & 1 & \phi \\
-\phi & \cdots & \phi & \phi & \phi & 1
-
+\phi & \cdots & \phi & \phi & \phi & 1 \\
 \end{pmatrix}
 $$
+
+### Implementation using the gls function  
+AR1モデルのGLSのモデル式を書くと以下のようになる。  
+
+$$
+\begin{aligned}
+LD_t &= \beta_1 + \beta_2 \times MSA_t + \epsilon_t \\
+\epsilon_t &\sim N(0,\sigma^2)\\
+cor(\epsilon_t, \epsilon_s) &= \phi^{|t-s|}
+\end{aligned}
+$$
+
+Rでは以下のように実行できる。`gls`関数では、`correlation = `オプションで様々な残差の相関構造をモデリングできる。例えば、交換可能な相関の場合は、`correlation = corCompSymm()`とする。      
+
+```{r}
+m3_2b <- gls(LayingAP ~ MSA,
+             correlation = corAR1(form = ~Year),
+             data = bird, na.action = na.omit)
+```
+
+結果は以下の通り。推定された$phi$は0.523である。驚くべきことに、時系列相関を考慮しない場合にはMSAの係数が負の値だったのに対して、今回は正の値になっている。  
+```{r}
+summary(m3_2b)
+```
+
+モデルの予測値を図示したのが下図である。AR1モデルでは傾きが正になり、MSAと産卵日の関連はより小さなものと推定されている。
+```{r}
+nd <- data.frame(MSA =seq(0.03,0.14,length = 100))
+
+data.frame(m3_2a = predict(m3_2a, newdata = nd),
+           m3_2b = predict(m3_2b, newdata = nd),
+           MSA = nd$MSA) %>% 
+  pivot_longer(cols = 1:2,
+               names_to = "model",
+               values_to = "fitted") %>% 
+  ggplot(aes(x = MSA, y = fitted))+
+  geom_line(aes(color = model),
+            linewidth = 1)+
+  geom_text(aes(label = str_sub(bird$Year, 3,4), y = LayingAP),
+            data = bird)+
+  theme_bw()+
+  theme(aspect.ratio = 0.9)+
+  scale_color_nejm()+
+  labs(y = "Laying date")
+```
+<br/>   
+
+AICを比較しても、AR1モデルの方がわずかに予測がよいことが分かる。    
+```{r}
+AIC(m3_2a, m3_2b)
+```
+
+## Multiple time series  
+第\@ref(s2-2)節でみた積雪量と雪下温度の関連を調べた　@Petty2015　のデータについてもう一度考える。式\@ref(eq:m2.4)のモデルでは、各時系列の残差が自己相関を持っていた。そこで、以下のモデルを考える(回帰係数は省略)。  
+
+$$
+\begin{aligned}
+&T_{it} = \alpha + f_j(date\_num_t) + Type_i + a_i + \epsilon_{it}\\
+&a_i \sim N(0, \sigma_{Logger}^2)\\
+&\epsilon_{it} \sim N(0, \sigma^2)\\
+&cor(\epsilon_{it}, \epsilon_{is}) = \phi^{|t-s|}
+\end{aligned}
+(\#eq:m3.3)
+$$
+
+Rでは、以下のように実行できる。ランダム切片を含む場合、自己相関は自動的にそれぞれのロガーに対して適用されるため、`correlation = corAR1(form =~date_num)`としても同じ結果が得られる。Rのgamm関数では全てのロガーについて同じ$\phi$しか推定できない。    
+
+```{r}
+m3_3 <- gamm(Temp ~ s(date_num, by = Type) + Type,
+             random = list(Logger =~ 1),
+             correlation = corAR1(form = ~date_num|Logger),
+             data = sn2 %>% mutate(Type = as.factor(Type)))
+```
+
+例えば、ロガー1の残差の相関行列は以下のように書ける。    
+$$
+\bf{\Sigma_1} = cor 
+\begin{pmatrix}
+\epsilon_{1,1}\\
+\epsilon_{1,2}\\
+\vdots\\
+\epsilon_{1,88}\\
+\epsilon_{1,89}
+\end{pmatrix} = 
+\begin{pmatrix}
+1 & \phi & \phi^2 & \phi^3 & \cdots & \phi^{89} \\
+\phi & 1 & \phi & \phi^2 & \ddots & \vdots\\
+\phi^2 & \phi & \ddots & \ddots & \ddots & \phi^3 \\
+\phi^3 & \phi^2 & \ddots & \ddots & \ddots & \phi^2 \\
+\vdots & \ddots & \ddots & \phi & 1 & \phi \\
+\phi^{89} & \cdots & \phi^3 & \phi^2 & \phi & 1
+\end{pmatrix}
+$$
+
+gamm関数で推定した場合、全てのロガーで同じ$\phi$が推定されるので、どのロガーの残差の相関行列も$\bf{\Sigma_1}$となる。よって、すべてのロガーの残差の相関行列は以下のように書ける。対角成分以外が0なのは、異なるロガーの残差の相関は0である(= 独立である)ことを表している。    
+
+$$
+\begin{aligned}
+cor \begin{pmatrix}
+\begin{pmatrix}
+\epsilon_{1,1}\\
+\vdots\\
+\epsilon_{1,89}
+\end{pmatrix}\\
+\begin{pmatrix}
+\epsilon_{2,1}\\
+\vdots\\
+\epsilon_{2,89}
+\end{pmatrix}\\
+\vdots \\
+\begin{pmatrix}
+\epsilon_{12,1}\\
+\vdots\\
+\epsilon_{12,89}
+\end{pmatrix}
+\end{pmatrix} =
+\begin{pmatrix}
+\bf{\Sigma_1} & 0 & \cdots & 0\\
+0 & \bf{\Sigma_2} & \cdots & 0\\
+\vdots & \vdots & \ddots & \vdots \\
+0 & 0 & \cdots & \bf{\Sigma_{12}} \\
+\end{pmatrix} = 
+\begin{pmatrix}
+\bf{\Sigma_1} & 0 & \cdots & 0\\
+0 & \bf{\Sigma_1} & \cdots & 0\\
+\vdots & \vdots & \ddots & \vdots \\
+0 & 0 & \cdots & \bf{\Sigma_{1}} \\
+\end{pmatrix}
+\end{aligned}
+$$
+
+結果は以下の通り。$\phi$は0.504と推定されている。  
+```{r}
+summary(m3_3$lme)
+```
+
+最後に、モデルの残差の自己相関関数(acf)を図示する。
+```{r}
+sn2 %>% 
+  mutate(resid = resid(m3_3$lme, type = "n")) %>% 
+  group_by(Logger) %>% 
+  arrange(date_num, .by_group = TRUE) -> sn3
+
+Loggerid <- unique(sn3$Logger)
+all.out <- NULL
+
+for(i in seq_along(Loggerid)){
+  data <- sn3 %>% filter(Logger == Loggerid[i])
+  
+  ## 各ロガーについて時系列相関を算出  
+  out.acf <- acf(data$resid, 
+                 lag.max = 15,
+                 plot = FALSE)
+  
+  ## 出力をデータフレームに
+  out.df <- data.frame(Timelag = out.acf$lag,
+                       Acf = out.acf$acf,
+                       SE = qnorm(0.975)/sqrt(out.acf$n.used),
+                       ID = Loggerid[i])
+  
+  ## 全て結合  
+  all.out <- bind_rows(all.out, out.df)
+}
+```
+
+図示したのが下図である。図からは、依然として多くのロガーでは時系列相関があることが分かる。よって、単にAR1モデルを適用するだけでは問題は解決できていない。  
+
+```{r}
+all.out %>% 
+  ggplot(aes(x = Timelag, y = 0))+
+  geom_segment(aes(xend = Timelag, yend = Acf))+
+  geom_ribbon(aes(ymax = SE, ymin = -SE),
+              alpha = 0.3)+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  facet_rep_wrap(~ID, repeat.tick.labels = TRUE)+
+  labs(y = "Auto-correlation")
+```
+<br />  
+
+また、他の問題としてGAMMに時間のsmootherとAR1過程の両方が含まれている場合、これらが競合してしまう場合があることもある。この場合、どちらかのみを適用した方がよい。  
 

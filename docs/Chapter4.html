@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>3 Spatial data and GLS | Introduction to spatial-temporal data anlysis using R</title>
+  <meta name="description" content="3 Spatial data and GLS | Introduction to spatial-temporal data anlysis using R" />
+  <meta name="generator" content="bookdown 0.34 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="3 Spatial data and GLS | Introduction to spatial-temporal data anlysis using R" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="3 Spatial data and GLS | Introduction to spatial-temporal data anlysis using R" />
+  
+  
+  
+
+<meta name="author" content="Tsubasa Yamaguchi" />
+
+
+<meta name="date" content="2023-09-09" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="Chapter3.html"/>
+<link rel="next" href="Chapter5.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.27/datatables.js"></script>
+<link href="libs/dt-core-1.12.1/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.12.1/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.12.1/js/jquery.dataTables.min.js"></script>
+<link href="libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet" />
+<script src="libs/nouislider-7.0.10/jquery.nouislider.min.js"></script>
+<link href="libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet" />
+<script src="libs/selectize-0.12.0/selectize.min.js"></script>
+<link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="custom_style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>本稿の目的</a></li>
+<li class="chapter" data-level="" data-path="Chapter0.html"><a href="Chapter0.html"><i class="fa fa-check"></i>0. パッケージの読み込み</a></li>
+<li class="chapter" data-level="1" data-path="Chapter2.html"><a href="Chapter2.html"><i class="fa fa-check"></i><b>1</b> Recognizing statistical dependency</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="Chapter2.html"><a href="Chapter2.html#pseudoreplication"><i class="fa fa-check"></i><b>1.1</b> Pseudoreplication</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="Chapter2.html"><a href="Chapter2.html#疑似反復とは"><i class="fa fa-check"></i><b>1.1.1</b> 疑似反復とは</a></li>
+<li class="chapter" data-level="1.1.2" data-path="Chapter2.html"><a href="Chapter2.html#時空間的な疑似反復"><i class="fa fa-check"></i><b>1.1.2</b> 時空間的な疑似反復</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="Chapter2.html"><a href="Chapter2.html#s1-2"><i class="fa fa-check"></i><b>1.2</b> Linear regression applied to spatial data</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="Chapter2.html"><a href="Chapter2.html#visualization"><i class="fa fa-check"></i><b>1.2.1</b> Visualization</a></li>
+<li class="chapter" data-level="1.2.2" data-path="Chapter2.html"><a href="Chapter2.html#dependency"><i class="fa fa-check"></i><b>1.2.2</b> Dependency</a></li>
+<li class="chapter" data-level="1.2.3" data-path="Chapter2.html"><a href="Chapter2.html#fit-the-model"><i class="fa fa-check"></i><b>1.2.3</b> Fit the model</a></li>
+<li class="chapter" data-level="1.2.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation"><i class="fa fa-check"></i><b>1.2.4</b> Model validation</a>
+<ul>
+<li class="chapter" data-level="1.2.4.1" data-path="Chapter2.html"><a href="Chapter2.html#check-homogeinity-and-model-misfit"><i class="fa fa-check"></i><b>1.2.4.1</b> Check homogeinity and model misfit</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2.5" data-path="Chapter2.html"><a href="Chapter2.html#check-spatial-dependence"><i class="fa fa-check"></i><b>1.2.5</b> Check spatial dependence</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="Chapter2.html"><a href="Chapter2.html#s2-2"><i class="fa fa-check"></i><b>1.3</b> GAM applied to temporal data</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="Chapter2.html"><a href="Chapter2.html#subnivium-temperature-data"><i class="fa fa-check"></i><b>1.3.1</b> Subnivium temperature data</a></li>
+<li class="chapter" data-level="1.3.2" data-path="Chapter2.html"><a href="Chapter2.html#sources-of-dependency"><i class="fa fa-check"></i><b>1.3.2</b> Sources of dependency</a></li>
+<li class="chapter" data-level="1.3.3" data-path="Chapter2.html"><a href="Chapter2.html#the-model"><i class="fa fa-check"></i><b>1.3.3</b> The model</a></li>
+<li class="chapter" data-level="1.3.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation-1"><i class="fa fa-check"></i><b>1.3.4</b> Model validation</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="Chapter3.html"><a href="Chapter3.html"><i class="fa fa-check"></i><b>2</b> Time series and GLS</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="Chapter3.html"><a href="Chapter3.html#ospreys"><i class="fa fa-check"></i><b>2.1</b> Ospreys</a></li>
+<li class="chapter" data-level="2.2" data-path="Chapter3.html"><a href="Chapter3.html#covariance-and-correlation-coefficients"><i class="fa fa-check"></i><b>2.2</b> Covariance and correlation coefficients</a></li>
+<li class="chapter" data-level="2.3" data-path="Chapter3.html"><a href="Chapter3.html#linear-regression-models"><i class="fa fa-check"></i><b>2.3</b> Linear regression models</a></li>
+<li class="chapter" data-level="2.4" data-path="Chapter3.html"><a href="Chapter3.html#focusing-on-the-residual-covariance-matrix"><i class="fa fa-check"></i><b>2.4</b> Focusing on the residual covariance matrix</a></li>
+<li class="chapter" data-level="2.5" data-path="Chapter3.html"><a href="Chapter3.html#dependency-and-the-covariance-matrix"><i class="fa fa-check"></i><b>2.5</b> Dependency and the covariance matrix</a></li>
+<li class="chapter" data-level="2.6" data-path="Chapter3.html"><a href="Chapter3.html#dealing-with-temporal-dependency"><i class="fa fa-check"></i><b>2.6</b> Dealing with temporal dependency</a>
+<ul>
+<li class="chapter" data-level="2.6.1" data-path="Chapter3.html"><a href="Chapter3.html#adelie-penguins"><i class="fa fa-check"></i><b>2.6.1</b> Adelie penguins</a></li>
+<li class="chapter" data-level="2.6.2" data-path="Chapter3.html"><a href="Chapter3.html#do-we-have-dependency"><i class="fa fa-check"></i><b>2.6.2</b> Do we have dependency?</a></li>
+<li class="chapter" data-level="2.6.3" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.3</b> Formulation of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.4" data-path="Chapter3.html"><a href="Chapter3.html#application-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.4</b> Application of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.5" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-gls-model"><i class="fa fa-check"></i><b>2.6.5</b> Formulation of the GLS model</a></li>
+<li class="chapter" data-level="2.6.6" data-path="Chapter3.html"><a href="Chapter3.html#implementation-using-the-gls-function"><i class="fa fa-check"></i><b>2.6.6</b> Implementation using the gls function</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="Chapter3.html"><a href="Chapter3.html#multiple-time-series"><i class="fa fa-check"></i><b>2.7</b> Multiple time series</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="Chapter4.html"><a href="Chapter4.html"><i class="fa fa-check"></i><b>3</b> Spatial data and GLS</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="Chapter4.html"><a href="Chapter4.html#variogram-models-for-spatial-dependency"><i class="fa fa-check"></i><b>3.1</b> Variogram models for spatial dependency</a></li>
+<li class="chapter" data-level="3.2" data-path="Chapter4.html"><a href="Chapter4.html#application-on-the-irish-ph-data"><i class="fa fa-check"></i><b>3.2</b> Application on the Irish pH data</a></li>
+<li class="chapter" data-level="3.3" data-path="Chapter4.html"><a href="Chapter4.html#matern-correlation-function"><i class="fa fa-check"></i><b>3.3</b> Matern correlation function</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="Chapter5.html"><a href="Chapter5.html"><i class="fa fa-check"></i><b>4</b> Linear mixed-effects models and dependency</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="Chapter5.html"><a href="Chapter5.html#white-storks"><i class="fa fa-check"></i><b>4.1</b> White Storks</a></li>
+<li class="chapter" data-level="4.2" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-wrongly-as-one-way-nested"><i class="fa fa-check"></i><b>4.2</b> Considering the data (wrongly) as one-way nested</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="Chapter5.html"><a href="Chapter5.html#model-formulation"><i class="fa fa-check"></i><b>4.2.1</b> model formulation</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="Chapter5.html"><a href="Chapter5.html#fitting-the-one-way-nested-model-using-lmer"><i class="fa fa-check"></i><b>4.3</b> Fitting the one-way nested model using lmer</a></li>
+<li class="chapter" data-level="4.4" data-path="Chapter5.html"><a href="Chapter5.html#model-validation-2"><i class="fa fa-check"></i><b>4.4</b> Model validation</a></li>
+<li class="chapter" data-level="4.5" data-path="Chapter5.html"><a href="Chapter5.html#sketching-the-fitted-value"><i class="fa fa-check"></i><b>4.5</b> Sketching the fitted value</a></li>
+<li class="chapter" data-level="4.6" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-correctly-as-two-way-nested"><i class="fa fa-check"></i><b>4.6</b> Considering the data (correctly) as two-way nested</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to spatial-temporal data anlysis using R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="spatial-data-and-gls" class="section level1 hasAnchor" number="3">
+<h1><span class="header-section-number">3</span> Spatial data and GLS<a href="Chapter4.html#spatial-data-and-gls" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>本章では、今度は空間的相関を持つデータにGLSを適用する。</p>
+<div id="variogram-models-for-spatial-dependency" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> Variogram models for spatial dependency<a href="Chapter4.html#variogram-models-for-spatial-dependency" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>時系列データに対しては、異なる残差間の相関を以下のような関数<span class="math inline">\(h()\)</span>で定義した。</p>
+<p><span class="math display">\[
+h(\phi, \epsilon_t, \epsilon_ss) = \phi^{|t-s|}
+\]</span></p>
+<p>しかし、空間データに対して全く同じことをすることはできない。その代わり、残差のバリオグラムの形に応じて数学的モデルを選択し、それを用いて残差の分散共分散行列<span class="math inline">\(\bf{\Sigma}\)</span>を計算することになる。<code>nlme</code>パッケージには、<code>corExp</code>、<code>corSpher</code>、<code>corLin</code>、<code>corGaus</code>、<code>corRatio</code>など、残差の空間的なパターンをモデリングするための様々なモデルがある(これらは、カーネルとも呼ばれる)。それぞれのモデルは2つのパラメータを持つ。詳細な数学的表現については、<code>?corClasses</code>でヘルプを参照するか、 <span class="citation">Dale and Fortin (<a href="#ref-Dale2014">2014</a>)</span> や <span class="citation">村上 (<a href="#ref-Murakami2022">2022</a>)</span> を参照。</p>
+<p>例えば、指数バリオグラム(<code>corExp</code>)は以下のように定義される。なお、<span class="math inline">\(s\)</span>は2地点間の距離、<span class="math inline">\(\phi\)</span>はレンジ(range)と呼ばれるパラメータであり、自己相関がなくなるまでの距離を表す。<br />
+<span class="math display">\[
+h(s, \phi) = 1 - e^{-\frac{s}{\phi}}
+\]</span></p>
+<p>同様に、球形(<code>corSpher</code>)は以下のように定義される。<br />
+<span class="math display">\[
+\begin{aligned}
+h(s, \phi) =
+\begin{cases}
+1 - \frac{3}{2}\frac{s}{\phi} +  \frac{3}{2}(\frac{s}{\phi})^3 \;\; &amp;if \; 0 \le s &lt; \phi \\
+0 \;\; &amp;if \; \phi &lt; s  
+\end{cases}
+\end{aligned}
+\]</span></p>
+<p>また、ガウス型(<code>corGaus</code>)は以下のように定義される。<br />
+<span class="math display">\[
+h(s, \phi) = exp \Bigl( -\bigl( \frac{s}{\phi} \bigl)^2 \Bigl)
+\]</span></p>
+<p>これらのモデルは距離が0のときバリオグラムの値も0になってしまうため、距離が0のときのバリオグラムの値を指定することができる(= ナゲット効果)。</p>
+<p>様々なモデルのバリオグラムを図示したのが以下である。</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="Chapter4.html#cb64-1" tabindex="-1"></a><span class="co">#corExp</span></span>
+<span id="cb64-2"><a href="Chapter4.html#cb64-2" tabindex="-1"></a>mydata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">D =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="at">by =</span> <span class="fl">0.1</span>))</span>
+<span id="cb64-3"><a href="Chapter4.html#cb64-3" tabindex="-1"></a></span>
+<span id="cb64-4"><a href="Chapter4.html#cb64-4" tabindex="-1"></a>cprExp <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb64-5"><a href="Chapter4.html#cb64-5" tabindex="-1"></a>phi_exp <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.2</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span>)</span>
+<span id="cb64-6"><a href="Chapter4.html#cb64-6" tabindex="-1"></a>nugget <span class="ot">=</span> <span class="fl">0.2</span></span>
+<span id="cb64-7"><a href="Chapter4.html#cb64-7" tabindex="-1"></a></span>
+<span id="cb64-8"><a href="Chapter4.html#cb64-8" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_along</span>(phi_exp)){</span>
+<span id="cb64-9"><a href="Chapter4.html#cb64-9" tabindex="-1"></a>  <span class="fu">corExp</span>(<span class="fu">c</span>(phi_exp[i],nugget), <span class="at">form =</span> <span class="sc">~</span> mydata<span class="sc">$</span>D,</span>
+<span id="cb64-10"><a href="Chapter4.html#cb64-10" tabindex="-1"></a>         <span class="do">## ナゲット効果</span></span>
+<span id="cb64-11"><a href="Chapter4.html#cb64-11" tabindex="-1"></a>         <span class="at">nugget =</span> T,) <span class="sc">%&gt;%</span> </span>
+<span id="cb64-12"><a href="Chapter4.html#cb64-12" tabindex="-1"></a>    <span class="fu">Initialize</span>(,<span class="at">data=</span>mydata) <span class="sc">%&gt;%</span> </span>
+<span id="cb64-13"><a href="Chapter4.html#cb64-13" tabindex="-1"></a>    <span class="fu">Variogram</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb64-14"><a href="Chapter4.html#cb64-14" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">phi =</span> phi_exp[i],</span>
+<span id="cb64-15"><a href="Chapter4.html#cb64-15" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;Exponential&quot;</span>) <span class="ot">-&gt;</span> vario.out</span>
+<span id="cb64-16"><a href="Chapter4.html#cb64-16" tabindex="-1"></a>  </span>
+<span id="cb64-17"><a href="Chapter4.html#cb64-17" tabindex="-1"></a>  cprExp <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cprExp, vario.out)</span>
+<span id="cb64-18"><a href="Chapter4.html#cb64-18" tabindex="-1"></a>}</span>
+<span id="cb64-19"><a href="Chapter4.html#cb64-19" tabindex="-1"></a></span>
+<span id="cb64-20"><a href="Chapter4.html#cb64-20" tabindex="-1"></a><span class="co">#CorSpher</span></span>
+<span id="cb64-21"><a href="Chapter4.html#cb64-21" tabindex="-1"></a>cprSph <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb64-22"><a href="Chapter4.html#cb64-22" tabindex="-1"></a>phi_sph <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.8</span>)</span>
+<span id="cb64-23"><a href="Chapter4.html#cb64-23" tabindex="-1"></a>nagget <span class="ot">=</span> <span class="fl">0.3</span></span>
+<span id="cb64-24"><a href="Chapter4.html#cb64-24" tabindex="-1"></a></span>
+<span id="cb64-25"><a href="Chapter4.html#cb64-25" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_along</span>(phi_sph)){</span>
+<span id="cb64-26"><a href="Chapter4.html#cb64-26" tabindex="-1"></a>  <span class="fu">corSpher</span>(<span class="fu">c</span>(phi_sph[i], nugget) , <span class="at">form =</span> <span class="sc">~</span> mydata<span class="sc">$</span>D,</span>
+<span id="cb64-27"><a href="Chapter4.html#cb64-27" tabindex="-1"></a>           <span class="at">nugget =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb64-28"><a href="Chapter4.html#cb64-28" tabindex="-1"></a>    <span class="fu">Initialize</span>(, <span class="at">data=</span>mydata) <span class="sc">%&gt;%</span> </span>
+<span id="cb64-29"><a href="Chapter4.html#cb64-29" tabindex="-1"></a>    <span class="fu">Variogram</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb64-30"><a href="Chapter4.html#cb64-30" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">phi =</span> phi_sph[i],</span>
+<span id="cb64-31"><a href="Chapter4.html#cb64-31" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;Spherical&quot;</span>) <span class="ot">-&gt;</span> vario.out</span>
+<span id="cb64-32"><a href="Chapter4.html#cb64-32" tabindex="-1"></a>  </span>
+<span id="cb64-33"><a href="Chapter4.html#cb64-33" tabindex="-1"></a>  cprSph <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cprSph, vario.out)</span>
+<span id="cb64-34"><a href="Chapter4.html#cb64-34" tabindex="-1"></a>}</span>
+<span id="cb64-35"><a href="Chapter4.html#cb64-35" tabindex="-1"></a></span>
+<span id="cb64-36"><a href="Chapter4.html#cb64-36" tabindex="-1"></a><span class="co">#CorGaus</span></span>
+<span id="cb64-37"><a href="Chapter4.html#cb64-37" tabindex="-1"></a>cprGaus <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb64-38"><a href="Chapter4.html#cb64-38" tabindex="-1"></a>phi_gaus <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.8</span>)</span>
+<span id="cb64-39"><a href="Chapter4.html#cb64-39" tabindex="-1"></a>nagget <span class="ot">=</span> <span class="fl">0.3</span></span>
+<span id="cb64-40"><a href="Chapter4.html#cb64-40" tabindex="-1"></a></span>
+<span id="cb64-41"><a href="Chapter4.html#cb64-41" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_along</span>(phi_gaus)){</span>
+<span id="cb64-42"><a href="Chapter4.html#cb64-42" tabindex="-1"></a>  <span class="fu">corGaus</span>(<span class="fu">c</span>(phi_gaus[i], nugget) , <span class="at">form =</span> <span class="sc">~</span> mydata<span class="sc">$</span>D,</span>
+<span id="cb64-43"><a href="Chapter4.html#cb64-43" tabindex="-1"></a>          <span class="at">nugget =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb64-44"><a href="Chapter4.html#cb64-44" tabindex="-1"></a>    <span class="fu">Initialize</span>(, <span class="at">data=</span>mydata) <span class="sc">%&gt;%</span> </span>
+<span id="cb64-45"><a href="Chapter4.html#cb64-45" tabindex="-1"></a>    <span class="fu">Variogram</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb64-46"><a href="Chapter4.html#cb64-46" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">phi =</span> phi_gaus[i],</span>
+<span id="cb64-47"><a href="Chapter4.html#cb64-47" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;Gaussian&quot;</span>) <span class="ot">-&gt;</span> vario.out</span>
+<span id="cb64-48"><a href="Chapter4.html#cb64-48" tabindex="-1"></a>  </span>
+<span id="cb64-49"><a href="Chapter4.html#cb64-49" tabindex="-1"></a>  cprGaus <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cprGaus, vario.out)</span>
+<span id="cb64-50"><a href="Chapter4.html#cb64-50" tabindex="-1"></a>}</span>
+<span id="cb64-51"><a href="Chapter4.html#cb64-51" tabindex="-1"></a></span>
+<span id="cb64-52"><a href="Chapter4.html#cb64-52" tabindex="-1"></a><span class="co">#CorRatio</span></span>
+<span id="cb64-53"><a href="Chapter4.html#cb64-53" tabindex="-1"></a>cprRatio <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb64-54"><a href="Chapter4.html#cb64-54" tabindex="-1"></a>phi_ratio <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.8</span>)</span>
+<span id="cb64-55"><a href="Chapter4.html#cb64-55" tabindex="-1"></a>nagget <span class="ot">=</span> <span class="fl">0.3</span></span>
+<span id="cb64-56"><a href="Chapter4.html#cb64-56" tabindex="-1"></a></span>
+<span id="cb64-57"><a href="Chapter4.html#cb64-57" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_along</span>(phi_ratio)){</span>
+<span id="cb64-58"><a href="Chapter4.html#cb64-58" tabindex="-1"></a>  <span class="fu">corGaus</span>(<span class="fu">c</span>(phi_ratio[i], nugget) , <span class="at">form =</span> <span class="sc">~</span> mydata<span class="sc">$</span>D,</span>
+<span id="cb64-59"><a href="Chapter4.html#cb64-59" tabindex="-1"></a>          <span class="at">nugget =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb64-60"><a href="Chapter4.html#cb64-60" tabindex="-1"></a>    <span class="fu">Initialize</span>(, <span class="at">data=</span>mydata) <span class="sc">%&gt;%</span> </span>
+<span id="cb64-61"><a href="Chapter4.html#cb64-61" tabindex="-1"></a>    <span class="fu">Variogram</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb64-62"><a href="Chapter4.html#cb64-62" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">phi =</span> phi_ratio[i],</span>
+<span id="cb64-63"><a href="Chapter4.html#cb64-63" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;Ratio&quot;</span>) <span class="ot">-&gt;</span> vario.out</span>
+<span id="cb64-64"><a href="Chapter4.html#cb64-64" tabindex="-1"></a>  </span>
+<span id="cb64-65"><a href="Chapter4.html#cb64-65" tabindex="-1"></a>  cprRatio <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cprRatio, vario.out)</span>
+<span id="cb64-66"><a href="Chapter4.html#cb64-66" tabindex="-1"></a>}</span>
+<span id="cb64-67"><a href="Chapter4.html#cb64-67" tabindex="-1"></a></span>
+<span id="cb64-68"><a href="Chapter4.html#cb64-68" tabindex="-1"></a></span>
+<span id="cb64-69"><a href="Chapter4.html#cb64-69" tabindex="-1"></a><span class="co">#CorLin</span></span>
+<span id="cb64-70"><a href="Chapter4.html#cb64-70" tabindex="-1"></a>cprLin <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb64-71"><a href="Chapter4.html#cb64-71" tabindex="-1"></a>phi_lin <span class="ot">=</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.8</span>)</span>
+<span id="cb64-72"><a href="Chapter4.html#cb64-72" tabindex="-1"></a>nagget <span class="ot">=</span> <span class="fl">0.3</span></span>
+<span id="cb64-73"><a href="Chapter4.html#cb64-73" tabindex="-1"></a></span>
+<span id="cb64-74"><a href="Chapter4.html#cb64-74" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_along</span>(phi_lin)){</span>
+<span id="cb64-75"><a href="Chapter4.html#cb64-75" tabindex="-1"></a>  <span class="fu">corGaus</span>(<span class="fu">c</span>(phi_lin[i], nugget) , <span class="at">form =</span> <span class="sc">~</span> mydata<span class="sc">$</span>D,</span>
+<span id="cb64-76"><a href="Chapter4.html#cb64-76" tabindex="-1"></a>          <span class="at">nugget =</span> T) <span class="sc">%&gt;%</span> </span>
+<span id="cb64-77"><a href="Chapter4.html#cb64-77" tabindex="-1"></a>    <span class="fu">Initialize</span>(, <span class="at">data=</span>mydata) <span class="sc">%&gt;%</span> </span>
+<span id="cb64-78"><a href="Chapter4.html#cb64-78" tabindex="-1"></a>    <span class="fu">Variogram</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb64-79"><a href="Chapter4.html#cb64-79" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">phi =</span> phi_lin[i],</span>
+<span id="cb64-80"><a href="Chapter4.html#cb64-80" tabindex="-1"></a>           <span class="at">type =</span> <span class="st">&quot;Lin&quot;</span>) <span class="ot">-&gt;</span> vario.out</span>
+<span id="cb64-81"><a href="Chapter4.html#cb64-81" tabindex="-1"></a>  </span>
+<span id="cb64-82"><a href="Chapter4.html#cb64-82" tabindex="-1"></a>  cprLin <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cprLin, vario.out)</span>
+<span id="cb64-83"><a href="Chapter4.html#cb64-83" tabindex="-1"></a>}</span>
+<span id="cb64-84"><a href="Chapter4.html#cb64-84" tabindex="-1"></a></span>
+<span id="cb64-85"><a href="Chapter4.html#cb64-85" tabindex="-1"></a><span class="do">## 図示  </span></span>
+<span id="cb64-86"><a href="Chapter4.html#cb64-86" tabindex="-1"></a><span class="fu">bind_rows</span>(cprExp, cprGaus, cprSph, cprRatio, cprLin) <span class="sc">%&gt;%</span></span>
+<span id="cb64-87"><a href="Chapter4.html#cb64-87" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">phi =</span> <span class="fu">as.factor</span>(phi)) <span class="sc">%&gt;%</span> </span>
+<span id="cb64-88"><a href="Chapter4.html#cb64-88" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dist, <span class="at">y =</span> variog))<span class="sc">+</span></span>
+<span id="cb64-89"><a href="Chapter4.html#cb64-89" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">group =</span> phi))<span class="sc">+</span></span>
+<span id="cb64-90"><a href="Chapter4.html#cb64-90" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>type, <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>)<span class="sc">+</span></span>
+<span id="cb64-91"><a href="Chapter4.html#cb64-91" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb64-92"><a href="Chapter4.html#cb64-92" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-50-1.png" width="672" style="display: block; margin: auto;" />
+<br/></p>
+<p>分析は以下の5ステップで行う。</p>
+<ol style="list-style-type: decimal">
+<li>空間的相関を考慮せずにモデリングを行う。<br />
+</li>
+<li>1のモデルの残差のバリオグラムを書く。<br />
+</li>
+<li>バリオグラムの形を基に、どのバリオグラムモデルを適用するか決める。<br />
+</li>
+<li>バリオグラムモデルを含み、空間的相関を考慮したモデリングを行う。<br />
+</li>
+<li>4のモデルが問題ないかをチェックする。</li>
+</ol>
+</div>
+<div id="application-on-the-irish-ph-data" class="section level2 hasAnchor" number="3.2">
+<h2><span class="header-section-number">3.2</span> Application on the Irish pH data<a href="Chapter4.html#application-on-the-irish-ph-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>本節では、第<a href="Chapter2.html#s1-2">1.2</a>節で分析したアイルランドの河川のpHを調べたデータを再び用いる。空間的相関を考慮しない通常の線形回帰については第<a href="Chapter2.html#s1-2">1.2</a>節ですでに実行しているため、これに関する説明は省略する(step1とstep2)。図<a href="#fig:vario2-3"><strong>??</strong></a>からどのバリオグラムモデルが適切かを判断することが難しいため、可能なバリオグラムモデルを全て当てはめる。</p>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="Chapter4.html#cb65-1" tabindex="-1"></a>iph <span class="sc">%&gt;%</span> </span>
+<span id="cb65-2"><a href="Chapter4.html#cb65-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Xkm =</span> Easting<span class="sc">/</span><span class="dv">1000</span>,</span>
+<span id="cb65-3"><a href="Chapter4.html#cb65-3" tabindex="-1"></a>         <span class="at">Ykm =</span> Northing<span class="sc">/</span><span class="dv">1000</span>) <span class="ot">-&gt;</span> iph</span>
+<span id="cb65-4"><a href="Chapter4.html#cb65-4" tabindex="-1"></a></span>
+<span id="cb65-5"><a href="Chapter4.html#cb65-5" tabindex="-1"></a>m4_1 <span class="ot">&lt;-</span> <span class="fu">gls</span>(pH <span class="sc">~</span> SDI <span class="sc">+</span> logAltitude<span class="sc">*</span>fForested,</span>
+<span id="cb65-6"><a href="Chapter4.html#cb65-6" tabindex="-1"></a>            <span class="at">data =</span> iph, <span class="at">method =</span> <span class="st">&quot;REML&quot;</span>)</span>
+<span id="cb65-7"><a href="Chapter4.html#cb65-7" tabindex="-1"></a></span>
+<span id="cb65-8"><a href="Chapter4.html#cb65-8" tabindex="-1"></a><span class="do">## 指数モデル</span></span>
+<span id="cb65-9"><a href="Chapter4.html#cb65-9" tabindex="-1"></a>m4_1_exp <span class="ot">&lt;-</span> <span class="fu">update</span>(m4_1,</span>
+<span id="cb65-10"><a href="Chapter4.html#cb65-10" tabindex="-1"></a>                   <span class="at">correlation =</span><span class="fu">corExp</span>(<span class="at">form =</span> <span class="sc">~</span> Xkm <span class="sc">+</span> Ykm,</span>
+<span id="cb65-11"><a href="Chapter4.html#cb65-11" tabindex="-1"></a>                                       <span class="at">nugget =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb65-12"><a href="Chapter4.html#cb65-12" tabindex="-1"></a></span>
+<span id="cb65-13"><a href="Chapter4.html#cb65-13" tabindex="-1"></a><span class="do">## Linモデル</span></span>
+<span id="cb65-14"><a href="Chapter4.html#cb65-14" tabindex="-1"></a>m4_1_lin <span class="ot">&lt;-</span> <span class="fu">update</span>(m4_1,</span>
+<span id="cb65-15"><a href="Chapter4.html#cb65-15" tabindex="-1"></a>                   <span class="at">correlation =</span><span class="fu">corLin</span>(<span class="at">form =</span> <span class="sc">~</span> Xkm <span class="sc">+</span> Ykm,</span>
+<span id="cb65-16"><a href="Chapter4.html#cb65-16" tabindex="-1"></a>                                       <span class="at">nugget =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb65-17"><a href="Chapter4.html#cb65-17" tabindex="-1"></a></span>
+<span id="cb65-18"><a href="Chapter4.html#cb65-18" tabindex="-1"></a><span class="do">## Gausモデル  </span></span>
+<span id="cb65-19"><a href="Chapter4.html#cb65-19" tabindex="-1"></a>m4_1_gau <span class="ot">&lt;-</span> <span class="fu">update</span>(m4_1,</span>
+<span id="cb65-20"><a href="Chapter4.html#cb65-20" tabindex="-1"></a>                   <span class="at">correlation =</span><span class="fu">corGaus</span>(<span class="at">form =</span> <span class="sc">~</span> Xkm <span class="sc">+</span> Ykm,</span>
+<span id="cb65-21"><a href="Chapter4.html#cb65-21" tabindex="-1"></a>                                        <span class="at">nugget =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb65-22"><a href="Chapter4.html#cb65-22" tabindex="-1"></a></span>
+<span id="cb65-23"><a href="Chapter4.html#cb65-23" tabindex="-1"></a></span>
+<span id="cb65-24"><a href="Chapter4.html#cb65-24" tabindex="-1"></a><span class="do">## 球形モデル</span></span>
+<span id="cb65-25"><a href="Chapter4.html#cb65-25" tabindex="-1"></a>m4_1_sph <span class="ot">&lt;-</span> <span class="fu">update</span>(m4_1,</span>
+<span id="cb65-26"><a href="Chapter4.html#cb65-26" tabindex="-1"></a>                   <span class="at">correlation =</span><span class="fu">corSpher</span>(<span class="at">form =</span> <span class="sc">~</span> Xkm <span class="sc">+</span> Ykm,</span>
+<span id="cb65-27"><a href="Chapter4.html#cb65-27" tabindex="-1"></a>                                         <span class="at">nugget =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb65-28"><a href="Chapter4.html#cb65-28" tabindex="-1"></a></span>
+<span id="cb65-29"><a href="Chapter4.html#cb65-29" tabindex="-1"></a><span class="do">## Ratioモデル  </span></span>
+<span id="cb65-30"><a href="Chapter4.html#cb65-30" tabindex="-1"></a>m4_1_rat <span class="ot">&lt;-</span> <span class="fu">update</span>(m4_1,</span>
+<span id="cb65-31"><a href="Chapter4.html#cb65-31" tabindex="-1"></a>                   <span class="at">correlation =</span><span class="fu">corRatio</span>(<span class="at">form =</span> <span class="sc">~</span> Xkm <span class="sc">+</span> Ykm,</span>
+<span id="cb65-32"><a href="Chapter4.html#cb65-32" tabindex="-1"></a>                                         <span class="at">nugget =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
+<p>各モデルのAICを比較すると指数モデル(<code>m4_1_exp</code>)と比率モデル(<code>m4_1_rat</code>)が最もAICが低い。しかし、その他の空間的相関を考慮したモデルはむしろAICが高くなっていることが分かる。このことは、これらのモデルで推定されたレンジ(<span class="math inline">\(\phi\)</span>)の値が0に近いことを示している。</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb66-1"><a href="Chapter4.html#cb66-1" tabindex="-1"></a><span class="fu">AIC</span>(m4_1, m4_1_exp, m4_1_gau, m4_1_lin, m4_1_rat, m4_1_sph)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["df"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"6","2":"212.7673","_rn_":"m4_1"},{"1":"8","2":"174.7766","_rn_":"m4_1_exp"},{"1":"8","2":"216.7673","_rn_":"m4_1_gau"},{"1":"8","2":"216.7673","_rn_":"m4_1_lin"},{"1":"8","2":"172.1448","_rn_":"m4_1_rat"},{"1":"8","2":"216.7673","_rn_":"m4_1_sph"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>実際、時数モデルと比率モデル以外はレンジの推定値がほとんど0になっていることが分かる。</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="Chapter4.html#cb67-1" tabindex="-1"></a><span class="fu">bind_rows</span>(<span class="fu">coef</span>(m4_1_exp<span class="sc">$</span>modelStruct<span class="sc">$</span>corStruct, <span class="at">unconstrained =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb67-2"><a href="Chapter4.html#cb67-2" tabindex="-1"></a>          <span class="fu">coef</span>(m4_1_lin<span class="sc">$</span>modelStruct<span class="sc">$</span>corStruct, <span class="at">unconstrained =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb67-3"><a href="Chapter4.html#cb67-3" tabindex="-1"></a>          <span class="fu">coef</span>(m4_1_gau<span class="sc">$</span>modelStruct<span class="sc">$</span>corStruct, <span class="at">unconstrained =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb67-4"><a href="Chapter4.html#cb67-4" tabindex="-1"></a>          <span class="fu">coef</span>(m4_1_sph<span class="sc">$</span>modelStruct<span class="sc">$</span>corStruct, <span class="at">unconstrained =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb67-5"><a href="Chapter4.html#cb67-5" tabindex="-1"></a>          <span class="fu">coef</span>(m4_1_rat<span class="sc">$</span>modelStruct<span class="sc">$</span>corStruct, <span class="at">unconstrained =</span> <span class="cn">FALSE</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb67-6"><a href="Chapter4.html#cb67-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">model =</span> <span class="fu">c</span>(<span class="st">&quot;Exp&quot;</span>,<span class="st">&quot;Lin&quot;</span>,<span class="st">&quot;Gaussian&quot;</span>,<span class="st">&quot;Spherical&quot;</span>,<span class="st">&quot;Ratio&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb67-7"><a href="Chapter4.html#cb67-7" tabindex="-1"></a>  <span class="fu">select</span>(model, <span class="fu">everything</span>())</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["model"],"name":[1],"type":["chr"],"align":["left"]},{"label":["range"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["nugget"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"Exp","2":"50.67303390","3":"0.5137855"},{"1":"Lin","2":"0.35525917","3":"0.3108140"},{"1":"Gaussian","2":"0.09149755","3":"0.1042273"},{"1":"Spherical","2":"0.35543499","3":"0.1299253"},{"1":"Ratio","2":"45.13449178","3":"0.5250440"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>これは、<code>gls</code>関数ではレンジ<code>phi</code>を推定する際に、指定しなければ最短の距離の90%の値をアルゴリズムの初期値として使用するために生じている。この問題を回避するためには、以下のように<code>value =</code>で初期値を指定する必要がある。ここでは、レンジに50、ナゲットに0.1を割り当てている(Linモデルだけ収束しなかったので、レンジの初期値に25を割り当てている)。</p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="Chapter4.html#cb68-1" tabindex="-1"></a><span class="do">## 指数モデル</span></span>
+<span id="cb68-2"><a href="Chapter4.html#cb68-2" tabindex="-1"></a>m4_1_exp2 <span class="ot">&lt;-</span> <span class="fu">update</span>(m4_1,</span>
+<span id="cb68-3"><a href="Chapter4.html#cb68-3" tabindex="-1"></a>                   <span class="at">correlation =</span><span class="fu">corExp</span>(<span class="at">form =</span> <span class="sc">~</span> Xkm <span class="sc">+</span> Ykm,</span>
+<span id="cb68-4"><a href="Chapter4.html#cb68-4" tabindex="-1"></a>                                       <span class="at">nugget =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb68-5"><a href="Chapter4.html#cb68-5" tabindex="-1"></a>                                       <span class="at">value =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="fl">0.1</span>)))</span>
+<span id="cb68-6"><a href="Chapter4.html#cb68-6" tabindex="-1"></a></span>
+<span id="cb68-7"><a href="Chapter4.html#cb68-7" tabindex="-1"></a><span class="do">## Linモデル</span></span>
+<span id="cb68-8"><a href="Chapter4.html#cb68-8" tabindex="-1"></a>m4_1_lin2 <span class="ot">&lt;-</span> <span class="fu">update</span>(m4_1,</span>
+<span id="cb68-9"><a href="Chapter4.html#cb68-9" tabindex="-1"></a>                   <span class="at">correlation =</span><span class="fu">corLin</span>(<span class="at">form =</span> <span class="sc">~</span> Xkm <span class="sc">+</span> Ykm,</span>
+<span id="cb68-10"><a href="Chapter4.html#cb68-10" tabindex="-1"></a>                                       <span class="at">nugget =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb68-11"><a href="Chapter4.html#cb68-11" tabindex="-1"></a>                                       <span class="at">value =</span> <span class="fu">c</span>(<span class="dv">25</span>, <span class="fl">0.1</span>)))</span>
+<span id="cb68-12"><a href="Chapter4.html#cb68-12" tabindex="-1"></a></span>
+<span id="cb68-13"><a href="Chapter4.html#cb68-13" tabindex="-1"></a><span class="do">## Gausモデル  </span></span>
+<span id="cb68-14"><a href="Chapter4.html#cb68-14" tabindex="-1"></a>m4_1_gau2 <span class="ot">&lt;-</span> <span class="fu">update</span>(m4_1,</span>
+<span id="cb68-15"><a href="Chapter4.html#cb68-15" tabindex="-1"></a>                   <span class="at">correlation =</span><span class="fu">corGaus</span>(<span class="at">form =</span> <span class="sc">~</span> Xkm <span class="sc">+</span> Ykm,</span>
+<span id="cb68-16"><a href="Chapter4.html#cb68-16" tabindex="-1"></a>                                        <span class="at">nugget =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb68-17"><a href="Chapter4.html#cb68-17" tabindex="-1"></a>                                       <span class="at">value =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="fl">0.1</span>)))</span>
+<span id="cb68-18"><a href="Chapter4.html#cb68-18" tabindex="-1"></a></span>
+<span id="cb68-19"><a href="Chapter4.html#cb68-19" tabindex="-1"></a></span>
+<span id="cb68-20"><a href="Chapter4.html#cb68-20" tabindex="-1"></a><span class="do">## 球形モデル</span></span>
+<span id="cb68-21"><a href="Chapter4.html#cb68-21" tabindex="-1"></a>m4_1_sph2 <span class="ot">&lt;-</span> <span class="fu">update</span>(m4_1,</span>
+<span id="cb68-22"><a href="Chapter4.html#cb68-22" tabindex="-1"></a>                   <span class="at">correlation =</span><span class="fu">corSpher</span>(<span class="at">form =</span> <span class="sc">~</span> Xkm <span class="sc">+</span> Ykm,</span>
+<span id="cb68-23"><a href="Chapter4.html#cb68-23" tabindex="-1"></a>                                         <span class="at">nugget =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb68-24"><a href="Chapter4.html#cb68-24" tabindex="-1"></a>                                       <span class="at">value =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="fl">0.1</span>)))</span>
+<span id="cb68-25"><a href="Chapter4.html#cb68-25" tabindex="-1"></a></span>
+<span id="cb68-26"><a href="Chapter4.html#cb68-26" tabindex="-1"></a><span class="do">## Ratioモデル  </span></span>
+<span id="cb68-27"><a href="Chapter4.html#cb68-27" tabindex="-1"></a>m4_1_rat2 <span class="ot">&lt;-</span> <span class="fu">update</span>(m4_1,</span>
+<span id="cb68-28"><a href="Chapter4.html#cb68-28" tabindex="-1"></a>                   <span class="at">correlation =</span><span class="fu">corRatio</span>(<span class="at">form =</span> <span class="sc">~</span> Xkm <span class="sc">+</span> Ykm,</span>
+<span id="cb68-29"><a href="Chapter4.html#cb68-29" tabindex="-1"></a>                                         <span class="at">nugget =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb68-30"><a href="Chapter4.html#cb68-30" tabindex="-1"></a>                                       <span class="at">value =</span> <span class="fu">c</span>(<span class="dv">50</span>, <span class="fl">0.1</span>)))</span></code></pre></div>
+<p>新しいモデルでは、レンジの推定値が0に近くなくなっている。</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="Chapter4.html#cb69-1" tabindex="-1"></a><span class="fu">bind_rows</span>(<span class="fu">coef</span>(m4_1_exp2<span class="sc">$</span>modelStruct<span class="sc">$</span>corStruct, <span class="at">unconstrained =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb69-2"><a href="Chapter4.html#cb69-2" tabindex="-1"></a>          <span class="fu">coef</span>(m4_1_lin2<span class="sc">$</span>modelStruct<span class="sc">$</span>corStruct, <span class="at">unconstrained =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb69-3"><a href="Chapter4.html#cb69-3" tabindex="-1"></a>          <span class="fu">coef</span>(m4_1_gau2<span class="sc">$</span>modelStruct<span class="sc">$</span>corStruct, <span class="at">unconstrained =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb69-4"><a href="Chapter4.html#cb69-4" tabindex="-1"></a>          <span class="fu">coef</span>(m4_1_sph2<span class="sc">$</span>modelStruct<span class="sc">$</span>corStruct, <span class="at">unconstrained =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb69-5"><a href="Chapter4.html#cb69-5" tabindex="-1"></a>          <span class="fu">coef</span>(m4_1_rat2<span class="sc">$</span>modelStruct<span class="sc">$</span>corStruct, <span class="at">unconstrained =</span> <span class="cn">FALSE</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb69-6"><a href="Chapter4.html#cb69-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">model =</span> <span class="fu">c</span>(<span class="st">&quot;Exp&quot;</span>,<span class="st">&quot;Lin&quot;</span>,<span class="st">&quot;Gaussian&quot;</span>,<span class="st">&quot;Spherical&quot;</span>,<span class="st">&quot;Ratio&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb69-7"><a href="Chapter4.html#cb69-7" tabindex="-1"></a>  <span class="fu">select</span>(model, <span class="fu">everything</span>())</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["model"],"name":[1],"type":["chr"],"align":["left"]},{"label":["range"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["nugget"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"Exp","2":"50.67284","3":"0.5137837"},{"1":"Lin","2":"67.21529","3":"0.5228704"},{"1":"Gaussian","2":"42.88315","3":"0.5718072"},{"1":"Spherical","2":"76.38284","3":"0.5592099"},{"1":"Ratio","2":"45.13458","3":"0.5250429"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>これらのモデルのAICを比較すると、相関構造として<code>corLin</code>を持つモデルが最もAICが低いことが分かった。</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="Chapter4.html#cb70-1" tabindex="-1"></a><span class="fu">AIC</span>(m4_1, m4_1_exp2, m4_1_gau2, m4_1_lin2, m4_1_rat2, m4_1_sph2)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["df"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["AIC"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"6","2":"212.7673","_rn_":"m4_1"},{"1":"8","2":"174.7766","_rn_":"m4_1_exp2"},{"1":"8","2":"170.1817","_rn_":"m4_1_gau2"},{"1":"8","2":"169.5945","_rn_":"m4_1_lin2"},{"1":"8","2":"172.1448","_rn_":"m4_1_rat2"},{"1":"8","2":"172.0474","_rn_":"m4_1_sph2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>このモデルの結果は以下の通り。</p>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="Chapter4.html#cb71-1" tabindex="-1"></a><span class="fu">summary</span>(m4_1_lin2)</span></code></pre></div>
+<pre><code>## Generalized least squares fit by REML
+##   Model: pH ~ SDI + logAltitude * fForested 
+##   Data: iph 
+##        AIC      BIC    logLik
+##   169.5945 196.1786 -76.79724
+## 
+## Correlation Structure: Linear spatial correlation
+##  Formula: ~Xkm + Ykm 
+##  Parameter estimate(s):
+##      range     nugget 
+## 67.2152946  0.5228704 
+## 
+## Coefficients:
+##                              Value Std.Error    t-value p-value
+## (Intercept)               8.175531 0.2766976  29.546811  0.0000
+## SDI                      -0.023739 0.0019874 -11.944746  0.0000
+## logAltitude               0.154131 0.1397899   1.102593  0.2715
+## fForestedyes              1.036179 0.3841835   2.697093  0.0076
+## logAltitude:fForestedyes -0.539765 0.1816375  -2.971661  0.0033
+## 
+##  Correlation: 
+##                          (Intr) SDI    lgAltt fFrstd
+## SDI                      -0.061                     
+## logAltitude              -0.931 -0.213              
+## fForestedyes             -0.380 -0.020  0.380       
+## logAltitude:fForestedyes  0.411 -0.016 -0.406 -0.989
+## 
+## Standardized residuals:
+##        Min         Q1        Med         Q3        Max 
+## -5.1573493 -0.5666860 -0.1527922  0.4324576  2.7694846 
+## 
+## Residual standard error: 0.392704 
+## Degrees of freedom: 210 total; 205 residual</code></pre>
+<p>空間相関を考慮しないモデル(<code>m4_1</code>)と比較すると、推定値が少し変化しているようだ。95%信頼区間は一般的に空間的相関を考慮すれば大きくなるが、今回はあまり変わっていないように見える。</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="Chapter4.html#cb73-1" tabindex="-1"></a><span class="fu">compare_parameters</span>(m4_1, m4_1_lin2)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Parameter"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Component"],"name":[2],"type":["chr"],"align":["left"]},{"label":["Effects"],"name":[3],"type":["chr"],"align":["left"]},{"label":["Coefficient.m4_1"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["SE.m4_1"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["CI.m4_1"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["CI_low.m4_1"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["CI_high.m4_1"],"name":[8],"type":["dbl"],"align":["right"]},{"label":["t.m4_1"],"name":[9],"type":["dbl"],"align":["right"]},{"label":["df_error.m4_1"],"name":[10],"type":["int"],"align":["right"]},{"label":["p.m4_1"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["Coefficient.m4_1_lin2"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["SE.m4_1_lin2"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["CI.m4_1_lin2"],"name":[14],"type":["dbl"],"align":["right"]},{"label":["CI_low.m4_1_lin2"],"name":[15],"type":["dbl"],"align":["right"]},{"label":["CI_high.m4_1_lin2"],"name":[16],"type":["dbl"],"align":["right"]},{"label":["t.m4_1_lin2"],"name":[17],"type":["dbl"],"align":["right"]},{"label":["df_error.m4_1_lin2"],"name":[18],"type":["int"],"align":["right"]},{"label":["p.m4_1_lin2"],"name":[19],"type":["dbl"],"align":["right"]}],"data":[{"1":"(Intercept)","2":"conditional","3":"fixed","4":"8.1038161","5":"0.257748960","6":"0.95","7":"7.59563734","8":"8.61199484","9":"31.440732","10":"205","11":"2.321458e-80","12":"8.17553143","13":"0.276697592","14":"0.95","15":"7.62999349","16":"8.72106937","17":"29.546811","18":"205","19":"7.972820e-76","_rn_":"1"},{"1":"SDI","2":"conditional","3":"fixed","4":"-0.0246117","5":"0.001693882","6":"0.95","7":"-0.02795137","8":"-0.02127204","9":"-14.529761","10":"205","11":"2.378910e-33","12":"-0.02373891","13":"0.001987393","14":"0.95","15":"-0.02765726","16":"-0.01982055","17":"-11.944746","18":"205","19":"2.631602e-25","_rn_":"2"},{"1":"logAltitude","2":"conditional","3":"fixed","4":"0.1829230","5":"0.132638902","6":"0.95","7":"-0.07858828","8":"0.44443437","9":"1.379106","10":"205","11":"1.693650e-01","12":"0.15413144","13":"0.139789937","14":"0.95","15":"-0.12147889","16":"0.42974177","17":"1.102593","18":"205","19":"2.714966e-01","_rn_":"3"},{"1":"fForested (yes)","2":"conditional","3":"fixed","4":"1.2940197","5":"0.457941021","6":"0.95","7":"0.39114155","8":"2.19689779","9":"2.825734","10":"205","11":"5.183806e-03","12":"1.03617882","13":"0.384183512","14":"0.95","15":"0.27872126","16":"1.79363638","17":"2.697093","18":"205","19":"7.576830e-03","_rn_":"4"},{"1":"logAltitude × fForested (yes)","2":"conditional","3":"fixed","4":"-0.6596195","5":"0.217135578","6":"0.95","7":"-1.08772478","8":"-0.23151425","9":"-3.037823","10":"205","11":"2.692747e-03","12":"-0.53976498","13":"0.181637460","14":"0.95","15":"-0.89788203","16":"-0.18164793","17":"-2.971661","18":"205","19":"3.316036e-03","_rn_":"5"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>バリオグラムを描画すると、まだ空間的相関が少しありそう?</p>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="Chapter4.html#cb74-1" tabindex="-1"></a>vario_4_1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">resid =</span> <span class="fu">resid</span>(m4_1_lin2, <span class="at">type =</span> <span class="st">&quot;n&quot;</span>),</span>
+<span id="cb74-2"><a href="Chapter4.html#cb74-2" tabindex="-1"></a>                        <span class="at">Xkm =</span> iph<span class="sc">$</span>Xkm,</span>
+<span id="cb74-3"><a href="Chapter4.html#cb74-3" tabindex="-1"></a>                        <span class="at">Ykm =</span> iph<span class="sc">$</span>Ykm)</span>
+<span id="cb74-4"><a href="Chapter4.html#cb74-4" tabindex="-1"></a></span>
+<span id="cb74-5"><a href="Chapter4.html#cb74-5" tabindex="-1"></a>sp<span class="sc">::</span><span class="fu">coordinates</span>(vario_4_1) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Xkm&quot;</span>, <span class="st">&quot;Ykm&quot;</span>)</span>
+<span id="cb74-6"><a href="Chapter4.html#cb74-6" tabindex="-1"></a></span>
+<span id="cb74-7"><a href="Chapter4.html#cb74-7" tabindex="-1"></a>vario_4_1 <span class="sc">%&gt;%</span> </span>
+<span id="cb74-8"><a href="Chapter4.html#cb74-8" tabindex="-1"></a>  <span class="fu">variogram</span>(resid <span class="sc">~</span> Xkm <span class="sc">+</span> Ykm, <span class="at">data =</span> .,</span>
+<span id="cb74-9"><a href="Chapter4.html#cb74-9" tabindex="-1"></a>            <span class="do">## 0が南北方向、90が東西方向</span></span>
+<span id="cb74-10"><a href="Chapter4.html#cb74-10" tabindex="-1"></a>            <span class="at">alpha =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">90</span>),</span>
+<span id="cb74-11"><a href="Chapter4.html#cb74-11" tabindex="-1"></a>            <span class="at">cressie =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb74-12"><a href="Chapter4.html#cb74-12" tabindex="-1"></a>            <span class="at">cutoff =</span> <span class="dv">150</span>,</span>
+<span id="cb74-13"><a href="Chapter4.html#cb74-13" tabindex="-1"></a>            <span class="at">width =</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb74-14"><a href="Chapter4.html#cb74-14" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dist, <span class="at">y =</span> gamma))<span class="sc">+</span></span>
+<span id="cb74-15"><a href="Chapter4.html#cb74-15" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">size =</span> np))<span class="sc">+</span></span>
+<span id="cb74-16"><a href="Chapter4.html#cb74-16" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb74-17"><a href="Chapter4.html#cb74-17" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb74-18"><a href="Chapter4.html#cb74-18" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span> dir.hor,</span>
+<span id="cb74-19"><a href="Chapter4.html#cb74-19" tabindex="-1"></a>                 <span class="at">labeller =</span> <span class="fu">as_labeller</span>(<span class="fu">c</span>(<span class="st">&quot;0&quot;</span> <span class="ot">=</span> <span class="st">&quot;North-South&quot;</span>,</span>
+<span id="cb74-20"><a href="Chapter4.html#cb74-20" tabindex="-1"></a>                                          <span class="st">&quot;90&quot;</span> <span class="ot">=</span> <span class="st">&quot;East-West&quot;</span>)))<span class="sc">+</span></span>
+<span id="cb74-21"><a href="Chapter4.html#cb74-21" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;semivariogram&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-59-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="matern-correlation-function" class="section level2 hasAnchor" number="3.3">
+<h2><span class="header-section-number">3.3</span> Matern correlation function<a href="Chapter4.html#matern-correlation-function" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Matern相関関数は以下のように書ける。なお、<span class="math inline">\(s_i\)</span>と<span class="math inline">\(s_j\)</span>はデータ<span class="math inline">\(i\)</span>と<span class="math inline">\(j\)</span>の空間的な場所を、<span class="math inline">\(K_V\)</span>は第2種ベッセル関数を、<span class="math inline">\(||s_i - s_j||\)</span>はデータ<span class="math inline">\(i\)</span>と<span class="math inline">\(j\)</span>のユークリッド距離を表す(ベッセル関数については高度な数学が必要のため、理解しなくていい)。<span class="math inline">\(\kappa\)</span>はAR1過程モデルの<span class="math inline">\(\phi\)</span>やバリオグラムモデルのレンジに相当するものである。<span class="math inline">\(\Gamma()\)</span>はガンマ関数である。</p>
+<p><span class="math display">\[
+cor_{Matern}(s_i, s_j) = \frac{2^{1-V}}{\Gamma(V)} \times (\kappa \times ||s_i - s_j||)^V \times K_V(\kappa \times ||s_i - s_j||)
+\]</span></p>
+<p>Matern相関関数を図示したのが図<a href="#fig:Matern"><strong>??</strong></a>である。AR1過程やバリオグラムモデルのように、空間的に近いデータ同士の相関は高く、空間的に離れるほど相関が低くなっていくことが分かる。Matern関数は<code>gls</code>には実装されていないが、のちに学ぶ<code>INLA</code>パッケージには実装されている。</p>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="Chapter4.html#cb75-1" tabindex="-1"></a><span class="fu">library</span>(fields)</span>
+<span id="cb75-2"><a href="Chapter4.html#cb75-2" tabindex="-1"></a></span>
+<span id="cb75-3"><a href="Chapter4.html#cb75-3" tabindex="-1"></a><span class="fu">crossing</span>(<span class="at">kappa =</span> <span class="fu">c</span>(<span class="fl">0.02</span>,<span class="fl">0.07</span>,<span class="fl">0.2</span>),</span>
+<span id="cb75-4"><a href="Chapter4.html#cb75-4" tabindex="-1"></a>         <span class="at">distance  =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">100</span>,<span class="at">length =</span><span class="dv">100</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb75-5"><a href="Chapter4.html#cb75-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">correlation =</span> <span class="fu">ifelse</span>(distance <span class="sc">!=</span> <span class="dv">0</span>, (kappa <span class="sc">*</span> distance) <span class="sc">*</span> <span class="fu">besselK</span>(kappa <span class="sc">*</span> distance, <span class="dv">1</span>), <span class="dv">1</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb75-6"><a href="Chapter4.html#cb75-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">kappa =</span> <span class="fu">as.factor</span>(kappa)) <span class="sc">%&gt;%</span> </span>
+<span id="cb75-7"><a href="Chapter4.html#cb75-7" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> distance, <span class="at">y =</span> correlation))<span class="sc">+</span></span>
+<span id="cb75-8"><a href="Chapter4.html#cb75-8" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">linetype =</span> kappa))<span class="sc">+</span></span>
+<span id="cb75-9"><a href="Chapter4.html#cb75-9" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb75-10"><a href="Chapter4.html#cb75-10" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/Matern-1.png" width="672" style="display: block; margin: auto;" /></p>
+
+</div>
+</div>
+<h3>References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Dale2014" class="csl-entry">
+Dale MRT, Fortin M-J (2014) Spatial analysis: A guide for ecologists. Cambridge University Press
+</div>
+<div id="ref-Murakami2022" class="csl-entry">
+村上大輔 (2022) Rではじめる地理空間データの統計解析入門. 講談社
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="Chapter3.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="Chapter5.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
