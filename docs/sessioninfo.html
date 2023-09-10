@@ -23,14 +23,14 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-09" />
+<meta name="date" content="2023-09-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="Chapter5.html"/>
+<link rel="prev" href="Chapter6.html"/>
 
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
@@ -66,6 +66,8 @@
 <script src="libs/selectize-0.12.0/selectize.min.js"></script>
 <link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
 <script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
 
 
 <style type="text/css">
@@ -223,7 +225,7 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="3.1" data-path="Chapter4.html"><a href="Chapter4.html#variogram-models-for-spatial-dependency"><i class="fa fa-check"></i><b>3.1</b> Variogram models for spatial dependency</a></li>
 <li class="chapter" data-level="3.2" data-path="Chapter4.html"><a href="Chapter4.html#application-on-the-irish-ph-data"><i class="fa fa-check"></i><b>3.2</b> Application on the Irish pH data</a></li>
-<li class="chapter" data-level="3.3" data-path="Chapter4.html"><a href="Chapter4.html#matern-correlation-function"><i class="fa fa-check"></i><b>3.3</b> Matern correlation function</a></li>
+<li class="chapter" data-level="3.3" data-path="Chapter4.html"><a href="Chapter4.html#s4-3"><i class="fa fa-check"></i><b>3.3</b> Matern correlation function</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="Chapter5.html"><a href="Chapter5.html"><i class="fa fa-check"></i><b>4</b> Linear mixed-effects models and dependency</a>
 <ul>
@@ -236,6 +238,19 @@ div.csl-indent {
 <li class="chapter" data-level="4.4" data-path="Chapter5.html"><a href="Chapter5.html#model-validation-2"><i class="fa fa-check"></i><b>4.4</b> Model validation</a></li>
 <li class="chapter" data-level="4.5" data-path="Chapter5.html"><a href="Chapter5.html#sketching-the-fitted-value"><i class="fa fa-check"></i><b>4.5</b> Sketching the fitted value</a></li>
 <li class="chapter" data-level="4.6" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-correctly-as-two-way-nested"><i class="fa fa-check"></i><b>4.6</b> Considering the data (correctly) as two-way nested</a></li>
+<li class="chapter" data-level="4.7" data-path="Chapter5.html"><a href="Chapter5.html#differences-with-the-ar1-process-approach"><i class="fa fa-check"></i><b>4.7</b> Differences with the AR1 process approach</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="Chapter6.html"><a href="Chapter6.html"><i class="fa fa-check"></i><b>5</b> Modelling space explicitly</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="Chapter6.html"><a href="Chapter6.html#model-formulation-1"><i class="fa fa-check"></i><b>5.1</b> Model formulation</a></li>
+<li class="chapter" data-level="5.2" data-path="Chapter6.html"><a href="Chapter6.html#s6-2"><i class="fa fa-check"></i><b>5.2</b> Covariance matrix of the spatial random effect</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study"><i class="fa fa-check"></i><b>5.2.1</b> Simulation study</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="Chapter6.html"><a href="Chapter6.html#spatial-temporal-correlation"><i class="fa fa-check"></i><b>5.3</b> Spatial-temporal correlation</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study-continued"><i class="fa fa-check"></i><b>5.3.1</b> Simulation study (continued)</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -257,7 +272,7 @@ div.csl-indent {
             <section class="normal" id="section-">
 <div id="実行環境" class="section level1 unnumbered hasAnchor">
 <h1>実行環境<a href="sessioninfo.html#実行環境" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<div class="sourceCode" id="cb95"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb95-1"><a href="sessioninfo.html#cb95-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb107"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb107-1"><a href="sessioninfo.html#cb107-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 4.2.2 (2022-10-31 ucrt)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
 ## Running under: Windows 10 x64 (build 22621)
@@ -392,7 +407,7 @@ Zuur AF, Hilbe JM, Leno EN (2013) A beginner’s guide to <span>GLM</span> and <
           </div>
         </div>
       </div>
-<a href="Chapter5.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="Chapter6.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 
     </div>
   </div>

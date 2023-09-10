@@ -23,7 +23,7 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-09" />
+<meta name="date" content="2023-09-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="Chapter4.html"/>
-<link rel="next" href="sessioninfo.html"/>
+<link rel="next" href="Chapter6.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -66,6 +66,8 @@
 <script src="libs/selectize-0.12.0/selectize.min.js"></script>
 <link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
 <script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
 
 
 <style type="text/css">
@@ -223,7 +225,7 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="3.1" data-path="Chapter4.html"><a href="Chapter4.html#variogram-models-for-spatial-dependency"><i class="fa fa-check"></i><b>3.1</b> Variogram models for spatial dependency</a></li>
 <li class="chapter" data-level="3.2" data-path="Chapter4.html"><a href="Chapter4.html#application-on-the-irish-ph-data"><i class="fa fa-check"></i><b>3.2</b> Application on the Irish pH data</a></li>
-<li class="chapter" data-level="3.3" data-path="Chapter4.html"><a href="Chapter4.html#matern-correlation-function"><i class="fa fa-check"></i><b>3.3</b> Matern correlation function</a></li>
+<li class="chapter" data-level="3.3" data-path="Chapter4.html"><a href="Chapter4.html#s4-3"><i class="fa fa-check"></i><b>3.3</b> Matern correlation function</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="Chapter5.html"><a href="Chapter5.html"><i class="fa fa-check"></i><b>4</b> Linear mixed-effects models and dependency</a>
 <ul>
@@ -236,6 +238,19 @@ div.csl-indent {
 <li class="chapter" data-level="4.4" data-path="Chapter5.html"><a href="Chapter5.html#model-validation-2"><i class="fa fa-check"></i><b>4.4</b> Model validation</a></li>
 <li class="chapter" data-level="4.5" data-path="Chapter5.html"><a href="Chapter5.html#sketching-the-fitted-value"><i class="fa fa-check"></i><b>4.5</b> Sketching the fitted value</a></li>
 <li class="chapter" data-level="4.6" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-correctly-as-two-way-nested"><i class="fa fa-check"></i><b>4.6</b> Considering the data (correctly) as two-way nested</a></li>
+<li class="chapter" data-level="4.7" data-path="Chapter5.html"><a href="Chapter5.html#differences-with-the-ar1-process-approach"><i class="fa fa-check"></i><b>4.7</b> Differences with the AR1 process approach</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="Chapter6.html"><a href="Chapter6.html"><i class="fa fa-check"></i><b>5</b> Modelling space explicitly</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="Chapter6.html"><a href="Chapter6.html#model-formulation-1"><i class="fa fa-check"></i><b>5.1</b> Model formulation</a></li>
+<li class="chapter" data-level="5.2" data-path="Chapter6.html"><a href="Chapter6.html#s6-2"><i class="fa fa-check"></i><b>5.2</b> Covariance matrix of the spatial random effect</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study"><i class="fa fa-check"></i><b>5.2.1</b> Simulation study</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="Chapter6.html"><a href="Chapter6.html#spatial-temporal-correlation"><i class="fa fa-check"></i><b>5.3</b> Spatial-temporal correlation</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study-continued"><i class="fa fa-check"></i><b>5.3.1</b> Simulation study (continued)</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -347,7 +362,7 @@ BL_{1,6}\\
 \phi &amp; \phi &amp; \phi &amp; \phi &amp; \phi &amp; 1 \\
 \end{pmatrix}
 \]</span></p>
-<p>他の巣についても同じように書ける(データ数に応じて行列数が変わるだけである)。よって、全ての巣のデータの相関係数は以下のように書ける。なお、<span class="math inline">\(n_1, n_2, \dots, n_73\)</span>は各巣のデータ数である。以上で見たように、同じ巣のデータ同士の相関は<span class="math inline">\(\phi\)</span>、異なる巣のデータ同士の相関は0であると仮定される。</p>
+<p>他の巣についても同じように書ける(データ数に応じて行列数が変わるだけである)。よって、全ての巣のデータの相関係数は以下のように書ける。なお、<span class="math inline">\(n_1, n_2, \dots, n_{73}\)</span>は各巣のデータ数である。以上で見たように、同じ巣のデータ同士の相関は<span class="math inline">\(\phi\)</span>、異なる巣のデータ同士の相関は0であると仮定される。</p>
 <p><span class="math display">\[
 \begin{aligned}
 cor \begin{pmatrix}
@@ -615,6 +630,7 @@ b_{ij} &amp;\sim N(0, \sigma_{chick}^2)\\
 </p>
 </div>
 <p><br/></p>
+<p>one-way nested model とtwo-way nested model を比較するとパラメータの推定値と標準偏差がわずかに違う。AICを用いてどちらが良いかを調べることもできるが、疑似反復が解消されているtwo-way nested modelを選ぶべきである。</p>
 <div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="Chapter5.html#cb94-1" tabindex="-1"></a><span class="fu">compare_parameters</span>(m5_1, m5_2, <span class="at">select =</span> <span class="st">&quot;{estimate}&lt;br&gt;({se})|{p}&quot;</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb94-2"><a href="Chapter5.html#cb94-2" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb94-3"><a href="Chapter5.html#cb94-3" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.numeric, <span class="sc">~</span><span class="fu">round</span>(.,<span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
@@ -624,6 +640,10 @@ b_{ij} &amp;\sim N(0, \sigma_{chick}^2)\\
 {"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Parameter"],"name":[1],"type":["chr"],"align":["left"]},{"label":["Coefficient.m5_1"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["SE.m5_1"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["Coefficient.m5_2"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["SE.m5_2"],"name":[5],"type":["dbl"],"align":["right"]}],"data":[{"1":"(Intercept)","2":"44.44","3":"0.97","4":"44.41","5":"0.94","_rn_":"1"},{"1":"age","2":"2.99","3":"0.02","4":"2.98","5":"0.01","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
   </script>
 </div>
+</div>
+<div id="differences-with-the-ar1-process-approach" class="section level2 hasAnchor" number="4.7">
+<h2><span class="header-section-number">4.7</span> Differences with the AR1 process approach<a href="Chapter5.html#differences-with-the-ar1-process-approach" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>第<a href="Chapter3.html#c3">2</a>章で見たような残差AR1過程モデルは残差に時間的な相関があると仮定して疑似反復に対処したが、必ずしも応答変数に時間的相関を仮定したわけではなかった。一方で、混合モデルは応答変数に従属構造があることを考慮して疑似反復に対処している。</p>
 
 </div>
 </div>
@@ -639,7 +659,7 @@ Bouriach M, Samraoui F, Souilah R, et al (2015) Does <span>Core-Periphery</span>
         </div>
       </div>
 <a href="Chapter4.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="sessioninfo.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="Chapter6.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

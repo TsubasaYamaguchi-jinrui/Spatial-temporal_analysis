@@ -1,4 +1,4 @@
-# Spatial data and GLS  
+# Spatial data and GLS {#c4}  
 本章では、今度は空間的相関を持つデータにGLSを適用する。  
 
 ## Variogram models for spatial dependency  
@@ -278,11 +278,11 @@ vario_4_1 %>%
   labs(y = "semivariogram")
 ```
 
-## Matern correlation function  
+## Matern correlation function {#s4-3}    
 Matern相関関数は以下のように書ける。なお、$s_i$と$s_j$はデータ$i$と$j$の空間的な場所を、$K_V$は第2種ベッセル関数を、$||s_i - s_j||$はデータ$i$と$j$のユークリッド距離を表す(ベッセル関数については高度な数学が必要のため、理解しなくていい)。$\kappa$はAR1過程モデルの$\phi$やバリオグラムモデルのレンジに相当するものである。$\Gamma()$はガンマ関数である。  
 
 $$
-cor_{Matern}(s_i, s_j) = \frac{2^{1-V}}{\Gamma(V)} \times (\kappa \times ||s_i - s_j||)^V \times K_V(\kappa \times ||s_i - s_j||)
+cor_{Matern}(s_i, s_j) = \frac{2^{1-\nu}}{\Gamma(\nu)} \times (\kappa \times ||s_i - s_j||)^\nu \times K_\nu(\kappa \times ||s_i - s_j||)
 $$
 
 Matern相関関数を図示したのが図\@ref(fig:Matern)である。AR1過程やバリオグラムモデルのように、空間的に近いデータ同士の相関は高く、空間的に離れるほど相関が低くなっていくことが分かる。Matern関数は`gls`には実装されていないが、のちに学ぶ`INLA`パッケージには実装されている。  

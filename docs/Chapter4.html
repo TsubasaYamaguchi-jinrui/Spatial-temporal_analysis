@@ -23,7 +23,7 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-09" />
+<meta name="date" content="2023-09-10" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -66,6 +66,8 @@
 <script src="libs/selectize-0.12.0/selectize.min.js"></script>
 <link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
 <script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
 
 
 <style type="text/css">
@@ -223,7 +225,7 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="3.1" data-path="Chapter4.html"><a href="Chapter4.html#variogram-models-for-spatial-dependency"><i class="fa fa-check"></i><b>3.1</b> Variogram models for spatial dependency</a></li>
 <li class="chapter" data-level="3.2" data-path="Chapter4.html"><a href="Chapter4.html#application-on-the-irish-ph-data"><i class="fa fa-check"></i><b>3.2</b> Application on the Irish pH data</a></li>
-<li class="chapter" data-level="3.3" data-path="Chapter4.html"><a href="Chapter4.html#matern-correlation-function"><i class="fa fa-check"></i><b>3.3</b> Matern correlation function</a></li>
+<li class="chapter" data-level="3.3" data-path="Chapter4.html"><a href="Chapter4.html#s4-3"><i class="fa fa-check"></i><b>3.3</b> Matern correlation function</a></li>
 </ul></li>
 <li class="chapter" data-level="4" data-path="Chapter5.html"><a href="Chapter5.html"><i class="fa fa-check"></i><b>4</b> Linear mixed-effects models and dependency</a>
 <ul>
@@ -236,6 +238,19 @@ div.csl-indent {
 <li class="chapter" data-level="4.4" data-path="Chapter5.html"><a href="Chapter5.html#model-validation-2"><i class="fa fa-check"></i><b>4.4</b> Model validation</a></li>
 <li class="chapter" data-level="4.5" data-path="Chapter5.html"><a href="Chapter5.html#sketching-the-fitted-value"><i class="fa fa-check"></i><b>4.5</b> Sketching the fitted value</a></li>
 <li class="chapter" data-level="4.6" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-correctly-as-two-way-nested"><i class="fa fa-check"></i><b>4.6</b> Considering the data (correctly) as two-way nested</a></li>
+<li class="chapter" data-level="4.7" data-path="Chapter5.html"><a href="Chapter5.html#differences-with-the-ar1-process-approach"><i class="fa fa-check"></i><b>4.7</b> Differences with the AR1 process approach</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="Chapter6.html"><a href="Chapter6.html"><i class="fa fa-check"></i><b>5</b> Modelling space explicitly</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="Chapter6.html"><a href="Chapter6.html#model-formulation-1"><i class="fa fa-check"></i><b>5.1</b> Model formulation</a></li>
+<li class="chapter" data-level="5.2" data-path="Chapter6.html"><a href="Chapter6.html#s6-2"><i class="fa fa-check"></i><b>5.2</b> Covariance matrix of the spatial random effect</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study"><i class="fa fa-check"></i><b>5.2.1</b> Simulation study</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="Chapter6.html"><a href="Chapter6.html#spatial-temporal-correlation"><i class="fa fa-check"></i><b>5.3</b> Spatial-temporal correlation</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study-continued"><i class="fa fa-check"></i><b>5.3.1</b> Simulation study (continued)</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -255,8 +270,8 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="spatial-data-and-gls" class="section level1 hasAnchor" number="3">
-<h1><span class="header-section-number">3</span> Spatial data and GLS<a href="Chapter4.html#spatial-data-and-gls" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="c4" class="section level1 hasAnchor" number="3">
+<h1><span class="header-section-number">3</span> Spatial data and GLS<a href="Chapter4.html#c4" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>本章では、今度は空間的相関を持つデータにGLSを適用する。</p>
 <div id="variogram-models-for-spatial-dependency" class="section level2 hasAnchor" number="3.1">
 <h2><span class="header-section-number">3.1</span> Variogram models for spatial dependency<a href="Chapter4.html#variogram-models-for-spatial-dependency" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -564,11 +579,11 @@ h(s, \phi) = exp \Bigl( -\bigl( \frac{s}{\phi} \bigl)^2 \Bigl)
 <span id="cb74-21"><a href="Chapter4.html#cb74-21" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;semivariogram&quot;</span>)</span></code></pre></div>
 <p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-59-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="matern-correlation-function" class="section level2 hasAnchor" number="3.3">
-<h2><span class="header-section-number">3.3</span> Matern correlation function<a href="Chapter4.html#matern-correlation-function" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="s4-3" class="section level2 hasAnchor" number="3.3">
+<h2><span class="header-section-number">3.3</span> Matern correlation function<a href="Chapter4.html#s4-3" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Matern相関関数は以下のように書ける。なお、<span class="math inline">\(s_i\)</span>と<span class="math inline">\(s_j\)</span>はデータ<span class="math inline">\(i\)</span>と<span class="math inline">\(j\)</span>の空間的な場所を、<span class="math inline">\(K_V\)</span>は第2種ベッセル関数を、<span class="math inline">\(||s_i - s_j||\)</span>はデータ<span class="math inline">\(i\)</span>と<span class="math inline">\(j\)</span>のユークリッド距離を表す(ベッセル関数については高度な数学が必要のため、理解しなくていい)。<span class="math inline">\(\kappa\)</span>はAR1過程モデルの<span class="math inline">\(\phi\)</span>やバリオグラムモデルのレンジに相当するものである。<span class="math inline">\(\Gamma()\)</span>はガンマ関数である。</p>
 <p><span class="math display">\[
-cor_{Matern}(s_i, s_j) = \frac{2^{1-V}}{\Gamma(V)} \times (\kappa \times ||s_i - s_j||)^V \times K_V(\kappa \times ||s_i - s_j||)
+cor_{Matern}(s_i, s_j) = \frac{2^{1-\nu}}{\Gamma(\nu)} \times (\kappa \times ||s_i - s_j||)^\nu \times K_\nu(\kappa \times ||s_i - s_j||)
 \]</span></p>
 <p>Matern相関関数を図示したのが図<a href="#fig:Matern"><strong>??</strong></a>である。AR1過程やバリオグラムモデルのように、空間的に近いデータ同士の相関は高く、空間的に離れるほど相関が低くなっていくことが分かる。Matern関数は<code>gls</code>には実装されていないが、のちに学ぶ<code>INLA</code>パッケージには実装されている。</p>
 <div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="Chapter4.html#cb75-1" tabindex="-1"></a><span class="fu">library</span>(fields)</span>
