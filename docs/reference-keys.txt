@@ -66,3 +66,6 @@ s6-2
 simulation-study
 spatial-temporal-correlation
 simulation-study-continued
+introduction-to-bayesian-statistics
+why-go-bayesian
+general-probability-rules
