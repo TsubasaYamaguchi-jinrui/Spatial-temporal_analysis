@@ -15,7 +15,7 @@
 
 頻度論ではパラメータはある1つの真値を持つと考えられる一方で、ベイズ統計ではパラメータはある確率的な分布に従っているとされる[@Kruschke2014; @Baba2019; @Matsuura2016; @Matsuura2016; @McElreath2020]。ベイズ統計を用いた分析では、データが得られた時のパラメータの分布(= 事後分布)を最終的に得る($P(\beta|D)$)。一方で、頻度論的な統計学ではパラ、エータがある値のときにデータが得られる確率($P(D|\beta)$)を計算する(= 尤度)。  
 
-## General probability rules  
+## General probability rules {#s7-2}   
 まず確立の基本から確認していく。$P(A)$と$P(B)$をそれぞれ事象Aが生じる確率、事象Bが生じる確率とする。また、$P(A \cap B)$をAかつBである確率、$P(A \cup B)$をAまたはBである確率とする。このとき、  
 
 $$
@@ -27,12 +27,13 @@ $$
 P(A \cap B) = P(A) \times P(B)
 $$
 
-一方、AとBが独立でないとき以下のように書ける。なお、$P(A|B)$は条件付確率を表し、事象Bが生じたときに事象Aが生じる確率を表す。  
+一方、AとBが独立でないとき以下のように書ける。なお、$P(A|B)$は条件付き確率を表し、事象Bが生じたときに事象Aが生じる確率を表す。  
 $$
 \begin{aligned}
 P(A \cap B) &= P(A|B) \times P(B)\\
 P(A \cap B) &= P(B|A) \times P(A)
 \end{aligned}
+(\#eq:conditional)
 $$
 
 よって、以下の式が導かれる。これを、**ベイズの定理**という。  
@@ -85,10 +86,513 @@ $$
 この式は、事後分布は尤度と事前分布の積に比例していることを示している。また、事後分布の期待値は式\@ref(eq:exp-con)から以下のように書ける。  
 
 $$
-E(\beta|D) = \int_{-\infty} ^\infty \beta \times P(\beta_|D) d\beta
+E(\beta|D) = \int_{-\infty} ^\infty \beta \times P(\beta|D) d\beta
 $$
 
 次節以降では、事後分布とその期待値をどのように推定するかをみていく。  
 
-## Conjugate priors  
+## Conjugate priors {#s7-5}    
+第\@ref(c3)章で調べたように、ミサゴの卵の厚さが殺虫剤の崩壊産物(DDD)によって変わるかを検討するとする[@Steidl1991]。第\@ref(c3)と同様に以下のモデルを考える。  
+
+$$
+\begin{aligned}
+&\mu_i = \beta_1 + DDD_i \times \beta_2  \\
+&Thickness_i \sim N(\mu_i,\sigma^2)
+\end{aligned}
+(\#eq:DDD)
+$$
+
+ここで、切片$\beta_1$と$\sigma$は分かっていると仮定し、事後分布$P(\beta_2|D)$を推定するとしよう。これを求めるには、式\@ref(eq:bayes2)で触れたように尤度$P(D|\beta_2)$と事前分布$P(\beta_2)$が必要である。  
+
+### Likelihood function  
+$P(D|\beta_2)$はパラメータ$\beta_2$が与えられたときにデータDが得られる確率、すなわち尤度である。卵の殻の厚さは連続変数なので、ここではモデル式にあるようにデータが正規分布から得られていると仮定する。  
+
+このとき、尤度は式\@ref(eq:DDD)より以下のように書ける[^foot1]。  
+
+[^foot1]: 正規分布は平均が$\mu$、標準偏差が$\sigma$のとき、$p(y) = \frac{1}{\sqrt{2 \pi \sigma^2}} exp\Bigl(-\frac{(y - \mu)^2}{2\sigma^2}\Bigl)$と書ける。  
+
+$$
+P(D|\beta_2) = \prod_i ^n \frac{1}{\sqrt{2 \pi \sigma^2}} exp\Bigl(-\frac{(Thickness_i - \beta_1 - DDD_i \times \beta_2)^2}{2\sigma^2}\Bigl) (\#eq:likelihood)
+$$
+
+頻度論的な統計学では、この尤度が最大になるようにパラメータ$\beta_2$を決定する。これは**最尤推定法(maximum likelihood estimation)**と呼ばれ、Rでは`glm`関数などで実装されている。  
+
+### Priors  
+続いて、事前分布$P(\beta_2)$について考える。これには、先行研究などの結果や生物学的知識などから予想される分布を適用することができる。事前分布としては、例えば以下のように正規分布を仮定することができる。  
+
+$$
+\beta_2 \sim N(\beta_2^0, \sigma_0^2)
+$$
+
+このとき、事前分布の確率密度関数は以下のように書ける。  
+$$
+P(\beta_2) = \frac{1}{\sqrt{2 \pi \sigma_0^2}} exp\Bigl(-\frac{(\beta_2 - \beta_2^0)^2}{2\sigma_0^2}\Bigl) (\#eq:prior)
+$$
+
+### Posterior distribution  
+式\@ref(eq:likelihood)の尤度と式\@ref(eq:prior)の事前分布から、事後分布は以下のように書ける。  
+
+$$
+\begin{aligned}
+P(\beta_2|D) &\propto P(D|\beta_2) \times P(\beta_2) \\
+             &= \left[\prod_i ^n \frac{1}{\sqrt{2 \pi \sigma^2}} exp\Bigl(-\frac{(Thickness_i - \beta_1 - DDD_i \times \beta_2)^2}{2\sigma^2}\Bigl) \right] \times \left[ \frac{1}{\sqrt{2 \pi \sigma_0^2}} exp\Bigl(-\frac{(\beta_2 - \beta_2^0)^2}{2\sigma_0^2}\Bigl) \right]
+\end{aligned}
+$$
+
+これは複雑な計算になるが、正規分布同士を掛け合わせているので事後分布も正規分布になる。このように、事前分布と事後分布の分布の関数形が同じになるようなとき、ベイズ統計ではこれらを**共役分布**という。このような分布の組み合わせはいくつかある([こちら](https://ai-trend.jp/basic-study/bayes/conjugate-prior-distribution/)を参照)。  
+
+これを計算すれば、事後分布やその期待値などを計算で求めることができる。なお、今回の場合は以下のような形になる。$\hat{\beta_2}$は$\beta_2$の最尤推定値である。  
+
+$$
+\begin{aligned}
+&w = \frac{\sigma_0^2 \times \rm{something}}{\sigma_0^2 \times \rm{something} + \sigma^2}\\
+&E(\beta_2|D) = \hat{\beta_2} \times w + (w-1) \times \beta_2^0 + \rm{Ugly \; stuff} \\
+&var(\beta_2|D) =  \sigma^2 \times \frac{w}{\rm{Ugly \; stuff}}
+\end{aligned}
+(\#eq:posterior)
+$$
+
+
+### Diffuse prior  
+多くの場合、私たちは事前分布に関する知識を持たない。そのとき、以下のように非常に広い分布を事前分布として指定することが多い。  
+
+$$
+\beta_2 \sim N(0, 100) \Leftrightarrow \beta_2^0 = 0 \; and \; \sigma_0 = 100
+$$
+
+このとき、$\beta_2$はだいたい-200から200の間の値をとりうるということになる。このように広い範囲をもつ事前分布を**無情報事前分布**という。
+
+無情報事前分布のとき(= $\sigma_0$が大きいとき)、式\@ref(eq:posterior)の$w$は1に近づく。よって、$P(\beta_2|D)$の期待値は$\hat{\beta_2}$に近づき、頻度論的な統計学と同様に最尤推定値となる。    
+
+$$
+P(\beta_2|D) \approx \hat{\beta_2} 
+$$
+
+実際に分布を書いてみるとこのことがよくわかる。図\@ref(fig:example-bayes)は無情報事前分布のときの事前分布、尤度関数、事後分布を図示したものである。なお、$\beta_1 = 51.7, \sigma = 5.17$としている。無情報事前分布の場合、**尤度関数と事後分布の形がほとんど同じ**になっていることが分かる。その結果、尤度関数における最尤推定値が事後分布の期待値とほぼ一致するのである。  
+
+```{r example-bayes, fig.cap = "Prior, likelihood, and posterior distribution.", fig.dim = c(14,4.5)}
+beta2 <- seq(-20, 10, length.out = 100)
+beta1 <- 51.7
+sigma <- 5.17
+
+## 尤度
+likelihood <- vector()
+
+for(i in 1:100){
+likelihood[i] <- prod(dnorm(osp$THICK, mean = beta1 + beta2[i]*osp$DDD, sd = sigma))
+}
+
+## prior  
+prior <- dnorm(beta2, mean = 0, sd = 100)
+
+## 図示  
+data.frame(beta2 = beta2,
+           likelihood = likelihood,
+           prior = prior) %>% 
+  mutate(posterior = prior*likelihood) %>% 
+  pivot_longer(2:4, names_to = "type", values_to = "probability") %>% 
+  mutate(type = fct_relevel(type, "prior","likelihood","posterior")) %>% 
+  ggplot(aes(x = beta2))+
+  geom_line(aes(y = probability),
+            linewidth = 1)+
+  facet_rep_wrap(~type, repeat.tick.labels = TRUE, scales = "free_y")+
+  theme_bw()+
+  theme(aspect.ratio = 1,
+        strip.background = element_blank(),
+        strip.text = element_text(size = 13))
+```
+
+### Informative prior  
+一方で、パラメータ$\beta_2$に関してあらかじめ知識がある場合(e.g., 生態学的に考えて、ある範囲しか取り得ないなど)には、より狭い分布を持つ**情報事前分布**を用いることもできる。  
+
+例えば、以下のように非常に狭い事前分布を指定することもできる。  
+$$
+\beta_2 \sim N(-18, 1) \Leftrightarrow \beta_2^0 = -18 \; and \; \sigma_0 = 1
+$$
+
+このとき、式\@ref(eq:posterior)の$w$は0に近づいていく。その結果、事後分布の期待値は事前分布の期待値$\beta_2^0$に近づいていく。  
+$$
+P(\beta_2|D) \approx \beta_2^0 
+$$
+
+これも図示してみるとよくわかる。図\@ref(fig:example-bayes2)は情報事前分布のときの事前分布、尤度関数、事後分布を図示したものである。このとき**事後分布と事前分布の分布の形がほとんど同じ**になっていることが分かる。その結果、事後分布の期待値が事前分布の期待値とほとんど同じになるのである。  
+
+```{r example-bayes2, fig.cap = "Prior, likelihood, and posterior distribution.", fig.dim = c(14,4.5)}
+beta2 <- seq(-23, 10, length.out = 100)
+beta1 <- 51.7
+sigma <- 5.17
+
+## 尤度
+likelihood <- vector()
+
+for(i in 1:100){
+likelihood[i] <- prod(dnorm(osp$THICK, mean = beta1 + beta2[i]*osp$DDD, sd = sigma))
+}
+
+## prior  
+prior <- dnorm(beta2, mean = -18, sd = 1)
+
+## 図示  
+data.frame(beta2 = beta2,
+           likelihood = likelihood,
+           prior = prior) %>% 
+  mutate(posterior = prior*likelihood) %>% 
+  pivot_longer(2:4, names_to = "type", values_to = "probability") %>% 
+  mutate(type = fct_relevel(type, "prior","likelihood","posterior")) %>% 
+  ggplot(aes(x = beta2))+
+  geom_line(aes(y = probability),
+            linewidth = 1)+
+  facet_rep_wrap(~type, repeat.tick.labels = TRUE, scales = "free_y")+
+  theme_bw()+
+  theme(aspect.ratio = 1,
+        strip.background = element_blank(),
+        strip.text = element_text(size = 13))
+```
+<br/>  
+
+以上のように、事前分布が情報を持たないほど(= 幅が広いほど)事後分布の期待値は最尤推定値に近づき、情報を持つほど(= 幅が狭いほど)事後分布の期待値は事前分布の期待値に近づく。  
+
+今回は$\beta_2$についてのみ事前分布を設定したが、実際の分析では全てのパラメータについて事前分布を設定する必要がある。回帰係数の事前分布としては、正規分布やt分布などが用いられることが多い。一方で、標準偏差$\sigma$は必ず0より大きい値をとるので、こうした分布は事前分布として不適切なことが多い。事前分布の選択については、[こちら](https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations)を参照。    
+
+@Ntzoufras2011 は、線形モデルの場合回帰係数$\beta$の事前分布が正規分布、$\sigma$の事前分布として逆ガンマ関数を用いると事前分布と事後分布が共役な分布になるとしている。$\sigma^2$の事前分布として逆ガンマ関数を用いるのは、$\tau = 1/\sigma^2$の事前分布としてガンマ関数を用いるのと同じである。このとき、$\tau$はprecision(精度)と呼ばれる。  
+
+本節では事後分布が手動で計算できるように共役な事前分布を用いた。しかし、これから見るような複雑なモデルでは手動で事後分布を求めることは困難になっていく。そこで用いられるのが次節で解説するMCMC法である。  
+
+## Markov chain Monte Carlo simulation  
+### underlying idea  
+**マルコフ連鎖モンテカルロ(MCMC)法**は、手動ではなくシミュレーションによって事後分布を推測する方法である。MCMCでは、全てのパラメータについて同時にこれを行う。例えば、卵の殻の厚さに関する分析(式\@ref(eq:DDD))では、3つのパラメータ$\bf{\theta} = (\beta_1, \beta_2, \sigma)$について事後分布を同時に求める。  
+
+マルコフ連鎖とは、$\bf{\theta}$についてシミュレーションを行ったベクトル$\theta^{(1)}, \theta^{(2)}, \theta^{(3)}, \dots, \theta^{(T)}$を指し、$\theta^{(t+1)}$は$\theta^{(t)}$のみに依存する。数学的には以下のように書ける。  
+
+$$
+f(\theta^{(t+1)}|\theta^{(t)}, \dots, \theta^{(1)}) = f(\theta^{(t+1)}|\theta^{(t)})
+$$
+
+MCMCでは各パラメータについて多くの(通常10000回以上)のシミュレーション値が得られる。これのシミュレーション値をヒストグラムにすると、それぞれのパラメータの事後分布に近似させることができることが数学的にわかっている。数学的な説明については、 @Kruschke2014 や @McElreath2020 などを参照。  
+
+### Simple example of MCMC algorithm    
+ここでは、MCMCがどのように分布を推定できるのかを見るため、MCMC法の一種であるメトロポリスアルゴリズム(Metropolis algorithm)の特殊例について簡単に見ていく[@McElreath2020]。  
+
+10の島からなる諸島があるとする。それぞれの島は2つの島に隣接しており、全体で円になっている。各島は面積が異なり、それに比例して人口も異なる。面積と人口は1つめの島から順に2倍、3倍、...10倍になっている(つまり、1つめの島の大きさと人口が1だとすれば、10個目の島はそれぞれ10である)。さて、この諸島の王様は1週間ごとに島々を訪れるが、その際には隣接している島にしか移動できない。王様は**各島を人口比率に応じて訪れたい**が、訪問計画を長期的に策定するのは面倒である。そこで、彼の側近は以下の方法で島を訪れることを提案した。この方法に従えば、各島に訪れる頻度が人口比率に一致する。  
+
+1. 毎週王様はその島にとどまるか、隣接するいずれかの島に移動するかをコインを投げて決める。  
+2. もしコインが表なら、王様は時計回りに隣の島に移動することを考える。一方コインが裏なら、反時計回りに移動することを考える。ここで、提案された島を*proposal island*とする。  
+3. 王様は*porposal island*の大きさだけ(7つめの島にいるなら7個)貝殻を集める。また、現在いる島の大きさだけ同様に石を集める。  
+4. もし貝殻の数が石よりも多ければ、王様は*proposal island*へ移動する。一方で石の数の方が多い場合、王様は集めた石から貝殻と同数の石を捨てる(例えば石が6つ、貝殻が4つなら、手元には$6-4=2$個の石が残る)。その後、残された石と貝殻をカバンに入れ、王様はランダムにそのうちの一つを引く。もしそれが貝殻ならば*proposal island*に移動し、石ならば今いる島に留まる。  
+<br />  
+
+この方法は一見奇妙だが、長期間繰り返していくと非常にうまくいく。以下でシミュレーションしてみよう。  
+
+```{r}
+set.seed(9)
+
+num_weeks <- 1e6
+positions <- rep(0, num_weeks)
+current <- 10
+
+## アルゴリズムの記述
+for(i in 1:num_weeks){
+  ## 最初は島10からスタート
+  positions[i] <- current
+  proposal <- current + sample(c(-1,1), size=1)
+  
+  if(proposal <1)  proposal <- 10
+  if(proposal >10) proposal <- 1
+  
+  prob_move <- proposal/current
+  current <- ifelse(runif(1) < prob_move, proposal, current)
+}
+```
+<br />  
+
+国王の動きを可視化してみる。  
+```{r, fig.width = 6, fig.height = 3}
+tibble(week = 1:1e6,
+       island = positions) %>% 
+  ggplot(aes(x=week, y = island))+
+  geom_line(linewidth = 1/3)+
+  geom_point()+
+  coord_cartesian(xlim = c(0,500))+
+  scale_y_continuous(breaks = seq(1,10,1))+
+  theme_bw()+
+  theme(aspect.ratio= 0.8)
+```
+<br />  
+
+各島を訪れた回数を見てみると以下のようになり、人口に応じて訪れていることが分かる。  
+```{r, fig.width = 6, fig.height = 3}
+tibble(week = 1:1e6,
+       island = positions) %>% 
+  mutate(island = factor(island)) %>% 
+  ggplot(aes(x=island))+
+  geom_bar()+
+  theme_bw()+
+  theme(aspect.ratio = 0.9)+
+  scale_y_continuous(breaks = seq(0,180000, 20000))
+```
+
+島を訪れている比率(`prop`)はおよそ人口通りになる。このアルゴリズムは、隣の島だけでなく全ての島への移動が可能であっても同様に機能する。  
+```{r, fig.align='left'}
+tibble(week = 1:1e6,
+       island = positions) %>% 
+  count(island) %>% 
+  mutate(prop = n/n[1]) %>% 
+  gt() %>% 
+  fmt_number("prop",decimals=2) %>%
+  tab_options(table.align='left')
+```
+<br />  
+
+### Methods in MCMC  
+MCMCにも様々なアルゴリズムがあり、それぞれの方法を実装するためのソフトウェアが開発されている。例えば、**ギブスサンプリング**と呼ばれる方法[@Kruschke2014; @McElreath2020]を実装するソフトウェアとして[JAGS](https://mcmc-jags.sourceforge.io/)や[WinBUGS](https://www.mrc-bsu.cam.ac.uk/software/bugs/the-bugs-project-winbugs/)がある。また、**ハミルトニアン・モンテカルロ法**という方法を用いるソフトウェアとしては(Stan)[https://mc-stan.org/]がある[@Matsuura2016; @Baba2019]。いずれもR上で実行することができる。    
+
+いずれを用いてもMCMCによるベイズ推定を行えるが、現在はStanが用いられることが多くなっている[@Matsuura2016]。この理由としては、WinBUGSやJAGSが使いにくい点や、開発があまり継続的には行われておらず、マニュアルや用例が充実していない点が挙げられる。また、Stanで用いられるハミルトニアン・モンテカルロ法はギブスサンプリングよりも複雑なモデルを扱え、またサンプリングも効率的に行える。そこで、本稿では以下Stanを用いてモデリングを行う[^foot2]。RでStanを動かすには、`rstan`[パッケージ](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started-(Japanese))が必要である。`Stanのインストール方法や使用方法などは @Matsuura2016 や @Baba2019 を参照。  
+
+[^foot2]: @Zuur2017ではJAGSが用いられているが、筆者が使い慣れているうえ、本文中のようなアドバンテージもあるのでStanを用いる。  
+
+### Flowchart for running a model in Stan  
+以下、Stanを用いてMCMCによって事後分布を推定する。分析には、第\@ref(c4)で用いたデータを用いる。以下の線形モデルを考える。ひとまず、データの疑似反復については気にしない。  
+
+$$
+\begin{aligned}
+pH_i &\sim N(0,\sigma^2)\\
+\mu_i &= \beta_1 + \beta_2 \times SDI_i\\
+\end{aligned}  
+(\#eq:lm-iph)
+$$
+
+#### Preparing the data for Stan  
+Stanで分析を行うためには、まずデータをlist形式で準備する必要がある。なお、説明変数$SDI$はモデルの収束をよくするために標準化する。  
+
+```{r}
+iph %>% 
+  mutate(SDI.std = scale(SDI)) -> iph2
+
+X <- model.matrix(~ 1 + SDI.std, data = iph2)
+
+data_iph <- list(Y = iph2$pH,
+                 X = X,
+                 ##回帰係数の数
+                 K = ncol(X),
+                 ##データ数
+                 N = nrow(iph2))
+```
+
+#### Decide model formulation and priors  
+パラメータの事前分布などを含めたモデルの詳細を決める。モデル式は式\@ref(eq:lm-iph)の通りである。
+
+パラメータ$\beta$の事前分布としては、以下の正規分布の無情報事前分布を用いることにする。  
+
+$$
+\beta_1 \sim N(0,100^2) \;\; and \;\; \beta_2 \sim N(0,100^2)
+$$
+
+$\sigma$の事前分布としては、0から20までの一様分布を用いる。  
+$$
+\sigma \sim uniform(0,20)
+$$
+
+
+
+#### Preparing stan file  
+最後に、ここまでのモデルの情報を記した以下のようなStanファイルを用意する。`data`セクションにはデータの情報を、`parameter`セクションにはパラメータの情報を、`model`セクションにはモデル式や事前分布に関する情報を入れる。    
+
+```{r}
+cat(
+  "// データ
+data {
+  int N;
+  int K; 
+  vector[N] Y;
+  matrix[N, K] X;
+}
+
+// パラメータ  
+parameters {
+  vector[K] beta;
+  real<lower=0> sigma;
+}
+
+// モデル式、事前分布  
+model {
+  vector[N] mu = X*beta;
+  Y ~ normal(mu, sigma);
+  
+  //βの事前分布
+  for(i in 1:K){
+    beta[i] ~ normal(0, 100);
+  }
+  
+  //σの事前分布  
+  sigma ~ uniform(0,20);
+}
+" 
+)
+```
+
+#### Initial values  
+パラメータのMCMCの初期値を定める場合には、指定することができる。今回は、$\beta_1, \beta_2$の初期値については平均0、標準偏差10の正規分布から、$\sigma$の初期値は0から20までの一様分布から得られるとした。    
+```{r}
+K <- ncol(X)
+inits <- function() {
+  list(beta = rnorm(K, 0, 10),
+  sigma = runif(1, 0,20))
+}
+```
+
+### Running model in Stan  
+それでは、実際にStanでモデルを回してみよう。  
+
+まず、`rstan`パッケージを読み込む。バックエンドとして、`cmdstanr`[パッケージ](https://mc-stan.org/cmdstanr/articles/cmdstanr.html)を用いる。    
+```{r}
+library(rstan)
+library(cmdstanr)
+library(posterior)
+```
+
+以下のオプションを実行すると、実行時間が短くなる。  
+```{r}
+rstan_options(auto_write = TRUE) 
+options(mc.cores = parallel::detectCores())
+```
+
+MCMCによるパラメータの推定は以下のように行う。  
+
+- `file`: stanファイル  
+- `data`: リスト化したデータ  
+- `init`: 初期値  
+- `chains`: 何セットの乱数生成(MCMC)を行うか   
+- `iter_warmup`: チューニングを行う回数。切り捨てる。    
+- `iter_sampling`: warmup期間を含む各chainの乱数生成回数。  
+- `thin`: 何回に一回の乱数を用いるか  
+
+今回の場合、4つのchainで繰り返し数(`iter_sampling`)が50000、間引き期間(`thin`)が10なので、$(50000)/10 \times 4 = 20000$個の乱数がパラメータごとに得られる。  
+
+```{r, massage = FALSE, warnings = FALSE, results = "hide"}
+mod <- cmdstan_model("stanfile/lm-iph.stan")
+
+m7_1 <- mod$sample(data = data_iph,
+                   init = inits,
+                   seed = 1234,
+                   ## 何回に一回のデータを使うか
+                   thin = 10,
+                   ## 最初の何回を捨てるか 
+                   iter_warmup = 5000,
+                   ## 乱数生成の繰り返し数(warmupを除く)  
+                   iter_sampling = 50000,
+                   ## chainの数 
+                   chains = 4)
+```
+
+### Assess mixing  
+結果を見る前に、まず信頼できるMCMCサンプルが得られたかを確認する必要がある。  
+
+得られたMCMCサンプルは以下のように取り出せる。  
+```{r}
+draw_m7_1 <- m7_1$draws(format = "df")
+
+datatable(draw_m7_1)
+```
+<br/>  
+
+まずは、MCMCが収束しているかを確認する。視覚的には、横軸に繰り返し(iteration)数をとり、chainごとにその遷移を確認する。全てのchainがまじりあっていれば問題がない。図を見る限りは問題がなさそう。  
+```{r}
+mcmc_trace(draw_m7_1)
+```
+<br/>  
+
+また、収束をチェックするための指標としては、$\hat{R}$と有向サンプルサイズ数がある。前者は1.1未満であれば、後者は100くらいあれば問題ないとされている[@Matsuura2016]。今回は問題なさそう(`rhat`と`ess_bulk`をチェックする)。  
+
+```{r}
+m7_1$summary(NULL, c("Rhat", "ess_bulk"))
+```
+
+いよいよ、結果を確認する。まずは、事後分布の代表値なども一緒にチェックする。以下には、事後分布の平均(`mean`)、中央値(`median`)、標準偏差(`sd`)、中央値絶対偏差(`mad`)、2.5パーセンタイル(q2.5)、97.5パーセンタイル(q97.5)を示した。2.5パーセンタイルと97.5パーセンタイルの間の範囲を**95%確信区間(credible interval)**という。これらは全てMCMCで生成された乱数から計算されている。  
+
+$\beta_2$の95%確信区間は$[-0.463, -0.361]$で0を含まない。これは、$\beta_2$が95%の確率でこの区間の値をとるということを表す。このことから、SDIはpHと強く関連しているといえそうだ。    
+
+```{r}
+m7_1$summary(variables = NULL,
+             c("mean", "median","sd", "mad"),
+             quantiles = ~posterior::quantile2(., probs = c(.0275, .975))) -> result7_1
+
+result7_1
+```
+
+最後に、事後分布を実際に図示する。  
+```{r, fig.dim = c(14,4.5)}
+mcmc_hist(draw_m7_1,
+          pars = c("beta[1]","beta[2]", "sigma"))+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Frequencies")
+```
+
+## Integrated nested Laplace approximation  
+Stanでは、前節と同様にして様々なモデルを実装することができる。しかし、時空間相関を考慮するなど複雑なモデルになると、MCMCでは時間がかかりすぎる場合やモデルが収束しない場合が出てくる。本節では、MCMCによらず事後分布を近似させる手法である integrated nested Laplace approximation(INLA)について学ぶ。INLAはMCMCよりもはるかに拘束に、かつ精度高く事後分布を推定することができる。しかし、以下の数学的説明はかなり高度なので、全てを理解する必要はない。  
+
+### Joint posterior distribution  
+ここまでと同様に、ミサゴの卵の厚さが殺虫剤の崩壊産物(DDD)によって変わるかを検討するとする[@Steidl1991]。同様に以下のモデルを考える。  　
+
+$$
+\begin{aligned}
+&\mu_i = \beta_1 + DDD_i \times \beta_2  \\
+&Thickness_i \sim N(\mu_i,\sigma^2)
+\end{aligned}
+(\#eq:DDD2)
+$$
+
+式\@ref(eq:DDD2)には3つのパラメータ($\beta_1, \beta_2, \sigma$)があるが、$\sigma$のようなパラメータは**ハイパーパラメータ**と呼ばれる。ハイパーパラメータには、負の二項分布モデルなどの分散パラメータや、ランダム効果(混合)モデルのランダム切片の分散パラメータ、時空間相関を考慮したモデルにおけるパラメータ($\phi, \kappa$など)がある。  
+
+ベイズの定理から、以下の式が導ける。  
+$$
+\begin{aligned}
+P(\beta_1, \beta_2, \sigma|D) &= \frac{P(D|\beta_1, \beta_2, \sigma) \times P(\beta_1, \beta_2, \sigma)}{P(D)}\\
+                              &\propto P(D|\beta_1, \beta_2, \sigma) \times P(\beta_1, \beta_2, \sigma)
+\end{aligned}
+(\#eq:bayes-param)
+$$
+
+$P(\beta_1, \beta_2, \sigma|D)$はデータ(D)が与えられた時のパラメータの**同時分布**である。$P(D|\beta_1, \beta_2, \sigma)$はデータの尤度、$P(\beta_1, \beta_2, \sigma))$はパラメータの事前分布である。$pH$が正の連続値であると考えると、正規分布かガンマ分布を用いて書くことができるだろう。$\beta_1, \beta_2$は全ての値が取れるのに対して$\sigma$は0より大きい値しか取れないので、これらにすべて同じ事前分布を仮定することはできない。そのため、事前分布は$\beta_1, \beta_2$のためのものと、$\sigma$のためのものの2種類を含むように書き直す必要がある。  
+
+式\@ref(eq:conditional)より、式\@ref(eq:bayes-param)は$P(\beta_1, \beta_2, \sigma))$を変形して以下のように書き直せる。これにより、事前分布を2つの要素に分けることができた。    
+
+$$
+\begin{aligned}
+P(\beta_1, \beta_2, \sigma)|D) &\propto P(D|\beta_1, \beta_2, \sigma) \times P(\beta_1, \beta_2, \sigma) \\
+                               &= P(D|\beta_1, \beta_2, \sigma)  \times P(\beta_1, \beta_2| \sigma) \times P(\sigma)
+\end{aligned}
+(\#eq:bayes-param2)
+$$
+
+$\beta_s$の事前分布$P(\beta_1, \beta_2| \sigma)$は少しトリッキーだが、互いに独立に多変量正規分布から得られていると仮定すればうまくいくことが多い。  
+
+### Marginal distributions  
+MCMCでは各パラメータの事後分布$P(\beta_1|D), P(\beta_2|D), P(\sigma|D)$が得られた。これらは**周辺分布(marginal distribution)**といい、同時事後確率$P(\beta_1, \beta_2, \sigma)|D)$を得たわけではなかった。  
+
+同時分布と周辺分布の違いを説明するため、ミヤコドリ(*Haematopus palliates*)を対象とした研究のデータを用いる。この研究では、3か所で12月から1月にミヤコドリによって食べられた二枚貝の長さが記録されている。ミヤコドリは、採食技術によって`hammerer`または`stabber`に分類された。リサーチクエスチョンは、採食技術のタイプによって貝の長さが変わるかである。    
+
+```{r}
+oc <- read_delim("data/Oystercatcher.txt") 
+
+datatable(oc,
+          options = list(scrollX = 20),
+          filter = "top")
+```
+<br/>  
+
+
+```{r}
+oc %>% 
+  filter(FeedingType == "Hammerers") %>% 
+  mutate(shell_size = ifelse(ShellLength >= 2, "Large","Small")) %>% 
+  group_by(shell_size, FeedingPlot) %>% 
+  summarise(N = n()) %>% 
+  rename("Shell size" = 1, "Feeding site" = 2) %>% 
+  pivot_wider(names_from = "Feeding site", values_from = N) %>% 
+　flextable() %>% 
+  add_header_row(values = c("","Feed place"),
+                 colwidth = c(1,3)) %>% 
+  align(align = "center", part = "all", j = 2:4)
+```
 

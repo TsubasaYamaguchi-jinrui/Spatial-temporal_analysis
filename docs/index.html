@@ -23,7 +23,7 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-11" />
+<meta name="date" content="2023-09-12" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -68,6 +68,8 @@
 <script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
 <script src="libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<link href="libs/tabwid-1.1.3/tabwid.css" rel="stylesheet" />
+<script src="libs/tabwid-1.1.3/tabwid.js"></script>
 
 
 <style type="text/css">
@@ -255,10 +257,37 @@ div.csl-indent {
 <li class="chapter" data-level="6" data-path="Chapter7.html"><a href="Chapter7.html"><i class="fa fa-check"></i><b>6</b> Introduction to Bayesian statistics</a>
 <ul>
 <li class="chapter" data-level="6.1" data-path="Chapter7.html"><a href="Chapter7.html#why-go-bayesian"><i class="fa fa-check"></i><b>6.1</b> Why go Bayesian?</a></li>
-<li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#general-probability-rules"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
+<li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#s7-2"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
 <li class="chapter" data-level="6.3" data-path="Chapter7.html"><a href="Chapter7.html#the-mean-of-a-distribution"><i class="fa fa-check"></i><b>6.3</b> The mean of a distribution</a></li>
 <li class="chapter" data-level="6.4" data-path="Chapter7.html"><a href="Chapter7.html#bayes-theorem-again"><i class="fa fa-check"></i><b>6.4</b> Bayes theorem again</a></li>
-<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#conjugate-priors"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a></li>
+<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#s7-5"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="Chapter7.html"><a href="Chapter7.html#likelihood-function"><i class="fa fa-check"></i><b>6.5.1</b> Likelihood function</a></li>
+<li class="chapter" data-level="6.5.2" data-path="Chapter7.html"><a href="Chapter7.html#priors"><i class="fa fa-check"></i><b>6.5.2</b> Priors</a></li>
+<li class="chapter" data-level="6.5.3" data-path="Chapter7.html"><a href="Chapter7.html#posterior-distribution"><i class="fa fa-check"></i><b>6.5.3</b> Posterior distribution</a></li>
+<li class="chapter" data-level="6.5.4" data-path="Chapter7.html"><a href="Chapter7.html#diffuse-prior"><i class="fa fa-check"></i><b>6.5.4</b> Diffuse prior</a></li>
+<li class="chapter" data-level="6.5.5" data-path="Chapter7.html"><a href="Chapter7.html#informative-prior"><i class="fa fa-check"></i><b>6.5.5</b> Informative prior</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="Chapter7.html"><a href="Chapter7.html#markov-chain-monte-carlo-simulation"><i class="fa fa-check"></i><b>6.6</b> Markov chain Monte Carlo simulation</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="Chapter7.html"><a href="Chapter7.html#underlying-idea"><i class="fa fa-check"></i><b>6.6.1</b> underlying idea</a></li>
+<li class="chapter" data-level="6.6.2" data-path="Chapter7.html"><a href="Chapter7.html#simple-example-of-mcmc-algorithm"><i class="fa fa-check"></i><b>6.6.2</b> Simple example of MCMC algorithm</a></li>
+<li class="chapter" data-level="6.6.3" data-path="Chapter7.html"><a href="Chapter7.html#methods-in-mcmc"><i class="fa fa-check"></i><b>6.6.3</b> Methods in MCMC</a></li>
+<li class="chapter" data-level="6.6.4" data-path="Chapter7.html"><a href="Chapter7.html#flowchart-for-running-a-model-in-stan"><i class="fa fa-check"></i><b>6.6.4</b> Flowchart for running a model in Stan</a>
+<ul>
+<li class="chapter" data-level="6.6.4.1" data-path="Chapter7.html"><a href="Chapter7.html#preparing-the-data-for-stan"><i class="fa fa-check"></i><b>6.6.4.1</b> Preparing the data for Stan</a></li>
+<li class="chapter" data-level="6.6.4.2" data-path="Chapter7.html"><a href="Chapter7.html#decide-model-formulation-and-priors"><i class="fa fa-check"></i><b>6.6.4.2</b> Decide model formulation and priors</a></li>
+<li class="chapter" data-level="6.6.4.3" data-path="Chapter7.html"><a href="Chapter7.html#preparing-stan-file"><i class="fa fa-check"></i><b>6.6.4.3</b> Preparing stan file</a></li>
+<li class="chapter" data-level="6.6.4.4" data-path="Chapter7.html"><a href="Chapter7.html#initial-values"><i class="fa fa-check"></i><b>6.6.4.4</b> Initial values</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6.5" data-path="Chapter7.html"><a href="Chapter7.html#running-model-in-stan"><i class="fa fa-check"></i><b>6.6.5</b> Running model in Stan</a></li>
+<li class="chapter" data-level="6.6.6" data-path="Chapter7.html"><a href="Chapter7.html#assess-mixing"><i class="fa fa-check"></i><b>6.6.6</b> Assess mixing</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="Chapter7.html"><a href="Chapter7.html#integrated-nested-laplace-approximation"><i class="fa fa-check"></i><b>6.7</b> Integrated nested Laplace approximation</a>
+<ul>
+<li class="chapter" data-level="6.7.1" data-path="Chapter7.html"><a href="Chapter7.html#joint-posterior-distribution"><i class="fa fa-check"></i><b>6.7.1</b> Joint posterior distribution</a></li>
+<li class="chapter" data-level="6.7.2" data-path="Chapter7.html"><a href="Chapter7.html#marginal-distributions"><i class="fa fa-check"></i><b>6.7.2</b> Marginal distributions</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -281,12 +310,12 @@ div.csl-indent {
 <div id="header">
 <h1 class="title">Introduction to spatial-temporal data anlysis using R</h1>
 <p class="author"><em>Tsubasa Yamaguchi</em></p>
-<p class="date"><em>2023-09-11</em></p>
+<p class="date"><em>2023-09-12</em></p>
 </div>
 <div id="本稿の目的" class="section level1 unnumbered hasAnchor">
 <h1>本稿の目的<a href="index.html#本稿の目的" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>本稿は、時空間相関を考慮したGLM/GLMMをRで実装する方法を解説する。</p>
-<p>生態学のデータでは、データに非独立性が存在することが多くある(第<a href="Chapter2.html#c2">1</a>)。多くの統計分析はデータが互いに独立であることを仮定しているので、こうした非独立性を考慮せずにを行ってしまうと誤った結論を導いてしまうことになりかねない。本稿では、特に時間的・空間的な相関があることでデータに非独立性がある場合に、どのようにそれに対処するべきかを解説する。本稿では、特にGLMやGLMM<span class="citation">(<a href="#ref-Zuur2013">Zuur et al. 2013</a>)</span>による分析を扱う。</p>
+<p>生態学のデータでは、データに非独立性が存在することが多くある(第<a href="Chapter2.html#c2">1</a>章)。多くの統計分析はデータが互いに独立であることを仮定しているので、こうした非独立性を考慮せずにを行ってしまうと誤った結論を導いてしまうことになりかねない。本稿では、特に時間的・空間的な相関があることでデータに非独立性がある場合に、どのようにそれに対処するべきかを解説する。本稿では、特にGLMやGLMM<span class="citation">(<a href="#ref-Zuur2013">Zuur et al. 2013</a>)</span>による分析を扱う。</p>
 <p>本稿は主に Alain Zuurによる”Zuur, A. F. (2017). Beginner’s Guide to Spatial, Temporal and Spatial-Temporal Ecological Data Analysis with R-Inla: Using Glm and Glmm Volume I”<span class="citation">(<a href="#ref-Zuur2017">Zuur 2017</a>)</span>を基に執筆している。本書はなるべく数学的な説明を省きつつ、実際の生態学のデータを用いて時空間を考慮したGLM/GLMMについて間接している本である。</p>
 <p>その他には、以下の本も参考にした。</p>
 <ul>
@@ -294,7 +323,7 @@ div.csl-indent {
 </li>
 <li>Rで始める地理空間データの統計解析入門 <span class="citation">(<a href="#ref-Murakami2022">村上 2022</a>)</span><br />
 </li>
-<li>Rとstanではじめるベイズ統計モデリングによるデータ分析入門 <span class="citation">(<a href="#ref-Baba2019">馬場真哉</a>)</span><br />
+<li>Rとstanではじめるベイズ統計モデリングによるデータ分析入門 <span class="citation">(<a href="#ref-Baba2019">馬場 2019</a>)</span><br />
 </li>
 <li>時系列分析と状態空間モデルの基礎 : RとStanで学ぶ理論と実装 <span class="citation">(<a href="#ref-Baba2018">馬場 2018</a>)</span></li>
 </ul>
@@ -314,11 +343,11 @@ Zuur AF, Hilbe JM, Leno EN (2013) A beginner’s guide to <span>GLM</span> and <
 <div id="ref-Murakami2022" class="csl-entry">
 村上大輔 (2022) Rではじめる地理空間データの統計解析入門. 講談社
 </div>
+<div id="ref-Baba2019" class="csl-entry">
+馬場真哉 (2019) <span>R</span> と stan ではじめるベイズ統計モデリングによるデータ分析入門. 講談社
+</div>
 <div id="ref-Baba2018" class="csl-entry">
 馬場真哉 (2018) 時系列分析と状態空間モデルの基礎 : <span>RとStanで学ぶ理論と実装</span>. プレアデス出版
-</div>
-<div id="ref-Baba2019" class="csl-entry">
-馬場真哉 <span>R</span> と stan ではじめるベイズ統計モデリングによるデータ分析入門. 講談社
 </div>
 </div>
             </section>

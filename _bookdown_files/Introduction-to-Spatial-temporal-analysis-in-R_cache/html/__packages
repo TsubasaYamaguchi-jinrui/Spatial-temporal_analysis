@@ -67,3 +67,7 @@ scales
 spam
 viridisLite
 fields
+flextable
+bayesplot
+gt
+posterior

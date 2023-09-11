@@ -23,7 +23,7 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-11" />
+<meta name="date" content="2023-09-12" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -68,6 +68,8 @@
 <script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
 <script src="libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<link href="libs/tabwid-1.1.3/tabwid.css" rel="stylesheet" />
+<script src="libs/tabwid-1.1.3/tabwid.js"></script>
 
 
 <style type="text/css">
@@ -255,10 +257,37 @@ div.csl-indent {
 <li class="chapter" data-level="6" data-path="Chapter7.html"><a href="Chapter7.html"><i class="fa fa-check"></i><b>6</b> Introduction to Bayesian statistics</a>
 <ul>
 <li class="chapter" data-level="6.1" data-path="Chapter7.html"><a href="Chapter7.html#why-go-bayesian"><i class="fa fa-check"></i><b>6.1</b> Why go Bayesian?</a></li>
-<li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#general-probability-rules"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
+<li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#s7-2"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
 <li class="chapter" data-level="6.3" data-path="Chapter7.html"><a href="Chapter7.html#the-mean-of-a-distribution"><i class="fa fa-check"></i><b>6.3</b> The mean of a distribution</a></li>
 <li class="chapter" data-level="6.4" data-path="Chapter7.html"><a href="Chapter7.html#bayes-theorem-again"><i class="fa fa-check"></i><b>6.4</b> Bayes theorem again</a></li>
-<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#conjugate-priors"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a></li>
+<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#s7-5"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="Chapter7.html"><a href="Chapter7.html#likelihood-function"><i class="fa fa-check"></i><b>6.5.1</b> Likelihood function</a></li>
+<li class="chapter" data-level="6.5.2" data-path="Chapter7.html"><a href="Chapter7.html#priors"><i class="fa fa-check"></i><b>6.5.2</b> Priors</a></li>
+<li class="chapter" data-level="6.5.3" data-path="Chapter7.html"><a href="Chapter7.html#posterior-distribution"><i class="fa fa-check"></i><b>6.5.3</b> Posterior distribution</a></li>
+<li class="chapter" data-level="6.5.4" data-path="Chapter7.html"><a href="Chapter7.html#diffuse-prior"><i class="fa fa-check"></i><b>6.5.4</b> Diffuse prior</a></li>
+<li class="chapter" data-level="6.5.5" data-path="Chapter7.html"><a href="Chapter7.html#informative-prior"><i class="fa fa-check"></i><b>6.5.5</b> Informative prior</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="Chapter7.html"><a href="Chapter7.html#markov-chain-monte-carlo-simulation"><i class="fa fa-check"></i><b>6.6</b> Markov chain Monte Carlo simulation</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="Chapter7.html"><a href="Chapter7.html#underlying-idea"><i class="fa fa-check"></i><b>6.6.1</b> underlying idea</a></li>
+<li class="chapter" data-level="6.6.2" data-path="Chapter7.html"><a href="Chapter7.html#simple-example-of-mcmc-algorithm"><i class="fa fa-check"></i><b>6.6.2</b> Simple example of MCMC algorithm</a></li>
+<li class="chapter" data-level="6.6.3" data-path="Chapter7.html"><a href="Chapter7.html#methods-in-mcmc"><i class="fa fa-check"></i><b>6.6.3</b> Methods in MCMC</a></li>
+<li class="chapter" data-level="6.6.4" data-path="Chapter7.html"><a href="Chapter7.html#flowchart-for-running-a-model-in-stan"><i class="fa fa-check"></i><b>6.6.4</b> Flowchart for running a model in Stan</a>
+<ul>
+<li class="chapter" data-level="6.6.4.1" data-path="Chapter7.html"><a href="Chapter7.html#preparing-the-data-for-stan"><i class="fa fa-check"></i><b>6.6.4.1</b> Preparing the data for Stan</a></li>
+<li class="chapter" data-level="6.6.4.2" data-path="Chapter7.html"><a href="Chapter7.html#decide-model-formulation-and-priors"><i class="fa fa-check"></i><b>6.6.4.2</b> Decide model formulation and priors</a></li>
+<li class="chapter" data-level="6.6.4.3" data-path="Chapter7.html"><a href="Chapter7.html#preparing-stan-file"><i class="fa fa-check"></i><b>6.6.4.3</b> Preparing stan file</a></li>
+<li class="chapter" data-level="6.6.4.4" data-path="Chapter7.html"><a href="Chapter7.html#initial-values"><i class="fa fa-check"></i><b>6.6.4.4</b> Initial values</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6.5" data-path="Chapter7.html"><a href="Chapter7.html#running-model-in-stan"><i class="fa fa-check"></i><b>6.6.5</b> Running model in Stan</a></li>
+<li class="chapter" data-level="6.6.6" data-path="Chapter7.html"><a href="Chapter7.html#assess-mixing"><i class="fa fa-check"></i><b>6.6.6</b> Assess mixing</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="Chapter7.html"><a href="Chapter7.html#integrated-nested-laplace-approximation"><i class="fa fa-check"></i><b>6.7</b> Integrated nested Laplace approximation</a>
+<ul>
+<li class="chapter" data-level="6.7.1" data-path="Chapter7.html"><a href="Chapter7.html#joint-posterior-distribution"><i class="fa fa-check"></i><b>6.7.1</b> Joint posterior distribution</a></li>
+<li class="chapter" data-level="6.7.2" data-path="Chapter7.html"><a href="Chapter7.html#marginal-distributions"><i class="fa fa-check"></i><b>6.7.2</b> Marginal distributions</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>

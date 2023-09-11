@@ -23,7 +23,7 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-11" />
+<meta name="date" content="2023-09-12" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -68,6 +68,8 @@
 <script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
 <script src="libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<link href="libs/tabwid-1.1.3/tabwid.css" rel="stylesheet" />
+<script src="libs/tabwid-1.1.3/tabwid.js"></script>
 
 
 <style type="text/css">
@@ -255,10 +257,37 @@ div.csl-indent {
 <li class="chapter" data-level="6" data-path="Chapter7.html"><a href="Chapter7.html"><i class="fa fa-check"></i><b>6</b> Introduction to Bayesian statistics</a>
 <ul>
 <li class="chapter" data-level="6.1" data-path="Chapter7.html"><a href="Chapter7.html#why-go-bayesian"><i class="fa fa-check"></i><b>6.1</b> Why go Bayesian?</a></li>
-<li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#general-probability-rules"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
+<li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#s7-2"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
 <li class="chapter" data-level="6.3" data-path="Chapter7.html"><a href="Chapter7.html#the-mean-of-a-distribution"><i class="fa fa-check"></i><b>6.3</b> The mean of a distribution</a></li>
 <li class="chapter" data-level="6.4" data-path="Chapter7.html"><a href="Chapter7.html#bayes-theorem-again"><i class="fa fa-check"></i><b>6.4</b> Bayes theorem again</a></li>
-<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#conjugate-priors"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a></li>
+<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#s7-5"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="Chapter7.html"><a href="Chapter7.html#likelihood-function"><i class="fa fa-check"></i><b>6.5.1</b> Likelihood function</a></li>
+<li class="chapter" data-level="6.5.2" data-path="Chapter7.html"><a href="Chapter7.html#priors"><i class="fa fa-check"></i><b>6.5.2</b> Priors</a></li>
+<li class="chapter" data-level="6.5.3" data-path="Chapter7.html"><a href="Chapter7.html#posterior-distribution"><i class="fa fa-check"></i><b>6.5.3</b> Posterior distribution</a></li>
+<li class="chapter" data-level="6.5.4" data-path="Chapter7.html"><a href="Chapter7.html#diffuse-prior"><i class="fa fa-check"></i><b>6.5.4</b> Diffuse prior</a></li>
+<li class="chapter" data-level="6.5.5" data-path="Chapter7.html"><a href="Chapter7.html#informative-prior"><i class="fa fa-check"></i><b>6.5.5</b> Informative prior</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="Chapter7.html"><a href="Chapter7.html#markov-chain-monte-carlo-simulation"><i class="fa fa-check"></i><b>6.6</b> Markov chain Monte Carlo simulation</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="Chapter7.html"><a href="Chapter7.html#underlying-idea"><i class="fa fa-check"></i><b>6.6.1</b> underlying idea</a></li>
+<li class="chapter" data-level="6.6.2" data-path="Chapter7.html"><a href="Chapter7.html#simple-example-of-mcmc-algorithm"><i class="fa fa-check"></i><b>6.6.2</b> Simple example of MCMC algorithm</a></li>
+<li class="chapter" data-level="6.6.3" data-path="Chapter7.html"><a href="Chapter7.html#methods-in-mcmc"><i class="fa fa-check"></i><b>6.6.3</b> Methods in MCMC</a></li>
+<li class="chapter" data-level="6.6.4" data-path="Chapter7.html"><a href="Chapter7.html#flowchart-for-running-a-model-in-stan"><i class="fa fa-check"></i><b>6.6.4</b> Flowchart for running a model in Stan</a>
+<ul>
+<li class="chapter" data-level="6.6.4.1" data-path="Chapter7.html"><a href="Chapter7.html#preparing-the-data-for-stan"><i class="fa fa-check"></i><b>6.6.4.1</b> Preparing the data for Stan</a></li>
+<li class="chapter" data-level="6.6.4.2" data-path="Chapter7.html"><a href="Chapter7.html#decide-model-formulation-and-priors"><i class="fa fa-check"></i><b>6.6.4.2</b> Decide model formulation and priors</a></li>
+<li class="chapter" data-level="6.6.4.3" data-path="Chapter7.html"><a href="Chapter7.html#preparing-stan-file"><i class="fa fa-check"></i><b>6.6.4.3</b> Preparing stan file</a></li>
+<li class="chapter" data-level="6.6.4.4" data-path="Chapter7.html"><a href="Chapter7.html#initial-values"><i class="fa fa-check"></i><b>6.6.4.4</b> Initial values</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6.5" data-path="Chapter7.html"><a href="Chapter7.html#running-model-in-stan"><i class="fa fa-check"></i><b>6.6.5</b> Running model in Stan</a></li>
+<li class="chapter" data-level="6.6.6" data-path="Chapter7.html"><a href="Chapter7.html#assess-mixing"><i class="fa fa-check"></i><b>6.6.6</b> Assess mixing</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="Chapter7.html"><a href="Chapter7.html#integrated-nested-laplace-approximation"><i class="fa fa-check"></i><b>6.7</b> Integrated nested Laplace approximation</a>
+<ul>
+<li class="chapter" data-level="6.7.1" data-path="Chapter7.html"><a href="Chapter7.html#joint-posterior-distribution"><i class="fa fa-check"></i><b>6.7.1</b> Joint posterior distribution</a></li>
+<li class="chapter" data-level="6.7.2" data-path="Chapter7.html"><a href="Chapter7.html#marginal-distributions"><i class="fa fa-check"></i><b>6.7.2</b> Marginal distributions</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -313,29 +342,32 @@ div.csl-indent {
 <span id="cb1-22"><a href="Chapter0.html#cb1-22" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
 <span id="cb1-23"><a href="Chapter0.html#cb1-23" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
 <span id="cb1-24"><a href="Chapter0.html#cb1-24" tabindex="-1"></a><span class="do">## グラフや表関連</span></span>
-<span id="cb1-25"><a href="Chapter0.html#cb1-25" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
-<span id="cb1-26"><a href="Chapter0.html#cb1-26" tabindex="-1"></a><span class="fu">library</span>(geoR)</span>
-<span id="cb1-27"><a href="Chapter0.html#cb1-27" tabindex="-1"></a><span class="fu">library</span>(sp)</span>
-<span id="cb1-28"><a href="Chapter0.html#cb1-28" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
-<span id="cb1-29"><a href="Chapter0.html#cb1-29" tabindex="-1"></a><span class="fu">library</span>(htmlwidgets)</span>
-<span id="cb1-30"><a href="Chapter0.html#cb1-30" tabindex="-1"></a><span class="fu">library</span>(ggnewscale)</span>
-<span id="cb1-31"><a href="Chapter0.html#cb1-31" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
-<span id="cb1-32"><a href="Chapter0.html#cb1-32" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
-<span id="cb1-33"><a href="Chapter0.html#cb1-33" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb1-34"><a href="Chapter0.html#cb1-34" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
-<span id="cb1-35"><a href="Chapter0.html#cb1-35" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
-<span id="cb1-36"><a href="Chapter0.html#cb1-36" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
-<span id="cb1-37"><a href="Chapter0.html#cb1-37" tabindex="-1"></a><span class="fu">library</span>(dagitty)</span>
-<span id="cb1-38"><a href="Chapter0.html#cb1-38" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span>
-<span id="cb1-39"><a href="Chapter0.html#cb1-39" tabindex="-1"></a><span class="fu">library</span>(ggforce)</span>
-<span id="cb1-40"><a href="Chapter0.html#cb1-40" tabindex="-1"></a><span class="fu">library</span>(concaveman)</span>
-<span id="cb1-41"><a href="Chapter0.html#cb1-41" tabindex="-1"></a><span class="fu">library</span>(ggsci)</span>
-<span id="cb1-42"><a href="Chapter0.html#cb1-42" tabindex="-1"></a><span class="fu">library</span>(lemon)</span>
-<span id="cb1-43"><a href="Chapter0.html#cb1-43" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
-<span id="cb1-44"><a href="Chapter0.html#cb1-44" tabindex="-1"></a><span class="do">## フォント関連</span></span>
-<span id="cb1-45"><a href="Chapter0.html#cb1-45" tabindex="-1"></a><span class="fu">library</span>(extrafont)</span>
-<span id="cb1-46"><a href="Chapter0.html#cb1-46" tabindex="-1"></a><span class="fu">require</span>(systemfonts)</span>
-<span id="cb1-47"><a href="Chapter0.html#cb1-47" tabindex="-1"></a><span class="fu">require</span>(fontregisterer)</span></code></pre></div>
+<span id="cb1-25"><a href="Chapter0.html#cb1-25" tabindex="-1"></a><span class="fu">library</span>(flextable)</span>
+<span id="cb1-26"><a href="Chapter0.html#cb1-26" tabindex="-1"></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb1-27"><a href="Chapter0.html#cb1-27" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb1-28"><a href="Chapter0.html#cb1-28" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb1-29"><a href="Chapter0.html#cb1-29" tabindex="-1"></a><span class="fu">library</span>(geoR)</span>
+<span id="cb1-30"><a href="Chapter0.html#cb1-30" tabindex="-1"></a><span class="fu">library</span>(sp)</span>
+<span id="cb1-31"><a href="Chapter0.html#cb1-31" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb1-32"><a href="Chapter0.html#cb1-32" tabindex="-1"></a><span class="fu">library</span>(htmlwidgets)</span>
+<span id="cb1-33"><a href="Chapter0.html#cb1-33" tabindex="-1"></a><span class="fu">library</span>(ggnewscale)</span>
+<span id="cb1-34"><a href="Chapter0.html#cb1-34" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
+<span id="cb1-35"><a href="Chapter0.html#cb1-35" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
+<span id="cb1-36"><a href="Chapter0.html#cb1-36" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-37"><a href="Chapter0.html#cb1-37" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
+<span id="cb1-38"><a href="Chapter0.html#cb1-38" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-39"><a href="Chapter0.html#cb1-39" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-40"><a href="Chapter0.html#cb1-40" tabindex="-1"></a><span class="fu">library</span>(dagitty)</span>
+<span id="cb1-41"><a href="Chapter0.html#cb1-41" tabindex="-1"></a><span class="fu">library</span>(ggdag)</span>
+<span id="cb1-42"><a href="Chapter0.html#cb1-42" tabindex="-1"></a><span class="fu">library</span>(ggforce)</span>
+<span id="cb1-43"><a href="Chapter0.html#cb1-43" tabindex="-1"></a><span class="fu">library</span>(concaveman)</span>
+<span id="cb1-44"><a href="Chapter0.html#cb1-44" tabindex="-1"></a><span class="fu">library</span>(ggsci)</span>
+<span id="cb1-45"><a href="Chapter0.html#cb1-45" tabindex="-1"></a><span class="fu">library</span>(lemon)</span>
+<span id="cb1-46"><a href="Chapter0.html#cb1-46" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
+<span id="cb1-47"><a href="Chapter0.html#cb1-47" tabindex="-1"></a><span class="do">## フォント関連</span></span>
+<span id="cb1-48"><a href="Chapter0.html#cb1-48" tabindex="-1"></a><span class="fu">library</span>(extrafont)</span>
+<span id="cb1-49"><a href="Chapter0.html#cb1-49" tabindex="-1"></a><span class="fu">require</span>(systemfonts)</span>
+<span id="cb1-50"><a href="Chapter0.html#cb1-50" tabindex="-1"></a><span class="fu">require</span>(fontregisterer)</span></code></pre></div>
 
 </div>
 <h3>References</h3>
