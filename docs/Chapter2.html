@@ -256,6 +256,9 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="6.1" data-path="Chapter7.html"><a href="Chapter7.html#why-go-bayesian"><i class="fa fa-check"></i><b>6.1</b> Why go Bayesian?</a></li>
 <li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#general-probability-rules"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
+<li class="chapter" data-level="6.3" data-path="Chapter7.html"><a href="Chapter7.html#the-mean-of-a-distribution"><i class="fa fa-check"></i><b>6.3</b> The mean of a distribution</a></li>
+<li class="chapter" data-level="6.4" data-path="Chapter7.html"><a href="Chapter7.html#bayes-theorem-again"><i class="fa fa-check"></i><b>6.4</b> Bayes theorem again</a></li>
+<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#conjugate-priors"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -275,8 +278,8 @@ div.csl-indent {
           <div class="page-inner">
 
             <section class="normal" id="section-">
-<div id="recognizing-statistical-dependency" class="section level1 hasAnchor" number="1">
-<h1><span class="header-section-number">1</span> Recognizing statistical dependency<a href="Chapter2.html#recognizing-statistical-dependency" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="c2" class="section level1 hasAnchor" number="1">
+<h1><span class="header-section-number">1</span> Recognizing statistical dependency<a href="Chapter2.html#c2" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <div id="pseudoreplication" class="section level2 hasAnchor" number="1.1">
 <h2><span class="header-section-number">1.1</span> Pseudoreplication<a href="Chapter2.html#pseudoreplication" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <div id="疑似反復とは" class="section level3 hasAnchor" number="1.1.1">
@@ -620,7 +623,7 @@ pH_i &amp;\sim N(0,\sigma^2)\\
 </div>
 <p><br/></p>
 <p>もしデータに空間的な相関がないのであれば、距離の範囲カテゴリに関わらずデータペアの残差の差の平均は一定になるはずである(= バリオグラムはx軸と平行になる)。一方で、例えば空間的に近いデータほど似た残差をとるのであれば、近い距離範囲カテゴリではデータペアの残差の差の平均が小さくなる。</p>
-<p>Rでは以下のように実行できる。<code>cressie = TRUE</code>とすることで推定がより頑強になり、外れ値の影響を小さくすることができる。<code>np</code>は各距離範囲カテゴリのデータ数を、<code>dist</code>はそれぞれの距離カテゴリーにおけるデータ間の平均距離、<code>gamma</code>は計算されたバリオグラムの値を表す。明らかにプロットは一定の値をとっておらず、強い空間相関があることが予想される(図<a href="#fig:vario2-3"><strong>??</strong></a>)。</p>
+<p>Rでは以下のように実行できる。<code>cressie = TRUE</code>とすることで推定がより頑強になり、外れ値の影響を小さくすることができる。<code>np</code>は各距離範囲カテゴリのデータ数を、<code>dist</code>はそれぞれの距離カテゴリーにおけるデータ間の平均距離、<code>gamma</code>は計算されたバリオグラムの値を表す。明らかにプロットは一定の値をとっておらず、強い空間相関があることが予想される(図<a href="Chapter2.html#fig:vario2-3">1.6</a>)。</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="Chapter2.html#cb21-1" tabindex="-1"></a>vario_2_3 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">resid =</span> <span class="fu">rstandard</span>(m2_3),</span>
 <span id="cb21-2"><a href="Chapter2.html#cb21-2" tabindex="-1"></a>                        <span class="at">Easting.km =</span> iph<span class="sc">$</span>Easting<span class="sc">/</span><span class="dv">1000</span>,</span>
 <span id="cb21-3"><a href="Chapter2.html#cb21-3" tabindex="-1"></a>                        <span class="at">Northing.km =</span> iph<span class="sc">$</span>Northing<span class="sc">/</span><span class="dv">1000</span>)</span>
@@ -639,8 +642,13 @@ pH_i &amp;\sim N(0,\sigma^2)\\
 <span id="cb21-16"><a href="Chapter2.html#cb21-16" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
 <span id="cb21-17"><a href="Chapter2.html#cb21-17" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
 <span id="cb21-18"><a href="Chapter2.html#cb21-18" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;semivariogram&quot;</span>)</span></code></pre></div>
-<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/vario2-3-1.png" width="672" style="display: block; margin: auto;" />
-<br/></p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:vario2-3"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/vario2-3-1.png" alt="m2_3のバリオグラム" width="672" />
+<p class="caption">
+図1.6: m2_3のバリオグラム
+</p>
+</div>
+<p><br/></p>
 <p>南北方向と東西方向の距離を分けて調べることもできる。特に東西方向では明確にバリオグラムが水平ではなく、空間的な独立性がないことが分かる。</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="Chapter2.html#cb22-1" tabindex="-1"></a>vario_2_3 <span class="sc">%&gt;%</span> </span>
 <span id="cb22-2"><a href="Chapter2.html#cb22-2" tabindex="-1"></a>  <span class="fu">variogram</span>(resid <span class="sc">~</span> Easting.km <span class="sc">+</span> Northing.km, <span class="at">data =</span> .,</span>

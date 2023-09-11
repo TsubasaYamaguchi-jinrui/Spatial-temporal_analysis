@@ -287,7 +287,7 @@ $$
 
 Matern相関関数を図示したのが図\@ref(fig:Matern)である。AR1過程やバリオグラムモデルのように、空間的に近いデータ同士の相関は高く、空間的に離れるほど相関が低くなっていくことが分かる。Matern関数は`gls`には実装されていないが、のちに学ぶ`INLA`パッケージには実装されている。  
 
-```{r Matern}
+```{r Matern, fig.cap = "Matern関数"}
 library(fields)
 
 crossing(kappa = c(0.02,0.07,0.2),

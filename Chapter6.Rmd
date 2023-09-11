@@ -43,7 +43,7 @@ BL_i &= z_i \times \bf{\beta} + u_i + \epsilon_i\\
 \bf{\epsilon} &\sim N(0,\sigma^2 \times \bf{I})\\
 \bf{u} &\sim N(0, \bf{\Omega})
 \end{aligned}
-(\#eq:spatial)
+(\#eq:spatial2)
 $$
 
 ## Covariance matrix of the spatial random effect {#s6-2} 
@@ -110,7 +110,7 @@ nu <- 1
 sigma_u <- 1
 ```
 
-式\@ref(eq:ij)より、$\omega_{ij}$は以下のように求まる。  
+式\@ref(eq:covij)より、$\omega_{ij}$は以下のように求まる。  
 ```{r}
 d.vec <- as.vector(Dist)
 cor.M <- sigma_u * (2^(1-nu))/gamma(nu) * (kappa * d.vec)^nu * besselK(kappa*d.vec, nu)

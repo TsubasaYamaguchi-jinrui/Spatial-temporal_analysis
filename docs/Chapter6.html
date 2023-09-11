@@ -256,6 +256,9 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="6.1" data-path="Chapter7.html"><a href="Chapter7.html#why-go-bayesian"><i class="fa fa-check"></i><b>6.1</b> Why go Bayesian?</a></li>
 <li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#general-probability-rules"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
+<li class="chapter" data-level="6.3" data-path="Chapter7.html"><a href="Chapter7.html#the-mean-of-a-distribution"><i class="fa fa-check"></i><b>6.3</b> The mean of a distribution</a></li>
+<li class="chapter" data-level="6.4" data-path="Chapter7.html"><a href="Chapter7.html#bayes-theorem-again"><i class="fa fa-check"></i><b>6.4</b> Bayes theorem again</a></li>
+<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#conjugate-priors"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -307,13 +310,13 @@ epsilon_i &amp;\sim N(0,\sigma^2)\\\
 \]</span></p>
 <p>ここで、<span class="math inline">\(u_i\)</span>は平均が0で、分散共分散行列が<span class="math inline">\(\bf{\Omega}\)</span>に従う正規分布から得られると考える。ただし、<span class="math inline">\(\bf{\Omega}\)</span>は通常のランダム切片のように対角行列(対角成分以外が0の行列)ではなく、空間相関を考慮している。</p>
 <p>よって、このモデルは以下のように書ける。</p>
-<p><span class="math display" id="eq:spatial">\[
+<p><span class="math display" id="eq:spatial2">\[
 \begin{aligned}
 BL_i &amp;= z_i \times \bf{\beta} + u_i + \epsilon_i\\
 \bf{\epsilon} &amp;\sim N(0,\sigma^2 \times \bf{I})\\
 \bf{u} &amp;\sim N(0, \bf{\Omega})
 \end{aligned}
-\tag{5.2}
+\tag{5.3}
 \]</span></p>
 </div>
 <div id="s6-2" class="section level2 hasAnchor" number="5.2">
@@ -359,7 +362,7 @@ BL_i &amp;= z_i \times \bf{\beta} + u_i + \epsilon_i\\
 \]</span></p>
 <p>ここで、行列の各要素はMatern関数によって定まるとする。第<a href="Chapter4.html#s4-3">3.3</a>節で見たように、Matern関数は距離と2つの未知のパラメータで定まる関数である。よって、この2つのパラメータが定まれば全ての<span class="math inline">\(\omega\)</span>が定まる。</p>
 <p><span class="math display" id="eq:covij">\[
-\omega_{ij} = cov(u_i,u_j) = \sigma_u^2 \times \rm{Matern \; correlation \; sites \; i \; and\;j} \tag{5.3}
+\omega_{ij} = cov(u_i,u_j) = \sigma_u^2 \times \rm{Matern \; correlation \; sites \; i \; and\;j} \tag{5.4}
 \]</span></p>
 <p>それでは、以下で実際にパラメータを定めて<span class="math inline">\(\omega_{ij}\)</span>を計算してみよう。まず、データ間の距離を算出する。</p>
 <div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="Chapter6.html#cb96-1" tabindex="-1"></a>Dist <span class="ot">&lt;-</span> <span class="fu">dist</span>(Loc) <span class="sc">%&gt;%</span> </span>
@@ -376,7 +379,7 @@ BL_i &amp;= z_i \times \bf{\beta} + u_i + \epsilon_i\\
 <div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="Chapter6.html#cb98-1" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="dv">5</span></span>
 <span id="cb98-2"><a href="Chapter6.html#cb98-2" tabindex="-1"></a>nu <span class="ot">&lt;-</span> <span class="dv">1</span></span>
 <span id="cb98-3"><a href="Chapter6.html#cb98-3" tabindex="-1"></a>sigma_u <span class="ot">&lt;-</span> <span class="dv">1</span></span></code></pre></div>
-<p>式<a href="#eq:ij">(<strong>??</strong>)</a>より、<span class="math inline">\(\omega_{ij}\)</span>は以下のように求まる。</p>
+<p>式<a href="Chapter6.html#eq:covij">(5.4)</a>より、<span class="math inline">\(\omega_{ij}\)</span>は以下のように求まる。</p>
 <div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="Chapter6.html#cb99-1" tabindex="-1"></a>d.vec <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(Dist)</span>
 <span id="cb99-2"><a href="Chapter6.html#cb99-2" tabindex="-1"></a>cor.M <span class="ot">&lt;-</span> sigma_u <span class="sc">*</span> (<span class="dv">2</span><span class="sc">^</span>(<span class="dv">1</span><span class="sc">-</span>nu))<span class="sc">/</span><span class="fu">gamma</span>(nu) <span class="sc">*</span> (kappa <span class="sc">*</span> d.vec)<span class="sc">^</span>nu <span class="sc">*</span> <span class="fu">besselK</span>(kappa<span class="sc">*</span>d.vec, nu)</span></code></pre></div>
 <p><span class="math inline">\(\omega_{ij}\)</span>と距離の関係を図示すると以下のようになる。ここからわかるように、距離が近いほど共分散<span class="math inline">\(\omega_{ij}\)</span>が大きくなっている。</p>
@@ -528,7 +531,7 @@ BL_i &amp;= z_i \times \bf{\beta} + u_i + \epsilon_i\\
 BL_i &amp;= z_i \times \bf{\beta} + w_{it} + \epsilon_i\\
 epsilon_i &amp;\sim N(0,\sigma^2)\\\
 \end{aligned}
-\tag{5.4}
+\tag{5.5}
 \]</span></p>
 <p>なお、<span class="math inline">\(w_{it}\)</span>は時系列相関を考慮するため以下のように定式化する。<span class="math inline">\(\phi\)</span>は-1から1までの値をとるパラメータである。<span class="math inline">\(w_{it}\)</span>は<span class="math inline">\(\phi\)</span>が大きいほど1時点前の<span class="math inline">\(w_{i,t-1}\)</span>と類似する。<br />
 <span class="math display">\[
@@ -545,7 +548,7 @@ u_{5t}
 \end{pmatrix}
 \sim N(0, \bf{\Omega})
 \]</span></p>
-<p>式<a href="Chapter6.html#eq:covij">(5.3)</a>と同様に、<span class="math inline">\(\bf{\Omega}\)</span>は以下のように書ける。なお、<span class="math inline">\(u_{it}\)</span>には時間的な相関はない。</p>
+<p>式<a href="Chapter6.html#eq:covij">(5.4)</a>と同様に、<span class="math inline">\(\bf{\Omega}\)</span>は以下のように書ける。なお、<span class="math inline">\(u_{it}\)</span>には時間的な相関はない。</p>
 <p><span class="math display">\[
 \bf{Omega}  = \sigma_u^2 \times \rm{Matern \; correlation \; sites \; i \; and\;j}
 \]</span></p>

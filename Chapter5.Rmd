@@ -13,7 +13,7 @@ datatable(ws,
 ```
 <br/>  
 
-雛の成長度合いは、くちばし長で評価されている。図\@ref(bl-age)は年齢とくちばし長の関連を図示したものである。  
+雛の成長度合いは、くちばし長で評価されている。図\@ref(fig:bl-age)は年齢とくちばし長の関連を図示したものである。  
 
 ```{r bl-age, fig.cap = "Scatterplot of beak length (mm) of White Stork chicks versus age (in days)."}
 ws %>% 
@@ -132,7 +132,7 @@ $$
 混合モデルはGLSと同様にデータ間の相関をモデルに組み込むことによって、データの非独立性に対処している。なお、ランダム切片の分散$\sigma_{nest}^2$について正確な推定を行うためには、少なくとも5以上のクラスター(今回の場合は巣ID)がなくてはならない。  
 
 ## Fitting the one-way nested model using lmer  
-それでは、モデル\@ref(qe:lmm)をRで実行する。ここでは、`lme4`パッケージの`lmer`関数を用いる。分析には2012年のデータのみを用いる。      
+それでは、モデル\@ref(eq:lmm)をRで実行する。ここでは、`lme4`パッケージの`lmer`関数を用いる。分析には2012年のデータのみを用いる。      
 ```{r}
 ws2 <- drop_na(ws, beak, age, nest, chick) %>% 
   mutate(fnest = as.factor(nest),

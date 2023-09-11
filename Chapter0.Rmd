@@ -9,14 +9,14 @@
 
 - RユーザのためのRstudio[実践]入門~tidyverseによるモダンな分析フローの世界 改訂2版 [@Matsumura2021] [出版社サイト](https://gihyo.jp/book/2021/978-4-297-12170-9)  
 
-使用するパッケージは以下のとおりである。GAMの実行は主に`gam`パッケージ[@Hastie2018]を用い、結果の作図についてはggplotパッケージでGAMの結果を可視化することに特化した`gratia`[パッケージ](https://gavinsimpson.github.io/gratia/)を用いる。  
+使用するパッケージは以下のとおりである。
 
 ```{r}
 ## 地理データ  
 library(sp)
 library(sf)
 library(NipponMap)
-## GAM
+## モデリング  
 library(mgcv)
 library(gamm4)
 library(nlme)

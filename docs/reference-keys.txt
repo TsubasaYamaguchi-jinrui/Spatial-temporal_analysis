@@ -3,7 +3,9 @@ fig:natto
 fig:natto-gyuniku
 fig:unnamed-chunk-14
 fig:variogram2-1
+fig:vario2-3
 eq:covmatrix
+fig:Matern
 fig:bl-age
 eq:lmm
 eq:icc
@@ -13,11 +15,17 @@ eq:lmm2
 fig:fitted5-2
 eq:lm
 eq:spatial
+eq:spatial2
 fig:xy
 eq:covij
 tab:unnamed-chunk-73
 eq:spatial-temporal
-recognizing-statistical-dependency
+eq:bayes
+eq:exp-disc
+eq:exp-poisson
+eq:exp-con
+eq:bayes2
+c2
 pseudoreplication
 疑似反復とは
 時空間的な疑似反復
@@ -69,3 +77,6 @@ simulation-study-continued
 introduction-to-bayesian-statistics
 why-go-bayesian
 general-probability-rules
+the-mean-of-a-distribution
+bayes-theorem-again
+conjugate-priors

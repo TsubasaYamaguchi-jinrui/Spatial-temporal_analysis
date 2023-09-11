@@ -32,16 +32,16 @@ Sys.setenv("plotly_api_key"="FyXiPMTRDyqnDETur1lG")
 ```
 
 # 本稿の目的 {-}   
-本稿は、**一般化加法モデル(GAM)**の概要を解説し、それをRで実行する方法を学ぶことを目的とする。本稿の内容は[こちら](https://tsubasayamaguchi-jinrui.github.io/GAM_nyuumon/)から読むことができる。  
+本稿は、時空間相関を考慮したGLM/GLMMをRで実装する方法を解説する。  
 
-GAMは一般化線形モデル(GLMに代表される線形なモデルを拡張し、変数間の関係をより柔軟な形で表現できるようにしたものである。そのため、**GLMで仮定されるような単調増加または単調減少の関係だけでなく、非線形な関係を調べることができる**。  
+生態学のデータでは、データに非独立性が存在することが多くある(第\@ref(c2))。多くの統計分析はデータが互いに独立であることを仮定しているので、こうした非独立性を考慮せずにを行ってしまうと誤った結論を導いてしまうことになりかねない。本稿では、特に時間的・空間的な相関があることでデータに非独立性がある場合に、どのようにそれに対処するべきかを解説する。本稿では、特にGLMやGLMM[@Zuur2013]による分析を扱う。  
 
-霊長類の行動のような複雑なデータでは変数間の関係が非線形になることがしばしばあるため、GAMは多くの研究で用いられている[e.g., @Matsumoto2017; @Taniguchi2018; @Hongo2022]。GLMのように線形性を仮定するモデルがデータに当てはまらない場合には、GAMなどの非線形性を許容するモデルを使用する必要性が生じてくるだろう。  
+本稿は主に Alain Zuurによる"Zuur, A. F. (2017). Beginner’s Guide to Spatial, Temporal and Spatial-Temporal Ecological Data Analysis with R-Inla: Using Glm and Glmm Volume I"[@Zuur2017]を基に執筆している。本書はなるべく数学的な説明を省きつつ、実際の生態学のデータを用いて時空間を考慮したGLM/GLMMについて間接している本である。  
 
-本稿は、Alain Zuurが執筆した"A beginner's guide to generalized additive models with R"[@Zuur2012]の内容を基に執筆している。本書はなるべく数学的な説明を省きつつ、実際の生態学のデータを用いてGAMについてわかりやすく解説したもので、GAMの入門として非常によい書籍である。より詳細な情報を知りたい場合は原著にアクセスしていただきたい。  
+その他には、以下の本も参考にした。  
 
-その他に参考にしたのは以下の本である。  
+- Mixed effects models and extensions in ecology with R [@Zuur2009]  
+- Rで始める地理空間データの統計解析入門 [@Murakami2022]  
+- Rとstanではじめるベイズ統計モデリングによるデータ分析入門 [@Baba2019]  
+- 時系列分析と状態空間モデルの基礎 : RとStanで学ぶ理論と実装 [@Baba2018]  
 
-- @Zuur2009 Mixed effects models and extensions in ecology with R. 
-- @James2013 An Introduction to Statistical Learning with Applications in R.  
-- @Takezawa2009 Rによるノンパラメトリック回帰の入門講義  

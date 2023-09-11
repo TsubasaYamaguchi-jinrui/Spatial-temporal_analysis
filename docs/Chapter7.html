@@ -256,6 +256,9 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="6.1" data-path="Chapter7.html"><a href="Chapter7.html#why-go-bayesian"><i class="fa fa-check"></i><b>6.1</b> Why go Bayesian?</a></li>
 <li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#general-probability-rules"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
+<li class="chapter" data-level="6.3" data-path="Chapter7.html"><a href="Chapter7.html#the-mean-of-a-distribution"><i class="fa fa-check"></i><b>6.3</b> The mean of a distribution</a></li>
+<li class="chapter" data-level="6.4" data-path="Chapter7.html"><a href="Chapter7.html#bayes-theorem-again"><i class="fa fa-check"></i><b>6.4</b> Bayes theorem again</a></li>
+<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#conjugate-priors"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -293,6 +296,68 @@ div.csl-indent {
 </div>
 <div id="general-probability-rules" class="section level2 hasAnchor" number="6.2">
 <h2><span class="header-section-number">6.2</span> General probability rules<a href="Chapter7.html#general-probability-rules" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>まず確立の基本から確認していく。<span class="math inline">\(P(A)\)</span>と<span class="math inline">\(P(B)\)</span>をそれぞれ事象Aが生じる確率、事象Bが生じる確率とする。また、<span class="math inline">\(P(A \cap B)\)</span>をAかつBである確率、<span class="math inline">\(P(A \cup B)\)</span>をAまたはBである確率とする。このとき、</p>
+<p><span class="math display">\[
+P(A \cap B) = P(B \cap A)
+\]</span></p>
+<p>である。また、AとBが独立であるときは以下のように書ける。<br />
+<span class="math display">\[
+P(A \cap B) = P(A) \times P(B)
+\]</span></p>
+<p>一方、AとBが独立でないとき以下のように書ける。なお、<span class="math inline">\(P(A|B)\)</span>は条件付確率を表し、事象Bが生じたときに事象Aが生じる確率を表す。<br />
+<span class="math display">\[
+\begin{aligned}
+P(A \cap B) &amp;= P(A|B) \times P(B)\\
+P(A \cap B) &amp;= P(B|A) \times P(A)
+\end{aligned}
+\]</span></p>
+<p>よって、以下の式が導かれる。これを、<strong>ベイズの定理</strong>という。<br />
+<span class="math display" id="eq:bayes">\[
+P(A|B) = \frac{P(B|A) \times P(A)}{P(B)} \tag{6.1}
+\]</span></p>
+</div>
+<div id="the-mean-of-a-distribution" class="section level2 hasAnchor" number="6.3">
+<h2><span class="header-section-number">6.3</span> The mean of a distribution<a href="Chapter7.html#the-mean-of-a-distribution" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>ある変数<span class="math inline">\(Y\)</span>がパラメータ<span class="math inline">\(\mu\)</span>のポワソン分布から得られるとき、<span class="math inline">\(Y\)</span>の期待値は<span class="math inline">\(\mu\)</span>である。このことは以下のように書ける。<br />
+<span class="math display">\[
+\begin{aligned}
+&amp;Y \sim Poisson(\mu)\\
+&amp;E(Y) = \mu
+\end{aligned}
+\]</span></p>
+<p><span class="math inline">\(Y\)</span>が<strong>離散的な値</strong>のとき、その期待値は以下のように書ける。なお、<span class="math inline">\(y\)</span>は<span class="math inline">\(Y\)</span>がとりうる全ての値を表す。よって、離散的な変数に関する確率分布(ポワソン分布、ベルヌーイ分布、二項分布、負の二項分布など)の期待値は以下の式で求められる。</p>
+<p><span class="math display" id="eq:exp-disc">\[
+E(Y) = \sum_y y \times p(y) \tag{6.2}
+\]</span></p>
+<p>ポワソン分布は<span class="math inline">\(p(y) = \frac{e^{-\mu} \times \mu^y}{y!}\)</span>なので、式<a href="Chapter7.html#eq:exp-disc">(6.2)</a>は以下のように書ける。この式を計算すると右辺は<span class="math inline">\(\mu\)</span>になる。<br />
+<span class="math display" id="eq:exp-poisson">\[
+E(Y) = \sum_{y =0} ^\infty y \times \frac{e^{-\mu} \times \mu^y}{y!} \tag{6.3}
+\]</span></p>
+<p>もし変数<span class="math inline">\(Y\)</span>が<strong>連続的な値</strong>の場合、その期待値は<span class="math inline">\(\int\)</span>を用いて以下のように書ける。よって、連続的な変数に関する確率分布(正規分布、ガンマ分布、β分布など)の期待値は以下の式で求められる。<br />
+<span class="math display" id="eq:exp-con">\[
+E(Y) = \int _{-\infty} ^{\infty} y \times p(y) dy \tag{6.4}
+\]</span></p>
+</div>
+<div id="bayes-theorem-again" class="section level2 hasAnchor" number="6.4">
+<h2><span class="header-section-number">6.4</span> Bayes theorem again<a href="Chapter7.html#bayes-theorem-again" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>ベイズの定理(式<a href="Chapter7.html#eq:bayes">(6.1)</a>)を用いて、データ(D)が得られたときにパラメータ<span class="math inline">\(\beta\)</span>がとりうる確率の分布<span class="math inline">\(P(\beta|D)\)</span>は以下のように書ける。</p>
+<p><span class="math display">\[
+P(\beta|D) = \frac{P(D|\beta) \times P(\beta)}{P(D)}
+\]</span></p>
+<p><span class="math inline">\(P(\beta|D)\)</span>は、データが得られた時のパラメータ<span class="math inline">\(\beta\)</span>の<strong>事後分布(posterior distribution)</strong>という。事後分布こそが、<u>私たちがデータからパラメータを推定するときに求めたいものである</u>。</p>
+<p><span class="math inline">\(P(D|\beta)\)</span>はあるパラメータ<span class="math inline">\(\beta\)</span>が与えられたときにデータが得られる確率であり、いわゆる<strong>尤度(likelihood)</strong>である。<span class="math inline">\(P(\beta)\)</span>はデータが与えられていない状態でのパラメータ<span class="math inline">\(\beta\)</span>が得られる確率分布で<strong>事前分布(prior distribution)</strong>と呼ばれる。</p>
+<p>最後に、<span class="math inline">\(P(D)\)</span>はデータが得られる確率で、事後分布の合計を1にするための役割を果たす。これは<strong>周辺尤度</strong>と言われ、通常計算することが難しいので省略されることが多い。このとき、式<a href="Chapter7.html#eq:bayes">(6.1)</a>は以下のように書ける。なお、<span class="math inline">\(\propto\)</span>は左辺が右辺に比例することを表す。</p>
+<p><span class="math display" id="eq:bayes2">\[
+P(\beta|D) \propto P(D|\beta) \times P(\beta) \tag{6.5}
+\]</span></p>
+<p>この式は、事後分布は尤度と事前分布の積に比例していることを示している。また、事後分布の期待値は式<a href="Chapter7.html#eq:exp-con">(6.4)</a>から以下のように書ける。</p>
+<p><span class="math display">\[
+E(\beta|D) = \int_{-\infty} ^\infty \beta \times P(\beta_|D) d\beta
+\]</span></p>
+<p>次節以降では、事後分布とその期待値をどのように推定するかをみていく。</p>
+</div>
+<div id="conjugate-priors" class="section level2 hasAnchor" number="6.5">
+<h2><span class="header-section-number">6.5</span> Conjugate priors<a href="Chapter7.html#conjugate-priors" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 
 </div>
 </div>

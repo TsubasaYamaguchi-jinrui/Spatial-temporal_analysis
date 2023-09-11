@@ -256,6 +256,9 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="6.1" data-path="Chapter7.html"><a href="Chapter7.html#why-go-bayesian"><i class="fa fa-check"></i><b>6.1</b> Why go Bayesian?</a></li>
 <li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#general-probability-rules"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
+<li class="chapter" data-level="6.3" data-path="Chapter7.html"><a href="Chapter7.html#the-mean-of-a-distribution"><i class="fa fa-check"></i><b>6.3</b> The mean of a distribution</a></li>
+<li class="chapter" data-level="6.4" data-path="Chapter7.html"><a href="Chapter7.html#bayes-theorem-again"><i class="fa fa-check"></i><b>6.4</b> Bayes theorem again</a></li>
+<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#conjugate-priors"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -414,7 +417,7 @@ h(s, \phi) = exp \Bigl( -\bigl( \frac{s}{\phi} \bigl)^2 \Bigl)
 </div>
 <div id="application-on-the-irish-ph-data" class="section level2 hasAnchor" number="3.2">
 <h2><span class="header-section-number">3.2</span> Application on the Irish pH data<a href="Chapter4.html#application-on-the-irish-ph-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>本節では、第<a href="Chapter2.html#s1-2">1.2</a>節で分析したアイルランドの河川のpHを調べたデータを再び用いる。空間的相関を考慮しない通常の線形回帰については第<a href="Chapter2.html#s1-2">1.2</a>節ですでに実行しているため、これに関する説明は省略する(step1とstep2)。図<a href="#fig:vario2-3"><strong>??</strong></a>からどのバリオグラムモデルが適切かを判断することが難しいため、可能なバリオグラムモデルを全て当てはめる。</p>
+<p>本節では、第<a href="Chapter2.html#s1-2">1.2</a>節で分析したアイルランドの河川のpHを調べたデータを再び用いる。空間的相関を考慮しない通常の線形回帰については第<a href="Chapter2.html#s1-2">1.2</a>節ですでに実行しているため、これに関する説明は省略する(step1とstep2)。図<a href="Chapter2.html#fig:vario2-3">1.6</a>からどのバリオグラムモデルが適切かを判断することが難しいため、可能なバリオグラムモデルを全て当てはめる。</p>
 <div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="Chapter4.html#cb65-1" tabindex="-1"></a>iph <span class="sc">%&gt;%</span> </span>
 <span id="cb65-2"><a href="Chapter4.html#cb65-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Xkm =</span> Easting<span class="sc">/</span><span class="dv">1000</span>,</span>
 <span id="cb65-3"><a href="Chapter4.html#cb65-3" tabindex="-1"></a>         <span class="at">Ykm =</span> Northing<span class="sc">/</span><span class="dv">1000</span>) <span class="ot">-&gt;</span> iph</span>
@@ -590,7 +593,7 @@ h(s, \phi) = exp \Bigl( -\bigl( \frac{s}{\phi} \bigl)^2 \Bigl)
 <p><span class="math display">\[
 cor_{Matern}(s_i, s_j) = \frac{2^{1-\nu}}{\Gamma(\nu)} \times (\kappa \times ||s_i - s_j||)^\nu \times K_\nu(\kappa \times ||s_i - s_j||)
 \]</span></p>
-<p>Matern相関関数を図示したのが図<a href="#fig:Matern"><strong>??</strong></a>である。AR1過程やバリオグラムモデルのように、空間的に近いデータ同士の相関は高く、空間的に離れるほど相関が低くなっていくことが分かる。Matern関数は<code>gls</code>には実装されていないが、のちに学ぶ<code>INLA</code>パッケージには実装されている。</p>
+<p>Matern相関関数を図示したのが図<a href="Chapter4.html#fig:Matern">3.1</a>である。AR1過程やバリオグラムモデルのように、空間的に近いデータ同士の相関は高く、空間的に離れるほど相関が低くなっていくことが分かる。Matern関数は<code>gls</code>には実装されていないが、のちに学ぶ<code>INLA</code>パッケージには実装されている。</p>
 <div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="Chapter4.html#cb75-1" tabindex="-1"></a><span class="fu">library</span>(fields)</span>
 <span id="cb75-2"><a href="Chapter4.html#cb75-2" tabindex="-1"></a></span>
 <span id="cb75-3"><a href="Chapter4.html#cb75-3" tabindex="-1"></a><span class="fu">crossing</span>(<span class="at">kappa =</span> <span class="fu">c</span>(<span class="fl">0.02</span>,<span class="fl">0.07</span>,<span class="fl">0.2</span>),</span>
@@ -601,7 +604,12 @@ cor_{Matern}(s_i, s_j) = \frac{2^{1-\nu}}{\Gamma(\nu)} \times (\kappa \times ||s
 <span id="cb75-8"><a href="Chapter4.html#cb75-8" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">linetype =</span> kappa))<span class="sc">+</span></span>
 <span id="cb75-9"><a href="Chapter4.html#cb75-9" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
 <span id="cb75-10"><a href="Chapter4.html#cb75-10" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)</span></code></pre></div>
-<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/Matern-1.png" width="672" style="display: block; margin: auto;" /></p>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:Matern"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/Matern-1.png" alt="Matern関数" width="672" />
+<p class="caption">
+図3.1: Matern関数
+</p>
+</div>
 
 </div>
 </div>

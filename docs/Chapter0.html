@@ -256,6 +256,9 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="6.1" data-path="Chapter7.html"><a href="Chapter7.html#why-go-bayesian"><i class="fa fa-check"></i><b>6.1</b> Why go Bayesian?</a></li>
 <li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#general-probability-rules"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
+<li class="chapter" data-level="6.3" data-path="Chapter7.html"><a href="Chapter7.html#the-mean-of-a-distribution"><i class="fa fa-check"></i><b>6.3</b> The mean of a distribution</a></li>
+<li class="chapter" data-level="6.4" data-path="Chapter7.html"><a href="Chapter7.html#bayes-theorem-again"><i class="fa fa-check"></i><b>6.4</b> Bayes theorem again</a></li>
+<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#conjugate-priors"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -279,18 +282,18 @@ div.csl-indent {
 <h1>0. パッケージの読み込み<a href="Chapter0.html#パッケージの読み込み" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <p>本稿はRの基本操作と<code>tidyverse</code>パッケージによるデータハンドリングができることを前提としている。<code>tidyverse</code>パッケージを用いたデータ処理については、以下の書籍などを参照。</p>
 <ul>
-<li><p>R for Data Science <span class="citation">(<a href="#ref-Wickham2016"><strong>Wickham2016?</strong></a>)</span><br />
+<li><p>R for Data Science <span class="citation">(<a href="#ref-Wickham2016">Wickham and Grolemund 2016</a>)</span><br />
 <a href="https://r4ds.had.co.nz/">電子書籍</a>, <a href="https://www.oreilly.co.jp/books/9784873118147/">日本語</a></p></li>
-<li><p>R Graphics Coocbook 2nd Edition <span class="citation">(<a href="#ref-Chang2018"><strong>Chang2018?</strong></a>)</span><br />
+<li><p>R Graphics Coocbook 2nd Edition <span class="citation">(<a href="#ref-Chang2018">Chang 2018</a>)</span><br />
 <a href="https://r-graphics.org/">電子書籍</a>, <a href="https://www.oreilly.co.jp/books/9784873118925/">日本語</a></p></li>
-<li><p>RユーザのためのRstudio[実践]入門~tidyverseによるモダンな分析フローの世界 改訂2版 <span class="citation">(<a href="#ref-Matsumura2021"><strong>Matsumura2021?</strong></a>)</span> <a href="https://gihyo.jp/book/2021/978-4-297-12170-9">出版社サイト</a></p></li>
+<li><p>RユーザのためのRstudio[実践]入門~tidyverseによるモダンな分析フローの世界 改訂2版 <span class="citation">(<a href="#ref-Matsumura2021">松村 et al. 2021</a>)</span> <a href="https://gihyo.jp/book/2021/978-4-297-12170-9">出版社サイト</a></p></li>
 </ul>
-<p>使用するパッケージは以下のとおりである。GAMの実行は主に<code>gam</code>パッケージ<span class="citation">(<a href="#ref-Hastie2018"><strong>Hastie2018?</strong></a>)</span>を用い、結果の作図についてはggplotパッケージでGAMの結果を可視化することに特化した<code>gratia</code><a href="https://gavinsimpson.github.io/gratia/">パッケージ</a>を用いる。</p>
+<p>使用するパッケージは以下のとおりである。</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="Chapter0.html#cb1-1" tabindex="-1"></a><span class="do">## 地理データ  </span></span>
 <span id="cb1-2"><a href="Chapter0.html#cb1-2" tabindex="-1"></a><span class="fu">library</span>(sp)</span>
 <span id="cb1-3"><a href="Chapter0.html#cb1-3" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
 <span id="cb1-4"><a href="Chapter0.html#cb1-4" tabindex="-1"></a><span class="fu">library</span>(NipponMap)</span>
-<span id="cb1-5"><a href="Chapter0.html#cb1-5" tabindex="-1"></a><span class="do">## GAM</span></span>
+<span id="cb1-5"><a href="Chapter0.html#cb1-5" tabindex="-1"></a><span class="do">## モデリング  </span></span>
 <span id="cb1-6"><a href="Chapter0.html#cb1-6" tabindex="-1"></a><span class="fu">library</span>(mgcv)</span>
 <span id="cb1-7"><a href="Chapter0.html#cb1-7" tabindex="-1"></a><span class="fu">library</span>(gamm4)</span>
 <span id="cb1-8"><a href="Chapter0.html#cb1-8" tabindex="-1"></a><span class="fu">library</span>(nlme)</span>
@@ -334,6 +337,18 @@ div.csl-indent {
 <span id="cb1-46"><a href="Chapter0.html#cb1-46" tabindex="-1"></a><span class="fu">require</span>(systemfonts)</span>
 <span id="cb1-47"><a href="Chapter0.html#cb1-47" tabindex="-1"></a><span class="fu">require</span>(fontregisterer)</span></code></pre></div>
 
+</div>
+<h3>References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Chang2018" class="csl-entry">
+Chang W (2018) <span>R</span> graphics cookbook: Practical recipes for visualizing data. <span>“O’Reilly Media, Inc.”</span>
+</div>
+<div id="ref-Wickham2016" class="csl-entry">
+Wickham H, Grolemund G (2016) <span>R</span> for data science: Import, tidy, transform, visualize, and model data. <span>“O’Reilly Media, Inc.”</span>
+</div>
+<div id="ref-Matsumura2021" class="csl-entry">
+松村優哉, 湯谷啓明, 紀ノ定保礼, 前田和 (2021) RユーザのためのRstudio[実践]入門 tidyverseによるモダンな分析フローの世界 改訂2版. 技術評論社
+</div>
 </div>
             </section>
 
