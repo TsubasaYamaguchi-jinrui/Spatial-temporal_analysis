@@ -36,6 +36,11 @@ eq:lm-iph
 eq:DDD2
 eq:bayes-param
 eq:bayes-param2
+tab:tab-oc
+tab:tab-oc2
+eq:marginal
+fig:int
+eq:post-beta
 c2
 pseudoreplication
 疑似反復とは
@@ -110,3 +115,7 @@ assess-mixing
 integrated-nested-laplace-approximation
 joint-posterior-distribution
 marginal-distributions
+back-to-high-school
+inla
+examples-using-r-inla
+posterior-summary

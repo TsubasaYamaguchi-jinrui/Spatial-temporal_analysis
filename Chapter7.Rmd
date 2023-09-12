@@ -348,7 +348,7 @@ MCMCにも様々なアルゴリズムがあり、それぞれの方法を実装�
 
 いずれを用いてもMCMCによるベイズ推定を行えるが、現在はStanが用いられることが多くなっている[@Matsuura2016]。この理由としては、WinBUGSやJAGSが使いにくい点や、開発があまり継続的には行われておらず、マニュアルや用例が充実していない点が挙げられる。また、Stanで用いられるハミルトニアン・モンテカルロ法はギブスサンプリングよりも複雑なモデルを扱え、またサンプリングも効率的に行える。そこで、本稿では以下Stanを用いてモデリングを行う[^foot2]。RでStanを動かすには、`rstan`[パッケージ](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started-(Japanese))が必要である。`Stanのインストール方法や使用方法などは @Matsuura2016 や @Baba2019 を参照。  
 
-[^foot2]: @Zuur2017ではJAGSが用いられているが、筆者が使い慣れているうえ、本文中のようなアドバンテージもあるのでStanを用いる。  
+[^foot2]: @Zuur2017 ではJAGSが用いられているが、筆者が使い慣れているうえ、本文中のようなアドバンテージもあるのでStanを用いる。  
 
 ### Flowchart for running a model in Stan  
 以下、Stanを用いてMCMCによって事後分布を推定する。分析には、第\@ref(c4)で用いたデータを用いる。以下の線形モデルを考える。ひとまず、データの疑似反復については気にしない。  
@@ -581,8 +581,8 @@ datatable(oc,
 ```
 <br/>  
 
-
-```{r}
+下表(表\@ref(tab:tab-oc))は、`hammerer`によって割られた二枚貝のサイズ(`Large` or `Small`)を場所ごとにまとめたものである。  
+```{r tab-oc}
 oc %>% 
   filter(FeedingType == "Hammerers") %>% 
   mutate(shell_size = ifelse(ShellLength >= 2, "Large","Small")) %>% 
@@ -590,9 +590,182 @@ oc %>%
   summarise(N = n()) %>% 
   rename("Shell size" = 1, "Feeding site" = 2) %>% 
   pivot_wider(names_from = "Feeding site", values_from = N) %>% 
-　flextable() %>% 
-  add_header_row(values = c("","Feed place"),
-                 colwidth = c(1,3)) %>% 
-  align(align = "center", part = "all", j = 2:4)
+  ungroup() %>% 
+  mutate(Total = A + B + C) -> sum_oc
+
+sum_oc %>% 
+  bind_rows(summarise(., across(where(is.numeric), sum),
+                                   across(where(is.character), ~'Total'))) %>% 
+　kable(booktabs = TRUE, align = c("l", rep("c",5)),
+　      caption = "Number  of  clams  eaten  by  hammering  oystercatchers  per  shell size (small versus large) and feeding site.") %>% 
+  add_header_above(c(" " = 1, "Feed place" = 4)) %>% 
+  kable_styling(full_width = FALSE)
 ```
+<br/>  
+
+これを割合データに直したのが表\@ref(tab:tab-oc2)である。  
+```{r tab-oc2}
+sum_oc %>% 
+  bind_rows(summarise(., across(where(is.numeric), sum),
+                                   across(where(is.character), ~'Total'))) %>% 
+  mutate_if(is.numeric, .funs = ~./165) %>% 
+  mutate_if(is.numeric, ~sprintf("%.3f", .)) %>% 
+  kable(booktabs = TRUE, align = c("l", rep("c",5)),
+　      caption = "Proportions  of  clams  eaten by  hammering  oystercatchers  per shell size (small versus large) and feeding site.") %>% 
+  add_header_above(c(" " = 1, "Feed place" = 4)) %>% 
+  kable_styling(full_width = FALSE)
+```
+<br/>  
+
+このとき、$P(\rm{shell \; size} \; \mathbf{and} \rm{\;Feed \; place})$が**同時確率**であり、中の6つのセルの値である。  
+
+一方、$P(\rm{Feed \;place})$と$P(\rm{Shell \; size})$が**周辺確率**である。これらは、それぞれ一番下の行と一番右の列の値である。  
+
+$$
+\begin{aligned}
+&P(\rm{Feed \;place} = A) = 0.273 + 0.091 = 0.364 \\
+&P(\rm{Feed \;place} = B) = 0.176 + 0.097 = 0.273 \\
+&P(\rm{Feed \;place} = C) = 0.218 + 0.145 = 0.364 \\
+\\
+&P(\rm{Shell \; size = Large}) = 0.273 + 0.16 + 0.218 = 0.667 \\
+&P(\rm{Shell \; size = Small}) = 0.091 + 0.097 + 0.145 = 0.333
+\end{aligned}
+$$
+
+より一般的に、変数が離散的なとき周辺確率は以下のように書ける。   
+$$
+P(X = x) = \sum_y P(X = x \; \rm{and} \; Y = y)
+$$
+
+変数が連続的なとき、以下のように書ける。  
+$$
+P(X = x) = \int_y P(X = x \; \rm{and} \; Y = y) dy  
+(\#eq:marginal)
+$$
+
+このように、複数の確率変数の同時分布(確率)から周辺分布(確率)を計算することを**周辺化**という[@Baba2019]。周辺事後分布$P(\beta_1|D), P(\beta_2|D), P(\sigma|D)$を求めるときも、同じように積分を用いて周辺化を行う。  
+
+### Back to high school  
+それでは、積分とは何だろうか。例えば、図\@ref(fig:int)Aの塗りつぶされた場所の面積を求めたいとする(なお、曲線は$f(x) = -2x^2 + 8$)。いうまでもなく$\int_0 ^1 f(x)  dx$という積分計算を行えばこれを求めることができるが、積分を用いずにこれを近似することはできるだろうか?  
+
+よく用いられるのは、面積を求めたいエリアの$x$軸(その範囲を$x_0$とする)をN等分したのち、面積を求めたいエリアを幅$x_0/N$、高さ$f(x)$の長方形N個で埋め尽くし、その面積の合計を近似値として求める方法である。例えば、図\@ref(fig:int)Bは面積を求めたいエリアを5等分した場合である。Nを大きくすればするほど近似値は実際の面積に近づいていく(図\@ref(fig:int)C)。これを**区分求積法**という。INLAでも、積分計算に区分求積法のような方法を用いることで近似を行う。  
+
+```{r int, fig.cap = "How integrals work.", fig.dim = c(14,4.5)}
+X <- seq(-0.5, 2, length = 100)
+Y <- -2*X^2 + 8  
+
+data.frame(X = X,
+           Y = Y) %>% 
+  ggplot(aes(x = X, y = Y))+
+  geom_area(aes(x = ifelse(X>=0 & X <= 1 , X, 0)),
+            fill = "lightblue")+
+  geom_line(linewidth = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  coord_cartesian(ylim = c(0.35,8))+
+  labs(title = "A") -> p1
+
+int <- data.frame(X = seq(0,0.8,0.2)) %>% 
+  mutate(Y = -2*X^2 + 8) 
+
+data.frame(X = X,
+           Y = Y) %>% 
+  ggplot(aes(x = X, y = Y))+
+  geom_area(aes(x = ifelse(X>=0 & X <= 1 , X, 0)),
+            fill = "lightblue")+
+  geom_line(linewidth = 1)+
+  geom_col(data = int,
+           color = "black",
+           alpha = 0,
+           linewidth = 0.3,
+           width = 0.2,
+           position = position_nudge(x = 0.1)) +
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  coord_cartesian(ylim = c(0.35,8))+
+  labs(title = "B")-> p2
+
+int2 <- data.frame(X = seq(0,0.9,0.1)) %>% 
+  mutate(Y = -2*X^2 + 8) 
+
+data.frame(X = X,
+           Y = Y) %>% 
+  ggplot(aes(x = X, y = Y))+
+  geom_area(aes(x = ifelse(X>=0 & X <= 1 , X, 0)),
+            fill = "lightblue")+
+  geom_line(linewidth = 1)+
+  geom_col(data = int2,
+           color = "black",
+           alpha = 0,
+           linewidth = 0.2,
+           width = 0.1,
+           position = position_nudge(x = 0.05)) +
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  coord_cartesian(ylim = c(0.35,8))+
+  labs(title = "C")-> p3
+
+p1 + p2 + p3
+```
+<br/>  
+
+実際の分析ではより複雑な関数を積分しなくてはいけないので、実際には積分を行うことが非常に難しいこともある。INLAでは**ラプラス近似**(テイラー展開を用いて関数を近似する方法)を用いて$f(x)$を近似することで、複雑な積分計算を可能にする。もう少し詳しい説明については、[こちら](https://www.precision-analytics.ca/articles/a-gentle-inla-tutorial/)などを参照。    
+
+### INLA  
+式\@ref(eq:marginal)より、$\beta_1, \beta_2$の事後分布は以下のように書ける。  
+
+$$
+\begin{aligned}
+&P(\beta_1|D) = \int P(\beta_1, \sigma|D)d\sigma \\
+&P(\beta_2|D) = \int P(\beta_2, \sigma|D)d\sigma
+\end{aligned}
+(\#eq:post-beta)
+$$
+
+混合モデルなど、ハイパーパラメータが2つあるときには、これらの事後分布を以下のように求める。  
+$$
+P(\sigma_1|D) = \int(\sigma_1, \sigma_2|D)d\sigma_1 \\
+P(\sigma_2|D) = \int(\sigma_1, \sigma_2|D)d\sigma_2
+$$
+
+ひとまず、今回はハイパーパラメータが$\sigma$1つの場合を考える。このとき、式\@ref(eq:post-beta)は条件付き確率の書き換えルール(式\@ref(eq:conditional))を用いて以下のように書き換えられる[^foot3]。  
+
+[^foot3]: $P(A|B) = P(A, B)/P(B)$である。同様に3つ以上の確率変数についても$P(A. B|C) = P(A,B,C)/P(C)$と書ける。また、$P(A , B , C) = P(A| B , C) \times P(B , C)$と書ける。最後に、$P(B|C) = P(B , C)/P(C)$と書ける。これらを全て合わせると、$P(A , B|C) = P(A|B,C) \times P(B|C)$と書ける。  
+
+$$
+\begin{aligned}
+&P(\beta_1|D) = \int P(\beta_1|\sigma,D) \times P(\sigma|D) d\sigma \\
+&P(\beta_2|D) = \int P(\beta_2|\sigma,D) \times P(\sigma|D) d\sigma
+\end{aligned}
+$$
+
+よって、事後分布を求めるには2つの要素を計算できれば良い。$P(\sigma|D)$はハイパーパラメータが1つなので簡単に求められる。もし、ハイパーパラメータが2つ以上のときはこれをさらに簡単な要素に分解する。$P(\beta_1|\sigma,D)$の計算にはいくつかの方法があるが、**INLAではラプラス近似を用いてこれを求める**。    
+
+## Examples using R-INLA  
+以下では、`INLA`[パッケージ](https://www.r-inla.org/home)を用いて式\@ref(eq:DDD2)の線形モデルを実行する。`INLA`のコードは非常にシンプルで、他の関数(`lm`、`glm`)と同じようにできる。  
+
+```{r}
+m7_2 <- inla(pH ~ SDI.std,
+             data = iph2,
+             family = "gaussian")
+```
+
+違う点は、分布を`family =`で必ず指定しなければいけない点である。`INLA`では非常に多くの分布を扱える。  
+```{r}
+names(inla.models()$likelihood) 
+```
+
+### Posterior summary  
+推定された事後分布の要約は以下の通り。事後分布の平均、sd、パーセンタイル値などの情報が出る。結果はほぼMCMCのときと変わらない。    
+```{r}
+summary(m7_2)
+```
+
+ハイパーパラメータ以外の結果を知りたい場合は以下のようにしてみることができる。  
+```{r}
+m7_2$summary.fixed %>% 
+  select(mean, sd, "0.025quant", "0.975quant")
+```
+
+
 

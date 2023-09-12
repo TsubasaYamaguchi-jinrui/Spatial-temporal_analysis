@@ -97,7 +97,7 @@ datatable(iph,
 各説明変数との関連は以下の通り。  
 ```{r}
 iph %>% 
-  select(Altitude, pH, fForested, SDI) %>% 
+  dplyr::select(Altitude, pH, fForested, SDI) %>% 
   pivot_longer(cols = c(Altitude, SDI)) %>% 
   ggplot(aes(x = value, y = pH))+
   geom_point(aes(color = fForested))+
