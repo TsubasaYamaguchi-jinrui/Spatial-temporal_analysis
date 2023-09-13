@@ -128,6 +128,7 @@ m2_1 <- lm(pH ~ SDI,
            data = iph)
 ```
 
+濃く塗りつぶした部分が95%信頼区間、薄く塗りつぶした部分が95%予測区間である。  
 ```{r}
 ggpredict(m2_1,
           terms = "SDI[7:72,by=0.1]",
@@ -155,7 +156,7 @@ ggpredict(m2_1,
 ```
 
 ### Fit the model  
-全部の交互作用を含むモデルを考える。  
+次に、全部の交互作用を含むモデルを考える。  
 ```{r}
 iph %>% 
   mutate(logAltitude = log(Altitude,10)) -> iph
@@ -182,7 +183,7 @@ m2_3 <- lm(pH ~ SDI + logAltitude*fForested,
 
 ### Model validation  
 #### Check homogeinity and model misfit  
-標準化残差と予測値、各共変量の関係は特にパターンが見られず、問題ないよう。  
+モデル診断を行う。標準化残差と予測値、各共変量の関係は特にパターンが見られず、問題ないよう。  
 
 ```{r}
 resid <- rstandard(m2_3)

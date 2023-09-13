@@ -41,7 +41,7 @@ $$
 P(A|B) = \frac{P(B|A) \times P(A)}{P(B)} (\#eq:bayes)
 $$
 
-## The mean of a distribution  
+## The mean of a distribution {#s7-3}   
 ある変数$Y$がパラメータ$\mu$のポワソン分布から得られるとき、$Y$の期待値は$\mu$である。このことは以下のように書ける。  
 $$
 \begin{aligned}
@@ -392,12 +392,10 @@ $$
 \sigma \sim uniform(0,20)
 $$
 
-
-
 #### Preparing stan file  
 最後に、ここまでのモデルの情報を記した以下のようなStanファイルを用意する。`data`セクションにはデータの情報を、`parameter`セクションにはパラメータの情報を、`model`セクションにはモデル式や事前分布に関する情報を入れる。    
 
-```{r}
+```{r, echo = FALSE}
 cat(
   "// データ
 data {
@@ -755,7 +753,7 @@ m7_2 <- inla(pH ~ SDI.std,
 names(inla.models()$likelihood) 
 ```
 
-### Posterior summary  
+### Posterior summary {#s7-8-1}  
 推定された事後分布の要約は以下の通り。事後分布の平均、sd、パーセンタイル値などの情報が出る。結果はほぼMCMCのときと変わらない。    
 ```{r}
 summary(m7_2)
@@ -767,5 +765,120 @@ m7_2$summary.fixed %>%
   select(mean, sd, "0.025quant", "0.975quant")
 ```
 
+事後分布の平均を用いた予測値や残差は以下のように計算できる。  
+```{r}
+X <- model.matrix(~ 1 + SDI.std, data = iph2)
+beta <- m7_2$summary.fixed %>% select("mean") %>% .[,1]
 
+fit7_2 <- X %*% beta
+e7_2 <- iph$pH - fit7_2
+```
+
+自分で計算しなくても、`INLA`で`control.predictor`オプションを加えれば自動で計算を行ってくれる。95%確信区間の計算も行ってくれるようだ。    
+```{r}
+m7_2 <- inla(pH ~ SDI.std, data = iph2,
+             family = "gaussian",
+             control.predictor = list(compute = TRUE),
+             control.compute = list(config = TRUE))
+
+fit7_2 <- m7_2$summary.fitted.values
+
+datatable(fit7_2)
+```
+<br/>  
+
+ハイパーパラメータは以下のように求めることができる。`INLA`パッケージでは標準偏差ではなくprecision($\tau = 1/\sigma^2$が推定される。    
+```{r}
+m7_2$summary.hyperpar
+```
+
+### Posterior marginal distributions  
+ある特定のパラメータに関する事後分布は事後**周辺**分布(posterior marginal distribution)と呼ばれる[^foot4]。以後、これを事後分布と呼ぶ(先ほどの節の結果で示されたのも事後周辺分布の要約である)。先ほど推定したモデルでは3つのパラメータ($\beta_1, \beta_2, 1 / \sigma^2$)があった。これらの事後分布は以下のように抽出できる。  
+
+[^foot4]: MCMCで求めていた事後分布も同様に事後周辺分布である。  
+
+```{r}
+pmbeta1 <- m7_2$marginals.fixed$`(Intercept)`
+pmbeta2 <- m7_2$marginals.fixed$SDI.std
+pmtau <- m7_2$marginals.hyperpar$`Precision for the Gaussian observations`
+```
+
+`INLA`には事後周辺分布の確信区間などの要約統計量を算出するための関数が装備されている。例えば、95%確信区間と中央値は以下のように求められる。    
+```{r}
+inla.qmarginal(p = c(0.025, 0.5, 0.975), pmbeta1)
+```
+
+`inla.zmarginal`では、自動的に要約統計量を算出してくれる。  
+```{r}
+inla.zmarginal(pmbeta2)
+```
+
+また、最高密度区間(highest posterior density)[^foot5]は以下のように求められる。  
+
+[^foot5]: 事後分布から分布密度がある値以上をとる区間を切り出した場合に、当該%となる様な区間。  
+
+```{r}
+inla.hpdmarginal(0.95, pmbeta2)
+```
+
+`precision`$\tau$は容易に$\sigma$に変換できる。  
+```{r}
+pm.sigma <- inla.tmarginal(function(x) sqrt(1/x), pmtau)
+```
+
+事後分布はこれらを用いて容易に作図できる。  
+```{r}
+## beta1 
+pmbeta1 %>% 
+  data.frame() %>% 
+  ggplot(aes(x = x, y = y))+
+  geom_area(fill = "lightblue")+
+  geom_line()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = expression(beta[1]),
+       y = expression(paste("P( ", beta[1] ," | Data)"))) -> p1
+
+## beta2
+pmbeta2 %>% 
+  data.frame() %>% 
+  ggplot(aes(x = x, y = y))+
+  geom_area(fill = "lightblue")+
+  geom_line()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = expression(beta[2]),
+       y = expression(paste("P( ", beta[2] ," | Data)"))) -> p2
+
+## tau
+pmtau %>% 
+  data.frame() %>% 
+  ggplot(aes(x = x, y = y))+
+  geom_area(fill = "lightblue")+
+  geom_line()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = expression(tau),
+       y = expression(paste("P( ", tau ," | Data)"))) -> p3
+
+## sigma
+pmtau %>% 
+  data.frame() %>% 
+  ggplot(aes(x = x, y = y))+
+  geom_area(fill = "lightblue")+
+  geom_line()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = expression(sigma),
+       y = expression(paste("P( ", sigma ," | Data)"))) -> p4
+
+p1 + p2 + p3 + p4 + plot_layout(ncol = 2)
+```
+
+## 追記  
+`INLA`の詳しい使い方やそれを用いたモデリングについての詳しい解説は、以下の本が役に立つ。いずれも無料でオンラインで閲覧可能である。  
+
+- [Bayesian inference with INLA](https://becarioprecario.bitbucket.io/inla-gitbook/)  
+- [Advanced Spatial Modeling with Stochastic Partial Differential Equations Using R and INLA](https://becarioprecario.bitbucket.io/spde-gitbook/)  
+- [Dynamic Time Series Models using R-INLA: An Applied Perspective](https://ramanbala.github.io/dynamic-time-series-models-R-INLA/)   
 

@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>7 Multiple linear regression in R-INLA | Introduction to spatial-temporal data anlysis using R</title>
+  <meta name="description" content="7 Multiple linear regression in R-INLA | Introduction to spatial-temporal data anlysis using R" />
+  <meta name="generator" content="bookdown 0.35 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="7 Multiple linear regression in R-INLA | Introduction to spatial-temporal data anlysis using R" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="7 Multiple linear regression in R-INLA | Introduction to spatial-temporal data anlysis using R" />
+  
+  
+  
+
+<meta name="author" content="Tsubasa Yamaguchi" />
+
+
+<meta name="date" content="2023-09-14" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="Chapter7.html"/>
+<link rel="next" href="sessioninfo.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.27/datatables.js"></script>
+<link href="libs/dt-core-1.12.1/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.12.1/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.12.1/js/jquery.dataTables.min.js"></script>
+<link href="libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet" />
+<script src="libs/nouislider-7.0.10/jquery.nouislider.min.js"></script>
+<link href="libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet" />
+<script src="libs/selectize-0.12.0/selectize.min.js"></script>
+<link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="custom_style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>本稿の目的</a></li>
+<li class="chapter" data-level="" data-path="Chapter0.html"><a href="Chapter0.html"><i class="fa fa-check"></i>0. パッケージの読み込み</a></li>
+<li class="chapter" data-level="1" data-path="Chapter2.html"><a href="Chapter2.html"><i class="fa fa-check"></i><b>1</b> Recognizing statistical dependency</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="Chapter2.html"><a href="Chapter2.html#pseudoreplication"><i class="fa fa-check"></i><b>1.1</b> Pseudoreplication</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="Chapter2.html"><a href="Chapter2.html#疑似反復とは"><i class="fa fa-check"></i><b>1.1.1</b> 疑似反復とは</a></li>
+<li class="chapter" data-level="1.1.2" data-path="Chapter2.html"><a href="Chapter2.html#時空間的な疑似反復"><i class="fa fa-check"></i><b>1.1.2</b> 時空間的な疑似反復</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="Chapter2.html"><a href="Chapter2.html#s1-2"><i class="fa fa-check"></i><b>1.2</b> Linear regression applied to spatial data</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="Chapter2.html"><a href="Chapter2.html#visualization"><i class="fa fa-check"></i><b>1.2.1</b> Visualization</a></li>
+<li class="chapter" data-level="1.2.2" data-path="Chapter2.html"><a href="Chapter2.html#dependency"><i class="fa fa-check"></i><b>1.2.2</b> Dependency</a></li>
+<li class="chapter" data-level="1.2.3" data-path="Chapter2.html"><a href="Chapter2.html#fit-the-model"><i class="fa fa-check"></i><b>1.2.3</b> Fit the model</a></li>
+<li class="chapter" data-level="1.2.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation"><i class="fa fa-check"></i><b>1.2.4</b> Model validation</a>
+<ul>
+<li class="chapter" data-level="1.2.4.1" data-path="Chapter2.html"><a href="Chapter2.html#check-homogeinity-and-model-misfit"><i class="fa fa-check"></i><b>1.2.4.1</b> Check homogeinity and model misfit</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2.5" data-path="Chapter2.html"><a href="Chapter2.html#check-spatial-dependence"><i class="fa fa-check"></i><b>1.2.5</b> Check spatial dependence</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="Chapter2.html"><a href="Chapter2.html#s2-2"><i class="fa fa-check"></i><b>1.3</b> GAM applied to temporal data</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="Chapter2.html"><a href="Chapter2.html#subnivium-temperature-data"><i class="fa fa-check"></i><b>1.3.1</b> Subnivium temperature data</a></li>
+<li class="chapter" data-level="1.3.2" data-path="Chapter2.html"><a href="Chapter2.html#sources-of-dependency"><i class="fa fa-check"></i><b>1.3.2</b> Sources of dependency</a></li>
+<li class="chapter" data-level="1.3.3" data-path="Chapter2.html"><a href="Chapter2.html#the-model"><i class="fa fa-check"></i><b>1.3.3</b> The model</a></li>
+<li class="chapter" data-level="1.3.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation-1"><i class="fa fa-check"></i><b>1.3.4</b> Model validation</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="Chapter3.html"><a href="Chapter3.html"><i class="fa fa-check"></i><b>2</b> Time series and GLS</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="Chapter3.html"><a href="Chapter3.html#ospreys"><i class="fa fa-check"></i><b>2.1</b> Ospreys</a></li>
+<li class="chapter" data-level="2.2" data-path="Chapter3.html"><a href="Chapter3.html#covariance-and-correlation-coefficients"><i class="fa fa-check"></i><b>2.2</b> Covariance and correlation coefficients</a></li>
+<li class="chapter" data-level="2.3" data-path="Chapter3.html"><a href="Chapter3.html#linear-regression-models"><i class="fa fa-check"></i><b>2.3</b> Linear regression models</a></li>
+<li class="chapter" data-level="2.4" data-path="Chapter3.html"><a href="Chapter3.html#focusing-on-the-residual-covariance-matrix"><i class="fa fa-check"></i><b>2.4</b> Focusing on the residual covariance matrix</a></li>
+<li class="chapter" data-level="2.5" data-path="Chapter3.html"><a href="Chapter3.html#dependency-and-the-covariance-matrix"><i class="fa fa-check"></i><b>2.5</b> Dependency and the covariance matrix</a></li>
+<li class="chapter" data-level="2.6" data-path="Chapter3.html"><a href="Chapter3.html#dealing-with-temporal-dependency"><i class="fa fa-check"></i><b>2.6</b> Dealing with temporal dependency</a>
+<ul>
+<li class="chapter" data-level="2.6.1" data-path="Chapter3.html"><a href="Chapter3.html#adelie-penguins"><i class="fa fa-check"></i><b>2.6.1</b> Adelie penguins</a></li>
+<li class="chapter" data-level="2.6.2" data-path="Chapter3.html"><a href="Chapter3.html#do-we-have-dependency"><i class="fa fa-check"></i><b>2.6.2</b> Do we have dependency?</a></li>
+<li class="chapter" data-level="2.6.3" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.3</b> Formulation of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.4" data-path="Chapter3.html"><a href="Chapter3.html#application-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.4</b> Application of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.5" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-gls-model"><i class="fa fa-check"></i><b>2.6.5</b> Formulation of the GLS model</a></li>
+<li class="chapter" data-level="2.6.6" data-path="Chapter3.html"><a href="Chapter3.html#implementation-using-the-gls-function"><i class="fa fa-check"></i><b>2.6.6</b> Implementation using the gls function</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="Chapter3.html"><a href="Chapter3.html#multiple-time-series"><i class="fa fa-check"></i><b>2.7</b> Multiple time series</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="Chapter4.html"><a href="Chapter4.html"><i class="fa fa-check"></i><b>3</b> Spatial data and GLS</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="Chapter4.html"><a href="Chapter4.html#variogram-models-for-spatial-dependency"><i class="fa fa-check"></i><b>3.1</b> Variogram models for spatial dependency</a></li>
+<li class="chapter" data-level="3.2" data-path="Chapter4.html"><a href="Chapter4.html#application-on-the-irish-ph-data"><i class="fa fa-check"></i><b>3.2</b> Application on the Irish pH data</a></li>
+<li class="chapter" data-level="3.3" data-path="Chapter4.html"><a href="Chapter4.html#s4-3"><i class="fa fa-check"></i><b>3.3</b> Matern correlation function</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="Chapter5.html"><a href="Chapter5.html"><i class="fa fa-check"></i><b>4</b> Linear mixed-effects models and dependency</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="Chapter5.html"><a href="Chapter5.html#white-storks"><i class="fa fa-check"></i><b>4.1</b> White Storks</a></li>
+<li class="chapter" data-level="4.2" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-wrongly-as-one-way-nested"><i class="fa fa-check"></i><b>4.2</b> Considering the data (wrongly) as one-way nested</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="Chapter5.html"><a href="Chapter5.html#model-formulation"><i class="fa fa-check"></i><b>4.2.1</b> model formulation</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="Chapter5.html"><a href="Chapter5.html#fitting-the-one-way-nested-model-using-lmer"><i class="fa fa-check"></i><b>4.3</b> Fitting the one-way nested model using lmer</a></li>
+<li class="chapter" data-level="4.4" data-path="Chapter5.html"><a href="Chapter5.html#model-validation-2"><i class="fa fa-check"></i><b>4.4</b> Model validation</a></li>
+<li class="chapter" data-level="4.5" data-path="Chapter5.html"><a href="Chapter5.html#sketching-the-fitted-value"><i class="fa fa-check"></i><b>4.5</b> Sketching the fitted value</a></li>
+<li class="chapter" data-level="4.6" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-correctly-as-two-way-nested"><i class="fa fa-check"></i><b>4.6</b> Considering the data (correctly) as two-way nested</a></li>
+<li class="chapter" data-level="4.7" data-path="Chapter5.html"><a href="Chapter5.html#differences-with-the-ar1-process-approach"><i class="fa fa-check"></i><b>4.7</b> Differences with the AR1 process approach</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="Chapter6.html"><a href="Chapter6.html"><i class="fa fa-check"></i><b>5</b> Modelling space explicitly</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="Chapter6.html"><a href="Chapter6.html#model-formulation-1"><i class="fa fa-check"></i><b>5.1</b> Model formulation</a></li>
+<li class="chapter" data-level="5.2" data-path="Chapter6.html"><a href="Chapter6.html#s6-2"><i class="fa fa-check"></i><b>5.2</b> Covariance matrix of the spatial random effect</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study"><i class="fa fa-check"></i><b>5.2.1</b> Simulation study</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="Chapter6.html"><a href="Chapter6.html#spatial-temporal-correlation"><i class="fa fa-check"></i><b>5.3</b> Spatial-temporal correlation</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study-continued"><i class="fa fa-check"></i><b>5.3.1</b> Simulation study (continued)</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="Chapter7.html"><a href="Chapter7.html"><i class="fa fa-check"></i><b>6</b> Introduction to Bayesian statistics</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="Chapter7.html"><a href="Chapter7.html#why-go-bayesian"><i class="fa fa-check"></i><b>6.1</b> Why go Bayesian?</a></li>
+<li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#s7-2"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
+<li class="chapter" data-level="6.3" data-path="Chapter7.html"><a href="Chapter7.html#s7-3"><i class="fa fa-check"></i><b>6.3</b> The mean of a distribution</a></li>
+<li class="chapter" data-level="6.4" data-path="Chapter7.html"><a href="Chapter7.html#bayes-theorem-again"><i class="fa fa-check"></i><b>6.4</b> Bayes theorem again</a></li>
+<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#s7-5"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="Chapter7.html"><a href="Chapter7.html#likelihood-function"><i class="fa fa-check"></i><b>6.5.1</b> Likelihood function</a></li>
+<li class="chapter" data-level="6.5.2" data-path="Chapter7.html"><a href="Chapter7.html#priors"><i class="fa fa-check"></i><b>6.5.2</b> Priors</a></li>
+<li class="chapter" data-level="6.5.3" data-path="Chapter7.html"><a href="Chapter7.html#posterior-distribution"><i class="fa fa-check"></i><b>6.5.3</b> Posterior distribution</a></li>
+<li class="chapter" data-level="6.5.4" data-path="Chapter7.html"><a href="Chapter7.html#diffuse-prior"><i class="fa fa-check"></i><b>6.5.4</b> Diffuse prior</a></li>
+<li class="chapter" data-level="6.5.5" data-path="Chapter7.html"><a href="Chapter7.html#informative-prior"><i class="fa fa-check"></i><b>6.5.5</b> Informative prior</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="Chapter7.html"><a href="Chapter7.html#markov-chain-monte-carlo-simulation"><i class="fa fa-check"></i><b>6.6</b> Markov chain Monte Carlo simulation</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="Chapter7.html"><a href="Chapter7.html#underlying-idea"><i class="fa fa-check"></i><b>6.6.1</b> underlying idea</a></li>
+<li class="chapter" data-level="6.6.2" data-path="Chapter7.html"><a href="Chapter7.html#simple-example-of-mcmc-algorithm"><i class="fa fa-check"></i><b>6.6.2</b> Simple example of MCMC algorithm</a></li>
+<li class="chapter" data-level="6.6.3" data-path="Chapter7.html"><a href="Chapter7.html#methods-in-mcmc"><i class="fa fa-check"></i><b>6.6.3</b> Methods in MCMC</a></li>
+<li class="chapter" data-level="6.6.4" data-path="Chapter7.html"><a href="Chapter7.html#flowchart-for-running-a-model-in-stan"><i class="fa fa-check"></i><b>6.6.4</b> Flowchart for running a model in Stan</a>
+<ul>
+<li class="chapter" data-level="6.6.4.1" data-path="Chapter7.html"><a href="Chapter7.html#preparing-the-data-for-stan"><i class="fa fa-check"></i><b>6.6.4.1</b> Preparing the data for Stan</a></li>
+<li class="chapter" data-level="6.6.4.2" data-path="Chapter7.html"><a href="Chapter7.html#decide-model-formulation-and-priors"><i class="fa fa-check"></i><b>6.6.4.2</b> Decide model formulation and priors</a></li>
+<li class="chapter" data-level="6.6.4.3" data-path="Chapter7.html"><a href="Chapter7.html#preparing-stan-file"><i class="fa fa-check"></i><b>6.6.4.3</b> Preparing stan file</a></li>
+<li class="chapter" data-level="6.6.4.4" data-path="Chapter7.html"><a href="Chapter7.html#initial-values"><i class="fa fa-check"></i><b>6.6.4.4</b> Initial values</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6.5" data-path="Chapter7.html"><a href="Chapter7.html#running-model-in-stan"><i class="fa fa-check"></i><b>6.6.5</b> Running model in Stan</a></li>
+<li class="chapter" data-level="6.6.6" data-path="Chapter7.html"><a href="Chapter7.html#assess-mixing"><i class="fa fa-check"></i><b>6.6.6</b> Assess mixing</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="Chapter7.html"><a href="Chapter7.html#integrated-nested-laplace-approximation"><i class="fa fa-check"></i><b>6.7</b> Integrated nested Laplace approximation</a>
+<ul>
+<li class="chapter" data-level="6.7.1" data-path="Chapter7.html"><a href="Chapter7.html#joint-posterior-distribution"><i class="fa fa-check"></i><b>6.7.1</b> Joint posterior distribution</a></li>
+<li class="chapter" data-level="6.7.2" data-path="Chapter7.html"><a href="Chapter7.html#marginal-distributions"><i class="fa fa-check"></i><b>6.7.2</b> Marginal distributions</a></li>
+<li class="chapter" data-level="6.7.3" data-path="Chapter7.html"><a href="Chapter7.html#back-to-high-school"><i class="fa fa-check"></i><b>6.7.3</b> Back to high school</a></li>
+<li class="chapter" data-level="6.7.4" data-path="Chapter7.html"><a href="Chapter7.html#inla"><i class="fa fa-check"></i><b>6.7.4</b> INLA</a></li>
+</ul></li>
+<li class="chapter" data-level="6.8" data-path="Chapter7.html"><a href="Chapter7.html#examples-using-r-inla"><i class="fa fa-check"></i><b>6.8</b> Examples using R-INLA</a>
+<ul>
+<li class="chapter" data-level="6.8.1" data-path="Chapter7.html"><a href="Chapter7.html#s7-8-1"><i class="fa fa-check"></i><b>6.8.1</b> Posterior summary</a></li>
+<li class="chapter" data-level="6.8.2" data-path="Chapter7.html"><a href="Chapter7.html#posterior-marginal-distributions"><i class="fa fa-check"></i><b>6.8.2</b> Posterior marginal distributions</a></li>
+</ul></li>
+<li class="chapter" data-level="6.9" data-path="Chapter7.html"><a href="Chapter7.html#追記"><i class="fa fa-check"></i><b>6.9</b> 追記</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="Chapter8.html"><a href="Chapter8.html"><i class="fa fa-check"></i><b>7</b> Multiple linear regression in R-INLA</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="Chapter8.html"><a href="Chapter8.html#introduction"><i class="fa fa-check"></i><b>7.1</b> Introduction</a></li>
+<li class="chapter" data-level="7.2" data-path="Chapter8.html"><a href="Chapter8.html#data-exploration"><i class="fa fa-check"></i><b>7.2</b> Data exploration</a></li>
+<li class="chapter" data-level="7.3" data-path="Chapter8.html"><a href="Chapter8.html#linear-regression-result"><i class="fa fa-check"></i><b>7.3</b> Linear regression result</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="Chapter8.html"><a href="Chapter8.html#executing-the-model-in-rinla"><i class="fa fa-check"></i><b>7.3.1</b> Executing the model in R=INLA</a></li>
+<li class="chapter" data-level="7.3.2" data-path="Chapter8.html"><a href="Chapter8.html#output-for-betas"><i class="fa fa-check"></i><b>7.3.2</b> Output for betas</a>
+<ul>
+<li class="chapter" data-level="7.3.2.1" data-path="Chapter8.html"><a href="Chapter8.html#numerical-output-for-the-betas"><i class="fa fa-check"></i><b>7.3.2.1</b> Numerical output for the betas</a></li>
+<li class="chapter" data-level="7.3.2.2" data-path="Chapter8.html"><a href="Chapter8.html#graphical-output-for-the-betas"><i class="fa fa-check"></i><b>7.3.2.2</b> Graphical output for the betas</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3.3" data-path="Chapter8.html"><a href="Chapter8.html#output-for-hyperparameters"><i class="fa fa-check"></i><b>7.3.3</b> Output for hyperparameters</a>
+<ul>
+<li class="chapter" data-level="7.3.3.1" data-path="Chapter8.html"><a href="Chapter8.html#numerical-output-for-hyper-parameters"><i class="fa fa-check"></i><b>7.3.3.1</b> Numerical output for hyper parameters</a></li>
+<li class="chapter" data-level="7.3.3.2" data-path="Chapter8.html"><a href="Chapter8.html#graphical-output-for-the-hyperparameters"><i class="fa fa-check"></i><b>7.3.3.2</b> Graphical output for the hyperparameters</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3.4" data-path="Chapter8.html"><a href="Chapter8.html#fitted-model"><i class="fa fa-check"></i><b>7.3.4</b> Fitted model</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="Chapter8.html"><a href="Chapter8.html#model-validation-3"><i class="fa fa-check"></i><b>7.4</b> Model validation</a></li>
+<li class="chapter" data-level="7.5" data-path="Chapter8.html"><a href="Chapter8.html#model-selection"><i class="fa fa-check"></i><b>7.5</b> Model selection</a>
+<ul>
+<li class="chapter" data-level="7.5.1" data-path="Chapter8.html"><a href="Chapter8.html#what-should-we-do"><i class="fa fa-check"></i><b>7.5.1</b> What should we do?</a></li>
+<li class="chapter" data-level="7.5.2" data-path="Chapter8.html"><a href="Chapter8.html#usind-the-dic"><i class="fa fa-check"></i><b>7.5.2</b> Usind the DIC</a>
+<ul>
+<li class="chapter" data-level="7.5.2.1" data-path="Chapter8.html"><a href="Chapter8.html#effective-number-of-parameters"><i class="fa fa-check"></i><b>7.5.2.1</b> Effective number of parameters</a></li>
+<li class="chapter" data-level="7.5.2.2" data-path="Chapter8.html"><a href="Chapter8.html#dic-related-output"><i class="fa fa-check"></i><b>7.5.2.2</b> DIC related output</a></li>
+<li class="chapter" data-level="7.5.2.3" data-path="Chapter8.html"><a href="Chapter8.html#model-selection-using-dic"><i class="fa fa-check"></i><b>7.5.2.3</b> Model selection using DIC</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5.3" data-path="Chapter8.html"><a href="Chapter8.html#waic"><i class="fa fa-check"></i><b>7.5.3</b> WAIC</a></li>
+<li class="chapter" data-level="7.5.4" data-path="Chapter8.html"><a href="Chapter8.html#out-of-sample-prediction"><i class="fa fa-check"></i><b>7.5.4</b> Out of sample prediction</a></li>
+<li class="chapter" data-level="7.5.5" data-path="Chapter8.html"><a href="Chapter8.html#posterior-predictive-check"><i class="fa fa-check"></i><b>7.5.5</b> Posterior predictive check</a></li>
+</ul></li>
+<li class="chapter" data-level="7.6" data-path="Chapter8.html"><a href="Chapter8.html#visualizing-the-model"><i class="fa fa-check"></i><b>7.6</b> Visualizing the model</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to spatial-temporal data anlysis using R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="multiple-linear-regression-in-r-inla" class="section level1 hasAnchor" number="7">
+<h1><span class="header-section-number">7</span> Multiple linear regression in R-INLA<a href="Chapter8.html#multiple-linear-regression-in-r-inla" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>本章では、時空間相関を持つモデルを実行する方法について学ぶ前に、よりシンプルなモデル(重回帰分析)を<code>INLA</code>パッケージで実行する方法やそこから予測値や残差を抽出したり、モデル診断やモデル選択を行う方法を学ぶ。</p>
+<div id="introduction" class="section level2 hasAnchor" number="7.1">
+<h2><span class="header-section-number">7.1</span> Introduction<a href="Chapter8.html#introduction" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>本章では、チンパンジーの道具使用を調べた <span class="citation">Hopkins et al. (<a href="#ref-Hopkins2015">2015</a>)</span> のデータを用いる。リサーチクエスチョンは、アリ釣りの技術が性別、年齢、生育環境で変わるのかである。</p>
+<p>データでは、アリ釣りの技術は1回成功するまでの時間(潜時: <code>Latency</code>)で測定されている。計243個体の平均潜時を標準化した値がデータとして用いられている。また、説明変数は年齢<code>Age</code>、性別<code>Sex</code>、生育環境(<code>rear</code>; 1: 母親に育てられた、2: 人間に育てられた、3: 野生由来)、事件が実施された研究施設(<code>Colony</code>; 1か2)である。データは以下の通り。</p>
+<div class="sourceCode" id="cb146"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb146-1"><a href="Chapter8.html#cb146-1" tabindex="-1"></a>chimp <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(<span class="st">&quot;data/Chimps.txt&quot;</span>) </span>
+<span id="cb146-2"><a href="Chapter8.html#cb146-2" tabindex="-1"></a></span>
+<span id="cb146-3"><a href="Chapter8.html#cb146-3" tabindex="-1"></a><span class="fu">datatable</span>(chimp,</span>
+<span id="cb146-4"><a href="Chapter8.html#cb146-4" tabindex="-1"></a>          <span class="at">options =</span> <span class="fu">list</span>(<span class="at">scrollX =</span> <span class="dv">20</span>),</span>
+<span id="cb146-5"><a href="Chapter8.html#cb146-5" tabindex="-1"></a>          <span class="at">filter =</span> <span class="st">&quot;top&quot;</span>)</span></code></pre></div>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-17e343527a57d019115c" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-17e343527a57d019115c">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td><\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"2\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"5\" data-max=\"50\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"-1\" data-max=\"1\" data-scale=\"4\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"-1.21127\" data-max=\"7.26024\" data-scale=\"5\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1407\" data-max=\"12440\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"2\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"3\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","163","164","165","166","167","168","169","170","171","172","173","174","175","176","177","178","179","180","181","182","183","184","185","186","187","188","189","190","191","192","193","194","195","196","197","198","199","200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243"],[2,1,1,1,2,2,2,2,1,1,1,1,2,2,2,2,2,1,2,2,2,2,2,2,2,1,1,2,2,2,1,1,2,1,1,2,2,1,1,2,2,1,1,2,1,1,2,2,2,1,2,1,1,1,2,1,2,2,2,1,2,1,2,2,2,1,2,1,2,1,2,1,2,2,1,1,1,1,1,2,1,2,1,2,1,2,2,2,1,2,2,1,2,2,2,2,1,2,2,2,1,1,2,1,2,1,1,2,2,1,2,1,1,1,1,2,2,1,2,1,1,2,2,1,2,2,1,1,2,1,1,1,1,2,2,1,2,1,2,2,2,2,2,2,2,1,1,2,2,2,2,1,2,2,2,2,1,2,1,1,2,2,2,1,2,2,2,2,1,1,2,2,2,2,2,2,2,1,2,1,1,2,2,1,2,2,2,2,2,2,1,1,2,2,2,2,1,2,1,1,2,2,1,2,2,2,1,2,2,2,2,1,1,1,2,2,2,2,2,2,1,2,1,2,2,2,1,2,2,2,2,1,2,1,1,2,2,2,2,1,2,2,1],[18,28,20,21,24,22,26,27,21,15,28,18,41,35,46,13,32,14,29,13,17,34,15,26,30,11,18,26,33,22,15,11,30,25,24,22,26,9,22,38,44,37,18,21,44,20,16,50,39,16,14,15,30,26,28,16,19,35,15,34,16,23,39,41,18,22,20,17,15,25,38,15,26,39,14,24,39,37,9,25,10,42,24,23,22,31,24,39,14,40,19,34,24,29,26,15,36,25,25,17,27,18,22,37,29,16,36,27,44,19,38,43,44,21,19,40,38,25,44,18,24,46,42,13,45,23,46,21,34,23,18,40,38,9,19,14,28,15,9,25,27,43,14,21,42,24,28,33,41,30,9,34,9,11,13,15,25,28,16,15,9,34,30,14,44,21,22,15,20,23,19,49,11,30,26,17,18,29,18,13,17,15,18,16,33,15,14,12,39,14,18,24,28,38,30,11,19,14,13,27,11,12,20,19,18,11,20,30,36,37,12,13,17,24,44,40,49,24,25,15,13,40,5,21,15,21,37,18,29,9,27,19,21,19,13,21,13,39,13,17,15,32,19],[-1,-0.4,0.4,0.44,0.44,0.4,0.76,0.96,0,0.32,0,0.04,-0.96,0.44,-0.36,0.88,-0.12,-1,0.76,-0.56,-0.48,0.28,0.44,0,1,0.04,-0.52,-0.48,0.48,0.12,0.28,-0.24,-0.44,0.68,0.2,0.08,0.8,0.28,0.44,0.52,-0.04,0,0.4,-0.88,-0.48,-0.24,-0.48,-1,0.48,-0.2,-0.08,0.36,0.6,-0.64,0.2,-0.36,-0.56,0.04,-0.08,-0.12,-0.6,-0.88,0,-0.56,0.16,-0.76,0.12,-1,0.88,-1,0.52,0.08,-0.24,0.32,-0.56,-0.84,-0.72,-0.08,-0.48,0.88,0.76,-0.52,1,-0.1429,0.2,-0.16,-0.44,-0.84,-1,0.64,0.52,-0.44,-0.96,-0.4,0.08,-0.52,-0.16,0.32,-0.72,0.76,0.04,-0.96,0.48,-0.08,0.68,0.24,-0.36,0,0.68,-0.8,-0.44,0.8,-0.16,-0.2,0.32,-0.04,-0.88,0.44,1,0.08,0.08,-0.92,-0.2,0.08,-0.28,-0.12,-1,0.44,-1,-0.92,0.08,-0.88,-1,0.72,0.08,0.96,0.2,-0.68,0.12,0.76,0.72,0.4,0.64,0.64,0.68,-0.36,-0.68,0.12,0.36,-1,0.28,0.72,-0.28,0.2941,0.04,0.56,0.039,1,0.2549,0.3226,-0.6154,-0.64,0.11,0.04,0.1373,0.16,-0.84,-0.7037,-0.8214,-0.7895,-0.44,0.88,-0.3448,0.3898,0.077,0.273,-0.24,-0.4483,0.32,-0.8214,-0.0968,-0.2143,-0.4182,0.6727,-0.389,0.8571,0.1818,0.04,-0.8519,0.5686,-0.28,0.64,0.8621,-0.6,-0.32,0.6875,0.24,-0.3585,-0.4182,-0.2,-0.015,-0.96,-0.12,0.3115,0.44,0.2766,-0.5385,-0.434,-0.4615,-0.6538,0.9143,-0.76,0.8361,-0.68,0.12,0.7879,-0.88,-0.0769,-0.8276,-0.96,0,0.12,-0.12,0.4118,-0.6765,-0.564,-1,-0.2,0.5,-0.1923,-0.6522,0.36,0.0877,-0.7183,0.156,0.12,0.7091,-0.5,0.4615,0.6296,0.3333,0.0164,-0.6667],[-0.0021,7.26024,0.17378,-0.24393,0.18111,-0.43447,-0.11202,-0.72027,0.91394,0.7234,0.12981,-0.61035,-0.73493,0.70142,1.92524,-0.94012,-0.89615,-0.03874,0.223,-0.98409,-1.21127,1.85196,-0.52973,-0.16332,-0.84485,0.34233,-0.94745,0.12981,-0.26592,-0.30256,0.09317,-0.59569,2.52616,0.73073,-0.68363,-0.24393,0.70875,-0.85951,0.25439,0.74539,1.32432,-0.56638,-0.625,-0.17798,1.14112,-0.53706,0.02722,1.07516,-0.24393,-0.36118,-0.85218,-0.3392,0.39363,0.19577,0.75272,0.335,-1.05737,-0.58103,-0.56638,-0.76424,-0.85218,0.31302,-0.69829,0.22508,-0.37584,0.53287,0.888,-1.07203,-1.17462,-0.07538,0.11515,-0.74226,1.1118,-0.90348,-0.56638,-0.36118,-0.7276,1.33898,-0.96943,-0.82287,-1.13065,0.79669,-0.97676,0.57429,0.81867,0.75272,-0.99142,0.84798,-0.56638,-0.06805,0.29836,-0.66897,-0.80088,0.784,1.23,-0.65432,-0.41981,-0.96943,0.28371,-0.29523,-0.22195,-1.05004,-0.99142,-0.56638,-0.27324,-0.07538,-0.20729,0.47424,-0.08271,-0.78623,-0.35386,-0.44912,-0.50042,0.4376,0.50355,0.09317,-0.10469,-0.3905,-0.52241,-0.0534,0.89928,1.82998,2.44555,-0.87416,1.15577,0.89928,2.07914,-0.11935,-0.18531,1.42692,-0.66164,-0.7276,0.73806,-0.80088,-0.89615,-0.40515,-0.63233,-0.25859,-0.30989,-0.034,-0.11935,-0.43447,-0.73493,0.02722,2.47486,0.60615,0.10783,0.51088,-0.47844,0.12248,-0.92546,1.23638,-0.0021,-0.28809,-0.41321,-0.72673,-0.20675,-0.97525,0.34914,-0.81541,-0.16778,-0.23734,-0.09281,0.40096,-0.92157,-0.42851,1.85022,-0.60254,-0.40884,3.7444,-1.17789,-0.19146,-0.73939,1.93077,-0.46865,0.03412,-0.25263,1.15912,-0.94849,2.46893,0.99453,-0.73656,-0.23977,-0.03818,-0.27557,-0.40338,-0.58098,-0.76879,0.3179,-0.63295,0.11441,-0.62732,-0.88441,0.29411,-0.64644,5.07189,-0.46674,-0.72291,0.62918,-0.04513,-0.21631,-0.61585,-0.08823,-0.15567,-0.21057,-0.02331,-0.99495,1.34749,-0.97657,-0.71188,-0.50716,-0.17999,1.02895,1.74317,0.06088,0.42121,-0.5088,0.57116,-0.87452,-0.81467,0.40499,-0.32145,0.0953,-0.48676,0.69118,-0.83761,-0.16469,-0.29469,0.64836,0.2697,-0.48464,-0.00794,1.14853,-0.81714,-0.60056,0.34764,1.40775,-0.01749,-0.96554,0.58695,0.25662,-0.63503,-0.34411],[6104,3912,4152,5188,5540,5066,3462,4205,9728,5803,4523,5630,1768,3867,1929,6039,3440,5957,5180,6167,5555,4015,5721,4544,6493,6208,5465,2525,4244,5061,5618,6182,4654,4721,6174,5073,10245,7153,5787,2201,1732,9696,4746,5867,2601,5797,5691,1407,2006,5659,5941,5687,4703,6046,5048,5658,5430,2830,5905,3033,5626,5676,2170,2243,4305,4441,5711,6880,5679,4540,2107,5753,5377,5461,5823,4639,4162,5035,6396,4510,6427,2242,5855,5650,5480,4520,5062,2429,5883,1855,5360,2200,4648,5050,5301,5769,2045,4345,4532,5664,5295,5432,4760,4716,5080,5563,2957,5221,2371,5421,2106,1549,1844,5873,6035,1756,2430,4647,2721,5608,5293,1841,3459,6176,2167,5666,2036,5063,3153,5645,4340,2724,2113,6496,5442,5036,5647,9703,9713,5565,2169,2354,5871,5210,2720,5556,6007,4206,1719,4562,6487,2537,10254,12370,12190,12080,11300,11220,12020,12060,12410,10880,11020,5951,10520,11490,11410,12030,11550,11360,11910,10280,12390,11060,11240,11900,11730,11120,11960,12210,11940,12070,11790,11950,10910,12090,12130,12350,10640,12140,11740,11370,11250,10740,11040,12380,11640,12100,12180,11260,12430,12340,11560,11630,11710,12360,11690,11000,10750,10730,12330,12220,11930,11290,10510,10900,10290,11350,11280,12240,12250,10660,12440,11660,12050,11650,10700,11770,11150,12420,11180,11610,11470,11590,12270,11480,12260,10620,12400,11890,12040,10930,11580],[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],[1,3,2,1,2,1,3,1,3,1,1,2,3,2,3,1,1,1,2,1,1,1,1,2,2,1,3,1,1,1,1,1,2,1,1,1,1,1,2,3,3,3,1,2,3,1,1,3,3,2,1,1,1,1,1,1,1,3,1,3,1,2,3,3,1,1,1,3,2,1,3,2,1,2,1,1,1,1,1,1,1,3,1,1,1,2,1,3,1,3,3,3,1,1,1,1,3,1,1,3,1,1,1,1,1,2,3,2,3,1,3,3,3,1,1,3,3,1,3,1,1,3,3,1,3,1,1,1,3,1,3,3,3,1,1,1,1,1,1,1,3,3,1,1,3,1,1,1,3,1,1,3,1,1,1,2,1,1,2,2,1,1,1,1,1,1,2,2,2,1,1,3,1,1,1,1,1,2,1,2,2,2,1,2,3,2,2,1,2,2,2,2,1,2,2,1,2,1,1,2,1,2,2,2,2,1,2,2,3,3,1,2,2,1,3,2,3,1,2,1,2,3,1,1,2,1,1,1,2,1,2,2,2,1,1,1,1,3,1,1,1,2,2]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Sex<\/th>\n      <th>Age<\/th>\n      <th>HI_Tool<\/th>\n      <th>Z_Latency<\/th>\n      <th>id<\/th>\n      <th>Colony<\/th>\n      <th>rear<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":20,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<p><br/></p>
+</div>
+<div id="data-exploration" class="section level2 hasAnchor" number="7.2">
+<h2><span class="header-section-number">7.2</span> Data exploration<a href="Chapter8.html#data-exploration" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>まずデータの確認を行う。図<a href="Chapter8.html#fig:dotplot-chimp">7.1</a>は全ての変数のdotplot<span class="citation">(<a href="#ref-Zuur2012">Zuur 2012</a>)</span>を示したものである。平均潜時が大きい個体が2頭いる点に注意が必要である。 <span class="citation">Hopkins et al. (<a href="#ref-Hopkins2015">2015</a>)</span> ではこれらは取り除かれたが、本章では入れて分析を行う。年齢は均等にばらついているように見える。</p>
+<div class="sourceCode" id="cb147"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb147-1"><a href="Chapter8.html#cb147-1" tabindex="-1"></a>chimp <span class="sc">%&gt;%</span> </span>
+<span id="cb147-2"><a href="Chapter8.html#cb147-2" tabindex="-1"></a>  <span class="fu">select</span>(Sex, Age, Z_Latency, Colony, rear) <span class="sc">%&gt;%</span> </span>
+<span id="cb147-3"><a href="Chapter8.html#cb147-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">N =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb147-4"><a href="Chapter8.html#cb147-4" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb147-5"><a href="Chapter8.html#cb147-5" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">y =</span> N))<span class="sc">+</span></span>
+<span id="cb147-6"><a href="Chapter8.html#cb147-6" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb147-7"><a href="Chapter8.html#cb147-7" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>name, <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>, <span class="at">scales =</span> <span class="st">&quot;free_x&quot;</span>)<span class="sc">+</span></span>
+<span id="cb147-8"><a href="Chapter8.html#cb147-8" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb147-9"><a href="Chapter8.html#cb147-9" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:dotplot-chimp"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/dotplot-chimp-1.png" alt="Cleveland dotplots of all the variables." width="672" />
+<p class="caption">
+図7.1: Cleveland dotplots of all the variables.
+</p>
+</div>
+<p><br/></p>
+<p>このデータには疑似反復はないように思える。各個体のデータは1つずつしかないし、時間的・空間的な相関が生じる要素もない。遺伝的な関連を考慮する必要があるかもしれないがここではひとまず扱わない。モデルに遺伝的な相関を取り入れる方法については、 <span class="citation">Ga and Fox</span> などを参照。</p>
+<p>##Model formulation<br />
+以下のモデルを考える。なお、<code>rear</code>は3水準あるので2つの回帰係数のパラメータが推定される点は注意。</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;Latency_i \sim N(\mu_i, \sigma^2)\\
+&amp;E(Latency_i) = \mu_i \; \rm{and} \; var(Latency_i) = \sigma^2 \\
+&amp;\mu_i = \beta_1 + \beta_2 \times Age_i + \beta_3 \times Sex_i + \beta_4 \times Colony_i + \beta_5(\rm{and \; \beta_6}) \times rear_i
+\end{aligned}
+\]</span></p>
+</div>
+<div id="linear-regression-result" class="section level2 hasAnchor" number="7.3">
+<h2><span class="header-section-number">7.3</span> Linear regression result<a href="Chapter8.html#linear-regression-result" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="executing-the-model-in-rinla" class="section level3 hasAnchor" number="7.3.1">
+<h3><span class="header-section-number">7.3.1</span> Executing the model in R=INLA<a href="Chapter8.html#executing-the-model-in-rinla" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>まず、<code>Sex</code>、<code>Colony</code>、<code>rear</code>については変数を因子型にする。</p>
+<div class="sourceCode" id="cb148"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb148-1"><a href="Chapter8.html#cb148-1" tabindex="-1"></a>chimp <span class="ot">&lt;-</span> chimp <span class="sc">%&gt;%</span> </span>
+<span id="cb148-2"><a href="Chapter8.html#cb148-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fSex =</span> <span class="fu">factor</span>(Sex),</span>
+<span id="cb148-3"><a href="Chapter8.html#cb148-3" tabindex="-1"></a>         <span class="at">fColony =</span> <span class="fu">factor</span>(Colony),</span>
+<span id="cb148-4"><a href="Chapter8.html#cb148-4" tabindex="-1"></a>         <span class="at">frear =</span> <span class="fu">factor</span>(rear))</span></code></pre></div>
+<p>次に、<code>INLA</code>でモデリングを行う。</p>
+<div class="sourceCode" id="cb149"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb149-1"><a href="Chapter8.html#cb149-1" tabindex="-1"></a>m8_1 <span class="ot">&lt;-</span> <span class="fu">inla</span>(Z_Latency <span class="sc">~</span> Age <span class="sc">+</span> fSex <span class="sc">+</span> fColony <span class="sc">+</span> frear,</span>
+<span id="cb149-2"><a href="Chapter8.html#cb149-2" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb149-3"><a href="Chapter8.html#cb149-3" tabindex="-1"></a>             <span class="at">data =</span> chimp,</span>
+<span id="cb149-4"><a href="Chapter8.html#cb149-4" tabindex="-1"></a>             <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">compute =</span> <span class="cn">TRUE</span>, </span>
+<span id="cb149-5"><a href="Chapter8.html#cb149-5" tabindex="-1"></a>                                      <span class="at">quantiles =</span> <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>)))</span></code></pre></div>
+</div>
+<div id="output-for-betas" class="section level3 hasAnchor" number="7.3.2">
+<h3><span class="header-section-number">7.3.2</span> Output for betas<a href="Chapter8.html#output-for-betas" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="numerical-output-for-the-betas" class="section level4 hasAnchor" number="7.3.2.1">
+<h4><span class="header-section-number">7.3.2.1</span> Numerical output for the betas<a href="Chapter8.html#numerical-output-for-the-betas" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><span class="math inline">\(\sigma\)</span>以外のパラメータの事後分布の情報は以下のとおりである。年齢の95%確信区間は0を含まないので、年齢は平均潜時に影響を与えているといえそう。そのほかの切片以外のパラメータは全て95%確信区間に0を含んでいる。</p>
+<div class="sourceCode" id="cb150"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb150-1"><a href="Chapter8.html#cb150-1" tabindex="-1"></a>m8_1<span class="sc">$</span>summary.fixed </span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["mean"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["0.025quant"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["0.5quant"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["0.975quant"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["mode"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["kld"],"name":[7],"type":["dbl"],"align":["right"]}],"data":[{"1":"-0.44577870","2":"0.198975158","3":"-0.836336703","4":"-0.44577870","5":"-0.05522069","6":"-0.44577870","7":"3.351686e-10","_rn_":"(Intercept)"},{"1":"0.02273648","2":"0.008177011","3":"0.006686248","4":"0.02273648","5":"0.03878671","6":"0.02273648","7":"3.351482e-10","_rn_":"Age"},{"1":"-0.22407101","2":"0.133070057","3":"-0.485267265","4":"-0.22407103","5":"0.03712534","6":"-0.22407107","7":"3.351477e-10","_rn_":"fSex2"},{"1":"0.09264533","2":"0.143996823","3":"-0.189998577","4":"0.09264534","5":"0.37528919","6":"0.09264536","7":"3.351375e-10","_rn_":"fColony2"},{"1":"0.04999082","2":"0.164534739","3":"-0.272965859","4":"0.04999082","5":"0.37294751","6":"0.04999082","7":"3.351237e-10","_rn_":"frear2"},{"1":"-0.03483882","2":"0.207510329","3":"-0.442150033","4":"-0.03483882","5":"0.37247242","6":"-0.03483883","7":"3.351006e-10","_rn_":"frear3"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+<div id="graphical-output-for-the-betas" class="section level4 hasAnchor" number="7.3.2.2">
+<h4><span class="header-section-number">7.3.2.2</span> Graphical output for the betas<a href="Chapter8.html#graphical-output-for-the-betas" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><span class="math inline">\(\beta_2\)</span>の事後分布は以下のように図示できる。</p>
+<div class="sourceCode" id="cb151"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb151-1"><a href="Chapter8.html#cb151-1" tabindex="-1"></a>beta2 <span class="ot">&lt;-</span> m8_1<span class="sc">$</span>marginals.fixed<span class="sc">$</span>Age</span>
+<span id="cb151-2"><a href="Chapter8.html#cb151-2" tabindex="-1"></a></span>
+<span id="cb151-3"><a href="Chapter8.html#cb151-3" tabindex="-1"></a>beta2 <span class="sc">%&gt;%</span> </span>
+<span id="cb151-4"><a href="Chapter8.html#cb151-4" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb151-5"><a href="Chapter8.html#cb151-5" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y))<span class="sc">+</span></span>
+<span id="cb151-6"><a href="Chapter8.html#cb151-6" tabindex="-1"></a>  <span class="fu">geom_area</span>(<span class="at">fill =</span> <span class="st">&quot;lightblue&quot;</span>)<span class="sc">+</span></span>
+<span id="cb151-7"><a href="Chapter8.html#cb151-7" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb151-8"><a href="Chapter8.html#cb151-8" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb151-9"><a href="Chapter8.html#cb151-9" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb151-10"><a href="Chapter8.html#cb151-10" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(beta[<span class="dv">2</span>]),</span>
+<span id="cb151-11"><a href="Chapter8.html#cb151-11" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">&quot;P( &quot;</span>, beta[<span class="dv">2</span>] ,<span class="st">&quot; | Data)&quot;</span>)))</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-112-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="output-for-hyperparameters" class="section level3 hasAnchor" number="7.3.3">
+<h3><span class="header-section-number">7.3.3</span> Output for hyperparameters<a href="Chapter8.html#output-for-hyperparameters" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="numerical-output-for-hyper-parameters" class="section level4 hasAnchor" number="7.3.3.1">
+<h4><span class="header-section-number">7.3.3.1</span> Numerical output for hyper parameters<a href="Chapter8.html#numerical-output-for-hyper-parameters" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>ハイパーパラメータ<span class="math inline">\(\tau = 1/\sigma^2\)</span>の事後分布の要約統計量は以下のように出せる。</p>
+<div class="sourceCode" id="cb152"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb152-1"><a href="Chapter8.html#cb152-1" tabindex="-1"></a>m8_1<span class="sc">$</span>summary.hyperpar</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["mean"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["0.025quant"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["0.5quant"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["0.975quant"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["mode"],"name":[6],"type":["dbl"],"align":["right"]}],"data":[{"1":"1.054813","2":"0.09648938","3":"0.8743024","4":"1.051893","5":"1.252259","6":"1.04599","_rn_":"Precision for the Gaussian observations"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p>しかしこれらは<span class="math inline">\(\tau\)</span>についてのものであって、私たちが知りたいのは<span class="math inline">\(\sigma = 1/\sqrt\tau\)</span>の事後分布である。<span class="math inline">\(\tau\)</span>の期待値は以下のように書ける(第<a href="Chapter7.html#s7-3">6.3</a>節参照)。</p>
+<p><span class="math display" id="eq:tau">\[
+E(\tau) = \int_{-\infty}^{\infty} \tau \times p(\tau) d\tau \tag{7.1}
+\]</span></p>
+<p>一方で、$= h() = 1/ <span class="math inline">\(とするとき、\)</span>$の期待値は以下のようになる。<br />
+<span class="math display" id="eq:tau2">\[
+E(\sigma) = \int_{-\infty}^{\infty} h(\tau) \times p(\tau) d\tau = \int_{0}^{\infty} \frac{1}{\sqrt{\tau}} \times p(\tau) d\tau \tag{7.2}
+\]</span></p>
+<p>これは、単純に<span class="math inline">\(\tau\)</span>の事後分布の期待値を<span class="math inline">\(1/\sqrt{\tau}\)</span>で変換しても、それは<span class="math inline">\(\sigma\)</span>の期待値ではないことを示している。幸いなことに、<code>INLA</code>ではこれを計算してくれる関数が用意されている。</p>
+<div class="sourceCode" id="cb153"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb153-1"><a href="Chapter8.html#cb153-1" tabindex="-1"></a>tau <span class="ot">&lt;-</span> m8_1<span class="sc">$</span>marginals.hyperpar<span class="sc">$</span><span class="st">`</span><span class="at">Precision for the Gaussian observations</span><span class="st">`</span></span>
+<span id="cb153-2"><a href="Chapter8.html#cb153-2" tabindex="-1"></a></span>
+<span id="cb153-3"><a href="Chapter8.html#cb153-3" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="fu">inla.emarginal</span>(<span class="cf">function</span>(x) <span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(x), tau)</span>
+<span id="cb153-4"><a href="Chapter8.html#cb153-4" tabindex="-1"></a></span>
+<span id="cb153-5"><a href="Chapter8.html#cb153-5" tabindex="-1"></a>sigma</span></code></pre></div>
+<pre><code>## [1] 0.9767155</code></pre>
+<p>確かにこの値は単純に<span class="math inline">\(\tau\)</span>の事後分布の期待値を<span class="math inline">\(1/\sqrt{E(\tau)}\)</span>で変換したものとは違う。</p>
+<div class="sourceCode" id="cb155"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb155-1"><a href="Chapter8.html#cb155-1" tabindex="-1"></a>etau <span class="ot">&lt;-</span> m8_1<span class="sc">$</span>summary.hyperpar[,<span class="st">&quot;mean&quot;</span>]</span>
+<span id="cb155-2"><a href="Chapter8.html#cb155-2" tabindex="-1"></a><span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(etau)</span></code></pre></div>
+<pre><code>## [1] 0.9736711</code></pre>
+<p>他の要約統計量が知りたい場合は、<code>inla.tmarginal</code>を用いればよい。</p>
+<div class="sourceCode" id="cb157"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb157-1"><a href="Chapter8.html#cb157-1" tabindex="-1"></a>pmtau <span class="ot">&lt;-</span> m8_1<span class="sc">$</span>marginals.hyperpar<span class="sc">$</span><span class="st">`</span><span class="at">Precision for the Gaussian observations</span><span class="st">`</span></span>
+<span id="cb157-2"><a href="Chapter8.html#cb157-2" tabindex="-1"></a>pm.sigma <span class="ot">&lt;-</span> <span class="fu">inla.tmarginal</span>(<span class="cf">function</span>(x) <span class="fu">sqrt</span>(<span class="dv">1</span><span class="sc">/</span>x), pmtau)</span>
+<span id="cb157-3"><a href="Chapter8.html#cb157-3" tabindex="-1"></a></span>
+<span id="cb157-4"><a href="Chapter8.html#cb157-4" tabindex="-1"></a><span class="fu">inla.zmarginal</span>(pm.sigma)</span></code></pre></div>
+<pre><code>## Mean            0.9767 
+## Stdev           0.0445711 
+## Quantile  0.025 0.8939 
+## Quantile  0.25  0.945629 
+## Quantile  0.5   0.974946 
+## Quantile  0.75  1.00581 
+## Quantile  0.975 1.06894</code></pre>
+</div>
+<div id="graphical-output-for-the-hyperparameters" class="section level4 hasAnchor" number="7.3.3.2">
+<h4><span class="header-section-number">7.3.3.2</span> Graphical output for the hyperparameters<a href="Chapter8.html#graphical-output-for-the-hyperparameters" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><span class="math inline">\(\tau\)</span>の事後分布は以下のように図示できる(図<a href="Chapter8.html#fig:post-tau">7.2</a>のA)。ただし、これにはわずかに45ポイントのデータしか使用されていないので、少しカクカクしている。<code>inla.smarginal</code>関数を用いると、スプライン回帰によってよりスムーズにしてくれる(図<a href="Chapter8.html#fig:post-tau">7.2</a>のB)。</p>
+<div class="sourceCode" id="cb159"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb159-1"><a href="Chapter8.html#cb159-1" tabindex="-1"></a>pmtau <span class="sc">%&gt;%</span> </span>
+<span id="cb159-2"><a href="Chapter8.html#cb159-2" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb159-3"><a href="Chapter8.html#cb159-3" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y))<span class="sc">+</span></span>
+<span id="cb159-4"><a href="Chapter8.html#cb159-4" tabindex="-1"></a>  <span class="fu">geom_area</span>(<span class="at">fill =</span> <span class="st">&quot;lightblue&quot;</span>)<span class="sc">+</span></span>
+<span id="cb159-5"><a href="Chapter8.html#cb159-5" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb159-6"><a href="Chapter8.html#cb159-6" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb159-7"><a href="Chapter8.html#cb159-7" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb159-8"><a href="Chapter8.html#cb159-8" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(tau),</span>
+<span id="cb159-9"><a href="Chapter8.html#cb159-9" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">&quot;P( &quot;</span>, tau ,<span class="st">&quot; | Data)&quot;</span>)))<span class="sc">+</span></span>
+<span id="cb159-10"><a href="Chapter8.html#cb159-10" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;A&quot;</span>) <span class="ot">-&gt;</span> p1</span>
+<span id="cb159-11"><a href="Chapter8.html#cb159-11" tabindex="-1"></a></span>
+<span id="cb159-12"><a href="Chapter8.html#cb159-12" tabindex="-1"></a>tau.smooth <span class="ot">&lt;-</span> <span class="fu">inla.smarginal</span>(pmtau)</span>
+<span id="cb159-13"><a href="Chapter8.html#cb159-13" tabindex="-1"></a></span>
+<span id="cb159-14"><a href="Chapter8.html#cb159-14" tabindex="-1"></a>tau.smooth <span class="sc">%&gt;%</span> </span>
+<span id="cb159-15"><a href="Chapter8.html#cb159-15" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb159-16"><a href="Chapter8.html#cb159-16" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y))<span class="sc">+</span></span>
+<span id="cb159-17"><a href="Chapter8.html#cb159-17" tabindex="-1"></a>  <span class="fu">geom_area</span>(<span class="at">fill =</span> <span class="st">&quot;lightblue&quot;</span>)<span class="sc">+</span></span>
+<span id="cb159-18"><a href="Chapter8.html#cb159-18" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb159-19"><a href="Chapter8.html#cb159-19" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb159-20"><a href="Chapter8.html#cb159-20" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb159-21"><a href="Chapter8.html#cb159-21" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(tau),</span>
+<span id="cb159-22"><a href="Chapter8.html#cb159-22" tabindex="-1"></a>       <span class="at">y =</span> <span class="fu">expression</span>(<span class="fu">paste</span>(<span class="st">&quot;P( &quot;</span>, tau ,<span class="st">&quot; | Data)&quot;</span>)))<span class="sc">+</span></span>
+<span id="cb159-23"><a href="Chapter8.html#cb159-23" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;B&quot;</span>) <span class="ot">-&gt;</span> p2</span>
+<span id="cb159-24"><a href="Chapter8.html#cb159-24" tabindex="-1"></a></span>
+<span id="cb159-25"><a href="Chapter8.html#cb159-25" tabindex="-1"></a>p1 <span class="sc">+</span> p2</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:post-tau"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/post-tau-1.png" alt="Pusterior distribution of tau" width="672" />
+<p class="caption">
+図7.2: Pusterior distribution of tau
+</p>
+</div>
+<p><br/></p>
+</div>
+</div>
+<div id="fitted-model" class="section level3 hasAnchor" number="7.3.4">
+<h3><span class="header-section-number">7.3.4</span> Fitted model<a href="Chapter8.html#fitted-model" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>推定されたパラメータの事後分布から、モデル式は以下のように書ける。</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;Latency_i \sim N(\mu_i, 0.97^2)\\
+&amp;E(Latency_i) = \mu_i \; \rm{and} \; var(Latency_i) = 0.97^2 \\
+\\
+&amp;\rm{for \; chimpanzee \; of \; sex = 1, colony = 1, and \; rear = 1}\\
+&amp;\mu_i = -0.45 + 0.02 \times Age_i\\
+\\
+&amp;\rm{for \; chimpanzee \; of \; sex = 2, colony = 2, and \; rear = 2}\\
+&amp;\mu_i = -0.45 + 0.02 \times Age_i -0.22 +0.09 + 0.05\\
+&amp; \;\;\; = -0.52 + 0.02 \times Age_i
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div id="model-validation-3" class="section level2 hasAnchor" number="7.4">
+<h2><span class="header-section-number">7.4</span> Model validation<a href="Chapter8.html#model-validation-3" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>前章で計算したように事後平均を用いた<span class="math inline">\(\mu_i\)</span>の予測値を手動で計算することもできるが(<a href="Chapter7.html#s7-8-1">6.8.1</a>)、以下のように求めることもできる。<code>fit8_1</code>には予測値の95%確信区間も入っている。</p>
+<div class="sourceCode" id="cb160"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb160-1"><a href="Chapter8.html#cb160-1" tabindex="-1"></a>fit8_1 <span class="ot">&lt;-</span> m8_1<span class="sc">$</span>summary.fitted.values</span>
+<span id="cb160-2"><a href="Chapter8.html#cb160-2" tabindex="-1"></a>resid <span class="ot">&lt;-</span> chimp<span class="sc">$</span>Z_Latency <span class="sc">-</span> fit8_1<span class="sc">$</span>mean</span></code></pre></div>
+<p>予測値と残差の関係を示したのが図<a href="Chapter8.html#fig:resid8-1">7.3</a>である。明らかに残差が大きい点が2つある。</p>
+<div class="sourceCode" id="cb161"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb161-1"><a href="Chapter8.html#cb161-1" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">fitted =</span> fit8_1<span class="sc">$</span>mean,</span>
+<span id="cb161-2"><a href="Chapter8.html#cb161-2" tabindex="-1"></a>           <span class="at">resid =</span> resid) <span class="sc">%&gt;%</span> </span>
+<span id="cb161-3"><a href="Chapter8.html#cb161-3" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> fitted, <span class="at">y =</span> resid))<span class="sc">+</span></span>
+<span id="cb161-4"><a href="Chapter8.html#cb161-4" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb161-5"><a href="Chapter8.html#cb161-5" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb161-6"><a href="Chapter8.html#cb161-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb161-7"><a href="Chapter8.html#cb161-7" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>,</span>
+<span id="cb161-8"><a href="Chapter8.html#cb161-8" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb161-9"><a href="Chapter8.html#cb161-9" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Fitted values&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Residuals&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:resid8-1"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/resid8-1-1.png" alt="Fitted vs residuals" width="672" />
+<p class="caption">
+図7.3: Fitted vs residuals
+</p>
+</div>
+<p><br/></p>
+<p>予測値と実測値の関係を見ても、あまり当てはまりがよいように見えない。</p>
+<div class="sourceCode" id="cb162"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb162-1"><a href="Chapter8.html#cb162-1" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">Latency =</span> chimp<span class="sc">$</span>Z_Latency,</span>
+<span id="cb162-2"><a href="Chapter8.html#cb162-2" tabindex="-1"></a>           <span class="at">fitted =</span> fit8_1<span class="sc">$</span>mean) <span class="sc">%&gt;%</span> </span>
+<span id="cb162-3"><a href="Chapter8.html#cb162-3" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> fitted, <span class="at">y =</span> Latency))<span class="sc">+</span></span>
+<span id="cb162-4"><a href="Chapter8.html#cb162-4" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb162-5"><a href="Chapter8.html#cb162-5" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb162-6"><a href="Chapter8.html#cb162-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb162-7"><a href="Chapter8.html#cb162-7" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Fitted values&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Latency&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:resid8-1b"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/resid8-1b-1.png" alt="Fitted vs residuals" width="672" />
+<p class="caption">
+図7.4: Fitted vs residuals
+</p>
+</div>
+<p><br/></p>
+<p>予測値を手動で計算する方法は、リンク関数が恒等関数のときのみ正確な値になる。なぜなら、もしリンク関数で線形予測子を変換した後の期待値は線形予測子の期待値を変換するものと一致しないからである(式<a href="Chapter8.html#eq:tau">(7.1)</a>と式<a href="Chapter8.html#eq:tau2">(7.2)</a>も参照)。</p>
+<p><span class="math display">\[
+E(h(x)) \neq h(E(x))
+\]</span></p>
+</div>
+<div id="model-selection" class="section level2 hasAnchor" number="7.5">
+<h2><span class="header-section-number">7.5</span> Model selection<a href="Chapter8.html#model-selection" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="what-should-we-do" class="section level3 hasAnchor" number="7.5.1">
+<h3><span class="header-section-number">7.5.1</span> What should we do?<a href="Chapter8.html#what-should-we-do" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>ベイズ統計でモデル選択を行うとき、話は通常の頻度論的な場合よりも複雑になる。以下では、ベイズモデリング(特に<code>INLA</code>)で用いることのできるモデル選択方法について議論する。</p>
+</div>
+<div id="usind-the-dic" class="section level3 hasAnchor" number="7.5.2">
+<h3><span class="header-section-number">7.5.2</span> Usind the DIC<a href="Chapter8.html#usind-the-dic" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><strong>AIC(赤池情報量規準)</strong>はモデル選択の際に最も一般的な指標である。なお、<span class="math inline">\(L\)</span>はパラメータが与えられたときのデータの尤度(e.g., <span class="math inline">\(P(D|\beta_1, \beta_2, \sigma)\)</span>)、<span class="math inline">\(k\)</span>はパラメータ数である。<span class="math inline">\(log(L)\)</span>は対数尤度、<span class="math inline">\(-2 \times log(L)\)</span>は逸脱度(deviance)といわれる。共変量をたくさん入れればモデルの当てはまりはよくなるが(<span class="math inline">\(Lが高くなる\)</span>)、パラメータ数が増える(<span class="math inline">\(p\)</span>が大きくなる)という関係が成り立っている。AICが低いほど「良い」モデルということになる。</p>
+<p><span class="math display">\[
+AIC = -2 \times log(L) + 2\times p
+\]</span></p>
+<p>もし事前分布が無情報なのであればパラメータ数は知ることができるが、事前分布が情報を持っている場合、回帰係数がとりうる範囲は限定されるので、モデルの自由度やパラメータ数は変わってくる。すなわち、このような場合にはAICは適していない。</p>
+<p>このようなときに使えるのが<strong>DIC</strong>である。DICは<span class="math inline">\(\theta\)</span>を全てのパラメータを含むベクトル、<span class="math inline">\(f(y|\theta)\)</span>を尤度、<span class="math inline">\(D(\bar{\theta}) = -2 \times p(y|\bar{\theta})\)</span>をパラメータの期待値<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a>が与えられた時の逸脱度とするとき、以下のように定義される。</p>
+<p><span class="math display">\[
+DIC = D(\bar{\theta}) + 2 \times p_D
+\]</span></p>
+<p>なお、<span class="math inline">\(p_D\)</span>は<strong>有効パラメータ数</strong>と呼ばれるもので、事前分布が無情報に近づくとパラメータ数<span class="math inline">\(p\)</span>と一致する。また、事後分布が無情報に近づくほど頻度論での最尤推定値がベイズ統計の事後分布の期待値と一致する。よって、事前分布が無情報であればAICとDICはほとんど一致する。</p>
+<p>これを実際にRで確かめよう。</p>
+<p>まず、AICは以下のようになる。</p>
+<div class="sourceCode" id="cb163"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb163-1"><a href="Chapter8.html#cb163-1" tabindex="-1"></a>m8_2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Z_Latency <span class="sc">~</span> Age <span class="sc">+</span> fSex <span class="sc">+</span> fColony <span class="sc">+</span> frear,</span>
+<span id="cb163-2"><a href="Chapter8.html#cb163-2" tabindex="-1"></a>           <span class="at">data =</span> chimp)</span>
+<span id="cb163-3"><a href="Chapter8.html#cb163-3" tabindex="-1"></a></span>
+<span id="cb163-4"><a href="Chapter8.html#cb163-4" tabindex="-1"></a><span class="do">## 対数尤度</span></span>
+<span id="cb163-5"><a href="Chapter8.html#cb163-5" tabindex="-1"></a><span class="fu">logLik</span>(m8_2)</span></code></pre></div>
+<pre><code>## &#39;log Lik.&#39; -336.2983 (df=7)</code></pre>
+<div class="sourceCode" id="cb165"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb165-1"><a href="Chapter8.html#cb165-1" tabindex="-1"></a><span class="do">## AIC</span></span>
+<span id="cb165-2"><a href="Chapter8.html#cb165-2" tabindex="-1"></a><span class="fu">AIC</span>(m8_2)</span></code></pre></div>
+<pre><code>## [1] 686.5965</code></pre>
+<p>続いて、<code>INLA</code>でDICも求める。<code>control.compute</code>オプションで、<code>dic = TRUE</code>とすればよい。<code>INLA</code>はデフォルトでは無情報事前分布が用いられている。</p>
+<div class="sourceCode" id="cb167"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb167-1"><a href="Chapter8.html#cb167-1" tabindex="-1"></a>m8_1 <span class="ot">&lt;-</span> <span class="fu">inla</span>(Z_Latency <span class="sc">~</span> Age <span class="sc">+</span> fSex <span class="sc">+</span> fColony <span class="sc">+</span> frear,</span>
+<span id="cb167-2"><a href="Chapter8.html#cb167-2" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb167-3"><a href="Chapter8.html#cb167-3" tabindex="-1"></a>             <span class="at">data =</span> chimp,</span>
+<span id="cb167-4"><a href="Chapter8.html#cb167-4" tabindex="-1"></a>             <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb167-5"><a href="Chapter8.html#cb167-5" tabindex="-1"></a></span>
+<span id="cb167-6"><a href="Chapter8.html#cb167-6" tabindex="-1"></a>m8_1<span class="sc">$</span>dic<span class="sc">$</span>dic</span></code></pre></div>
+<pre><code>## [1] 686.6328</code></pre>
+<p>AICとDICはほとんど一致する。</p>
+<div id="effective-number-of-parameters" class="section level4 hasAnchor" number="7.5.2.1">
+<h4><span class="header-section-number">7.5.2.1</span> Effective number of parameters<a href="Chapter8.html#effective-number-of-parameters" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>有効パラメータ数の求め方には2つある。1つ目は以下の通り。なお、<span class="math inline">\(\bar{D}\)</span>は逸脱度の平均を表す。</p>
+<p><span class="math display">\[
+p_D = \bar{D} - D(\bar{\theta})
+\]</span></p>
+<p>このとき、DICは以下のように書き直せる。<br />
+<span class="math display">\[
+\begin{aligned}
+DIC &amp;= D(\bar{\theta}) + 2 \times p_D \\
+    &amp;= D(\bar{\theta}) + 2 \times (\bar{D} - D(\bar{\theta}))\\
+    &amp;= \bar{D} + \bar{D} -D(\bar{\theta})\\
+    &amp;= \bar{D} + p_D
+\end{aligned}
+\]</span></p>
+</div>
+<div id="dic-related-output" class="section level4 hasAnchor" number="7.5.2.2">
+<h4><span class="header-section-number">7.5.2.2</span> DIC related output<a href="Chapter8.html#dic-related-output" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>DICは実際の<code>INLA</code>の出力から計算することができる。</p>
+<div class="sourceCode" id="cb169"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb169-1"><a href="Chapter8.html#cb169-1" tabindex="-1"></a>pD <span class="ot">=</span> m8_1<span class="sc">$</span>dic<span class="sc">$</span>mean.deviance <span class="sc">-</span> m8_1<span class="sc">$</span>dic<span class="sc">$</span>deviance.mean</span>
+<span id="cb169-2"><a href="Chapter8.html#cb169-2" tabindex="-1"></a>DIC <span class="ot">&lt;-</span> m8_1<span class="sc">$</span>dic<span class="sc">$</span>mean.deviance <span class="sc">+</span> pD</span>
+<span id="cb169-3"><a href="Chapter8.html#cb169-3" tabindex="-1"></a></span>
+<span id="cb169-4"><a href="Chapter8.html#cb169-4" tabindex="-1"></a>DIC</span></code></pre></div>
+<pre><code>## [1] 686.6328</code></pre>
+</div>
+<div id="model-selection-using-dic" class="section level4 hasAnchor" number="7.5.2.3">
+<h4><span class="header-section-number">7.5.2.3</span> Model selection using DIC<a href="Chapter8.html#model-selection-using-dic" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>それでは、実際にDICを比較してみる。先ほどのモデルから年齢以外の説明変数を1つずつ除いた以下のモデルを比較する。</p>
+<div class="sourceCode" id="cb171"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb171-1"><a href="Chapter8.html#cb171-1" tabindex="-1"></a>m8_1b <span class="ot">&lt;-</span> <span class="fu">inla</span>(Z_Latency <span class="sc">~</span>  fSex <span class="sc">+</span> fColony <span class="sc">+</span> frear,</span>
+<span id="cb171-2"><a href="Chapter8.html#cb171-2" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb171-3"><a href="Chapter8.html#cb171-3" tabindex="-1"></a>             <span class="at">data =</span> chimp,</span>
+<span id="cb171-4"><a href="Chapter8.html#cb171-4" tabindex="-1"></a>             <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb171-5"><a href="Chapter8.html#cb171-5" tabindex="-1"></a></span>
+<span id="cb171-6"><a href="Chapter8.html#cb171-6" tabindex="-1"></a>m8_1c <span class="ot">&lt;-</span> <span class="fu">inla</span>(Z_Latency <span class="sc">~</span> Age <span class="sc">+</span> fSex <span class="sc">+</span>  frear,</span>
+<span id="cb171-7"><a href="Chapter8.html#cb171-7" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb171-8"><a href="Chapter8.html#cb171-8" tabindex="-1"></a>             <span class="at">data =</span> chimp,</span>
+<span id="cb171-9"><a href="Chapter8.html#cb171-9" tabindex="-1"></a>             <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb171-10"><a href="Chapter8.html#cb171-10" tabindex="-1"></a></span>
+<span id="cb171-11"><a href="Chapter8.html#cb171-11" tabindex="-1"></a>m8_1d <span class="ot">&lt;-</span> <span class="fu">inla</span>(Z_Latency <span class="sc">~</span> Age <span class="sc">+</span> fSex <span class="sc">+</span> fColony,</span>
+<span id="cb171-12"><a href="Chapter8.html#cb171-12" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb171-13"><a href="Chapter8.html#cb171-13" tabindex="-1"></a>             <span class="at">data =</span> chimp,</span>
+<span id="cb171-14"><a href="Chapter8.html#cb171-14" tabindex="-1"></a>             <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
+<p>DICの結果、<code>frear</code>がないモデルが最もDICが低いことが分かった。</p>
+<div class="sourceCode" id="cb172"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb172-1"><a href="Chapter8.html#cb172-1" tabindex="-1"></a><span class="fu">c</span>(m8_1<span class="sc">$</span>dic<span class="sc">$</span>dic, m8_1b<span class="sc">$</span>dic<span class="sc">$</span>dic, m8_1c<span class="sc">$</span>dic<span class="sc">$</span>dic, m8_1d<span class="sc">$</span>dic<span class="sc">$</span>dic)</span></code></pre></div>
+<pre><code>## [1] 686.6328 692.3986 685.0378 682.7590</code></pre>
+<p>ここからは、さらに<code>m8_1d</code>から1つずつ説明変数を除いたモデルを作成し、DICが減少しなくなるまで同様の比較を続ける。</p>
+<div class="sourceCode" id="cb174"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb174-1"><a href="Chapter8.html#cb174-1" tabindex="-1"></a>m8_1e <span class="ot">&lt;-</span> m8_1 <span class="ot">&lt;-</span> <span class="fu">inla</span>(Z_Latency <span class="sc">~</span> Age  <span class="sc">+</span> fColony,</span>
+<span id="cb174-2"><a href="Chapter8.html#cb174-2" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb174-3"><a href="Chapter8.html#cb174-3" tabindex="-1"></a>             <span class="at">data =</span> chimp,</span>
+<span id="cb174-4"><a href="Chapter8.html#cb174-4" tabindex="-1"></a>             <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb174-5"><a href="Chapter8.html#cb174-5" tabindex="-1"></a></span>
+<span id="cb174-6"><a href="Chapter8.html#cb174-6" tabindex="-1"></a>m8_1f <span class="ot">&lt;-</span> m8_1 <span class="ot">&lt;-</span> <span class="fu">inla</span>(Z_Latency <span class="sc">~</span> Age  <span class="sc">+</span> fSex,</span>
+<span id="cb174-7"><a href="Chapter8.html#cb174-7" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb174-8"><a href="Chapter8.html#cb174-8" tabindex="-1"></a>             <span class="at">data =</span> chimp,</span>
+<span id="cb174-9"><a href="Chapter8.html#cb174-9" tabindex="-1"></a>             <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
+<p><code>m8_1d</code>より、そこから<code>fColony</code>を除いたモデルのDICの方が低い。</p>
+<div class="sourceCode" id="cb175"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb175-1"><a href="Chapter8.html#cb175-1" tabindex="-1"></a><span class="fu">c</span>(m8_1d<span class="sc">$</span>dic<span class="sc">$</span>dic, m8_1e<span class="sc">$</span>dic<span class="sc">$</span>dic, m8_1f<span class="sc">$</span>dic<span class="sc">$</span>dic)</span></code></pre></div>
+<pre><code>## [1] 682.7590 683.7640 681.4553</code></pre>
+<p>さらに<code>m8_1f</code>から<code>fSex</code>を除いたモデルと比較する。</p>
+<div class="sourceCode" id="cb177"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb177-1"><a href="Chapter8.html#cb177-1" tabindex="-1"></a>m8_1g <span class="ot">&lt;-</span> m8_1 <span class="ot">&lt;-</span> <span class="fu">inla</span>(Z_Latency <span class="sc">~</span> Age,</span>
+<span id="cb177-2"><a href="Chapter8.html#cb177-2" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb177-3"><a href="Chapter8.html#cb177-3" tabindex="-1"></a>             <span class="at">data =</span> chimp,</span>
+<span id="cb177-4"><a href="Chapter8.html#cb177-4" tabindex="-1"></a>             <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
+<p>最終的に、<code>m8_1f</code>が最もDICが低いことが分かった。</p>
+<div class="sourceCode" id="cb178"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb178-1"><a href="Chapter8.html#cb178-1" tabindex="-1"></a><span class="fu">c</span>(m8_1f<span class="sc">$</span>dic<span class="sc">$</span>dic, m8_1g<span class="sc">$</span>dic<span class="sc">$</span>dic)</span></code></pre></div>
+<pre><code>## [1] 681.4553 682.0625</code></pre>
+</div>
+</div>
+<div id="waic" class="section level3 hasAnchor" number="7.5.3">
+<h3><span class="header-section-number">7.5.3</span> WAIC<a href="Chapter8.html#waic" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>DICのほかには、WAIC(widely applicable information criterion)を使うこともできる。WAICはDICをより発展させたものととらえられる。WAICの解説については、 <span class="citation">McElreath (<a href="#ref-McElreath2020">2020</a>)</span> も参照。</p>
+<p><code>INLA</code>では以下のようにして計算できる。</p>
+<div class="sourceCode" id="cb180"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb180-1"><a href="Chapter8.html#cb180-1" tabindex="-1"></a>m8_1 <span class="ot">&lt;-</span> <span class="fu">inla</span>(Z_Latency <span class="sc">~</span> Age <span class="sc">+</span> fSex <span class="sc">+</span> fColony <span class="sc">+</span> frear,</span>
+<span id="cb180-2"><a href="Chapter8.html#cb180-2" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb180-3"><a href="Chapter8.html#cb180-3" tabindex="-1"></a>             <span class="at">data =</span> chimp,</span>
+<span id="cb180-4"><a href="Chapter8.html#cb180-4" tabindex="-1"></a>             <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">waic =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb180-5"><a href="Chapter8.html#cb180-5" tabindex="-1"></a></span>
+<span id="cb180-6"><a href="Chapter8.html#cb180-6" tabindex="-1"></a>m8_1<span class="sc">$</span>waic<span class="sc">$</span>waic</span></code></pre></div>
+<pre><code>## [1] 696.295</code></pre>
+</div>
+<div id="out-of-sample-prediction" class="section level3 hasAnchor" number="7.5.4">
+<h3><span class="header-section-number">7.5.4</span> Out of sample prediction<a href="Chapter8.html#out-of-sample-prediction" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>最後に、DICやWAICのような情報量規準ではなく、<strong>交差検証(cross validation)</strong>と呼ばれる方法を用いることもできる。この方法では、例えばデータをらなダムに2つ(<span class="math inline">\(D_{fit}\)</span>と<span class="math inline">\(D_{pred}\)</span>)に分ける。その後<span class="math inline">\(D_{fit}\)</span>に対してあるモデルを当てはめ、その結果をもとに<span class="math inline">\(D_{fit}\)</span>の予測を行う。以上を何度も繰り返し、それらを総合してそのモデルの精度を評価する。これを複数のモデルに対して行い、そのモデルが最も良いかを調べるのが交差検証である。</p>
+<p><code>INLA</code>でも交差検証を行う。<code>INLA</code>では、<span class="math inline">\(D_{fit}\)</span>を1つだけの観測値を除いたデータとし、これを全ての観測値に対して行う交差検証を行う。これは”leave one out” 交差検証と呼ばれる。<code>INLA</code>は交差検証によって<strong>CPO(conditional predictive ordinate)</strong>や<strong>PIT(probability integral transform)</strong>と呼ばれる値を算出する。</p>
+<p>CPOは、除かれた1つの観測値が、その他の観測値が与えられたときに得られる確率として定義される。<span class="math inline">\(CPO_i\)</span>が高いほど他のデータを用いて推定されたモデルに従うことを示す。<br />
+<span class="math display">\[
+CPO_i = Pr(除かれた観測値_i|そのほかの観測値)
+\]</span></p>
+<p>PITはCPOの代替的な指標である。説明は<a href="https://becarioprecario.bitbucket.io/inla-gitbook/ch-INLA.html">こちら</a>や <span class="citation">Blangiardo and Cameletti (<a href="#ref-Blangiardo2015">2015</a>)</span> に詳しい。</p>
+<p><code>INLA</code>では<span class="math inline">\(CPO_i\)</span>を以下のように算出できる。</p>
+<div class="sourceCode" id="cb182"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb182-1"><a href="Chapter8.html#cb182-1" tabindex="-1"></a>m8_3 <span class="ot">&lt;-</span> <span class="fu">inla</span>(Z_Latency <span class="sc">~</span> Age <span class="sc">+</span> fSex <span class="sc">+</span> fColony <span class="sc">+</span> frear,</span>
+<span id="cb182-2"><a href="Chapter8.html#cb182-2" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb182-3"><a href="Chapter8.html#cb182-3" tabindex="-1"></a>             <span class="at">data =</span> chimp,</span>
+<span id="cb182-4"><a href="Chapter8.html#cb182-4" tabindex="-1"></a>             <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">cpo =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
+<p>以下の<code>m8_3$cpo</code>には3つのリストが含まれる。<code>m8_3$cpo$cpo</code>は<span class="math inline">\(CPO_i\)</span>が、<code>m8_3$cpo$pit</code>は<span class="math inline">\(PIT_i\)</span>がデータ数だけ含まれる。3つめの<code>m3_8$cpo$failure</code>はもし1であればその観測値のCPOやPITが信頼できないことを表す。</p>
+<div class="sourceCode" id="cb183"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb183-1"><a href="Chapter8.html#cb183-1" tabindex="-1"></a>m8_3<span class="sc">$</span>cpo <span class="sc">%&gt;%</span> </span>
+<span id="cb183-2"><a href="Chapter8.html#cb183-2" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb183-3"><a href="Chapter8.html#cb183-3" tabindex="-1"></a>  <span class="fu">datatable</span>()</span></code></pre></div>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-dfacba9c4af50314a806" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-dfacba9c4af50314a806">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","163","164","165","166","167","168","169","170","171","172","173","174","175","176","177","178","179","180","181","182","183","184","185","186","187","188","189","190","191","192","193","194","195","196","197","198","199","200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243"],[0.39158774275604,1.94836077106709e-14,0.399645971390433,0.389674083287885,0.388056185300853,0.391180727759781,0.402305396663289,0.320467516542833,0.251881039754443,0.280836574939401,0.40400165203807,0.325568645612035,0.245421956538777,0.344262030303019,0.103305914874651,0.3408398975926,0.248043185335019,0.40370692519181,0.394529356513068,0.331494812654578,0.255766712876651,0.0769185916813539,0.396640837614032,0.398119280502592,0.25624961696406,0.346491215822179,0.260605032308269,0.396595502931759,0.379189125936912,0.40228906712892,0.397146565274101,0.3714600329275,0.0139920716298133,0.332543219901853,0.291885681347363,0.404905379809466,0.291342943527469,0.32896769212321,0.397690472292121,0.336231429564192,0.228115123688797,0.25300659229957,0.337213403889338,0.401587220611976,0.325934178224727,0.346053499968809,0.382103481759797,0.321503669422764,0.366883086147917,0.379015675209241,0.354109651261373,0.393800521102248,0.398909352951268,0.404692529558166,0.291394153833227,0.369640437454038,0.283439381780987,0.316999665022042,0.39324008513045,0.21999577166223,0.345654744906537,0.395080945724183,0.266440139935384,0.404408058371338,0.402953469387834,0.359011370420701,0.21167425002166,0.234012816094769,0.25785289444833,0.396993974336465,0.404087533236732,0.310523712496321,0.18995247563041,0.186887652501065,0.365664250002422,0.361938948350021,0.188700983477172,0.246614795197863,0.303714113189205,0.307410702437043,0.25838296508616,0.344243173194807,0.21777645376344,0.307575243670815,0.296835635755175,0.314722540217004,0.271628612233687,0.318593810284172,0.365664250002422,0.388595746251427,0.333216329276304,0.244240325963714,0.317940782938878,0.289080544942025,0.162048051404082,0.382942444978561,0.295428977077178,0.271366696712638,0.375081410607884,0.397753863478335,0.373289025053423,0.234102169529067,0.283073413317791,0.241933224235877,0.390758599155097,0.401640511892159,0.343289598640624,0.354557203225507,0.374020469561461,0.294940034491391,0.351066588190387,0.24715620965914,0.227992995151663,0.371606578607422,0.351743906358964,0.401771539350745,0.389628853235497,0.352079847659826,0.281515866202401,0.40575659825162,0.287981426477759,0.121204995477035,0.0293538386387462,0.305909006849477,0.276505788277675,0.226131268393625,0.114885026968754,0.400902638516551,0.390472277462728,0.152535897817259,0.328817923588471,0.194761254215111,0.376599136274529,0.379662520719212,0.321998539214348,0.389013031237335,0.334748511781648,0.400452671097318,0.398278454171495,0.405018662170696,0.402472189696067,0.30859052183766,0.37436944271184,0.395754910802602,0.0273338851875565,0.353566059679073,0.403315322728935,0.366094184938834,0.309194933938511,0.402634842602279,0.359837644457467,0.248690184401506,0.359319820329446,0.40357539951588,0.400626135514528,0.344501663686094,0.365467341869256,0.226762678123263,0.385465287055828,0.271570469999122,0.394271503605539,0.363264285944828,0.395253466420298,0.363924301245942,0.143751208130078,0.382275244021736,0.0597432324711809,0.367382698776543,0.340379363320337,0.000322582021054977,0.228341870707096,0.306212128285214,0.368506899983458,0.0658058535562791,0.356966165078386,0.394131554924657,0.40348714079964,0.283054992381603,0.291998613480671,0.0137993284831203,0.257180449695537,0.342507800196514,0.403922981803099,0.401104194695592,0.365873656298416,0.393328411351488,0.374138381561701,0.359798113892038,0.400023575634478,0.365848518613787,0.403372608061459,0.26746545438399,0.249919188371704,0.400469909974841,0.285068604803573,2.01784404550272e-08,0.332961619617194,0.360322807919537,0.312284320866089,0.375903126990035,0.401241218344281,0.375124184827484,0.391075426460216,0.40334359643625,0.402155956475272,0.384287649885703,0.197773360554095,0.186628415651924,0.186955971873172,0.24773373653279,0.395299378573211,0.396331205057497,0.2484073897185,0.108547948974365,0.378045395284476,0.399574749585829,0.226976622519189,0.333105256814885,0.257131311445288,0.338082045886902,0.367239804683385,0.325817183187981,0.377452056756384,0.373817898430049,0.265964208669383,0.302413685395966,0.313731922816682,0.401567033148523,0.349600115425103,0.322582183968064,0.338813253076172,0.399361662840849,0.186151791148941,0.261154531248793,0.343695661904963,0.363849715362336,0.0861870256009579,0.38343621745429,0.314305682463942,0.341836294318408,0.355205035538171,0.275994058461101,0.357441706467048],[0.604540639234195,0.999999999999998,0.54726208364482,0.388700914651758,0.604268215323395,0.3930329727702,0.50062732903105,0.247112114315041,0.8316615536164,0.803586430892782,0.474991676510415,0.258675341531664,0.159129080367097,0.707940140843632,0.952191836013628,0.27990053820574,0.161548883564806,0.53627448414187,0.575392507111004,0.264762592913899,0.168880045126116,0.967473298397533,0.418277003978961,0.444581785918559,0.171963881499692,0.710325725773212,0.178628600077619,0.584633294282383,0.360670052815267,0.445846465586983,0.580457837218212,0.340283049456282,0.996147824879727,0.734339452558127,0.209552772863396,0.469673430408191,0.791410430261348,0.26155720586737,0.561616398951997,0.727284785919628,0.857424865691818,0.1675873952717,0.272575796726106,0.485299162999851,0.740570641886756,0.287364313349929,0.633913955214308,0.747669610108967,0.33039549500399,0.366522796664939,0.303176687539576,0.404925075469016,0.564325454354064,0.520632390454641,0.791120941403272,0.665765663603718,0.199144287659593,0.243747615631318,0.403627704811316,0.135480580093745,0.287161199599901,0.576210547763447,0.181013515989217,0.499003804497416,0.452976438322333,0.688457374504623,0.873266136624663,0.151360718167177,0.17436800883371,0.419468250190698,0.48189084826379,0.237320410192098,0.891544784568289,0.108493648738318,0.32594470112291,0.317813986615137,0.109545991041846,0.837865079015059,0.225720778264216,0.228892843965942,0.172350508911308,0.713550931514896,0.132350868157387,0.770980312642074,0.784499863320593,0.75641548777939,0.185608388263086,0.754147318497471,0.32594470112291,0.389424785625217,0.724899870330355,0.158651980458098,0.243220367549309,0.793775952166477,0.913183131330855,0.369031771769641,0.215996873243939,0.185362446493624,0.653621388271271,0.509577109815537,0.344148471976761,0.147296750579159,0.198586722155598,0.157406854480079,0.39368205674393,0.482092428023022,0.286357669412525,0.690808134023541,0.348199123275845,0.213062826131367,0.298397504068236,0.162072782050126,0.143428121940341,0.66154270261259,0.702461373691679,0.454297824572748,0.392931062455739,0.298837855765605,0.198396914253933,0.493098404787824,0.795172670568597,0.940953065632842,0.99041796812133,0.227654456345931,0.807267680816665,0.860311976074825,0.943451434615445,0.438469856349943,0.396956678385285,0.920044371586596,0.26824692650391,0.113561482494877,0.643008846597783,0.364488676273797,0.249163178382879,0.387772482086888,0.268846658699805,0.437286994449356,0.563645589274428,0.527543303507041,0.488231025179867,0.232268497222827,0.34669813728593,0.589029109643797,0.991237038877337,0.698622675926179,0.466003314179424,0.671287013765015,0.232870391879631,0.545052403829687,0.317217945433294,0.836853277506968,0.683846388844188,0.516029395132192,0.446146434407551,0.288117902388129,0.331079641998157,0.141231310366734,0.617127275811506,0.187702156408683,0.583702792897764,0.326769475497764,0.419234698292427,0.673775172465657,0.0760343015587704,0.367696317995306,0.976487333870771,0.333579642921909,0.281082585146789,0.999963353496027,0.142250598841368,0.23394636562515,0.335289626266445,0.973334136968048,0.309503236428641,0.591361140741218,0.46534211207867,0.798271567687729,0.210137621027526,0.996234765611877,0.828117913889874,0.284641705929867,0.470595443200034,0.459381710557303,0.333810681131718,0.411338623379147,0.350334209966086,0.315962159285102,0.48274682221229,0.330595723349089,0.503414021649183,0.183088060491487,0.163795130427305,0.482331879773237,0.203021537254715,0.999999999725345,0.268874166733868,0.316294445020164,0.761652848964063,0.35635767011595,0.545439631737076,0.354208294963967,0.402266614197349,0.475186867908362,0.462004143971439,0.622939295445709,0.115895424416464,0.89335546046506,0.107540150155073,0.163024306126602,0.417282674895863,0.429284390553385,0.837206428189221,0.9488251833507,0.366802643836703,0.516178166649252,0.143939107117594,0.732780580005233,0.17123083869756,0.275447843015615,0.665271686743837,0.259952556023488,0.635912692257295,0.34532104418967,0.818793052930146,0.223220587183552,0.246378486129445,0.44820512626565,0.703075426304097,0.746984256218968,0.277593943653921,0.443888068653613,0.894020704661387,0.176041886776296,0.287115046039896,0.677332272823888,0.962349081009082,0.380966460397323,0.23992880775894,0.716485552213504,0.69414215926303,0.192779081774894,0.312494129457559],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>cpo<\/th>\n      <th>pit<\/th>\n      <th>failure<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[1,2,3]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<p><br/></p>
+<p>CPOのdotplotを図示すると以下のようになる。それも低い値をとっており、モデルの当てはまりがよくないことが分かる。</p>
+<div class="sourceCode" id="cb184"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb184-1"><a href="Chapter8.html#cb184-1" tabindex="-1"></a>m8_3<span class="sc">$</span>cpo <span class="sc">%&gt;%</span> </span>
+<span id="cb184-2"><a href="Chapter8.html#cb184-2" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb184-3"><a href="Chapter8.html#cb184-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb184-4"><a href="Chapter8.html#cb184-4" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> cpo, <span class="at">y =</span> n))<span class="sc">+</span></span>
+<span id="cb184-5"><a href="Chapter8.html#cb184-5" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb184-6"><a href="Chapter8.html#cb184-6" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>))<span class="sc">+</span></span>
+<span id="cb184-7"><a href="Chapter8.html#cb184-7" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb184-8"><a href="Chapter8.html#cb184-8" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb184-9"><a href="Chapter8.html#cb184-9" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;CPO&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Observation number&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-130-1.png" width="672" style="display: block; margin: auto;" />
+<br/></p>
+<p>モデル選択では、様々なモデルに対して同様にCPOを算出し、どのモデルがよりよく当てはまっているかを比べる。しかし実際にこれを基に判断するのは難しい。他の方法としては、モデルごとに<span class="math inline">\(CPO_i\)</span>を1つの値にまとめ、それをモデル間で比較するというものである。例えば、<span class="math inline">\(log(CPO_i)\)</span>の合計をそのモデルの当てはまりの良さとして使用することができる。</p>
+<div class="sourceCode" id="cb185"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb185-1"><a href="Chapter8.html#cb185-1" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">log</span>(m8_3<span class="sc">$</span>cpo<span class="sc">$</span>cpo))</span></code></pre></div>
+<pre><code>## [1] -347.8294</code></pre>
+</div>
+<div id="posterior-predictive-check" class="section level3 hasAnchor" number="7.5.5">
+<h3><span class="header-section-number">7.5.5</span> Posterior predictive check<a href="Chapter8.html#posterior-predictive-check" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>モデルの当てはまりをチェックする方法としては、モデルから<strong>事後予測分布</strong>を算出するというものである。事後予測分布は、モデルから推定された事後分布をもとに新たにデータを生成したときに、新たに得られるデータの予測分布のことである。<code>INLA</code>では以下のようにして容易に事後予測分布を計算できる。</p>
+<div class="sourceCode" id="cb187"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb187-1"><a href="Chapter8.html#cb187-1" tabindex="-1"></a>m8_4 <span class="ot">&lt;-</span> <span class="fu">inla</span>(Z_Latency <span class="sc">~</span> Age <span class="sc">+</span> fSex <span class="sc">+</span> fColony <span class="sc">+</span> frear,</span>
+<span id="cb187-2"><a href="Chapter8.html#cb187-2" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb187-3"><a href="Chapter8.html#cb187-3" tabindex="-1"></a>             <span class="at">data =</span> chimp,</span>
+<span id="cb187-4"><a href="Chapter8.html#cb187-4" tabindex="-1"></a>             <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">compute =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb187-5"><a href="Chapter8.html#cb187-5" tabindex="-1"></a>             <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">return.marginals.predictor=</span><span class="cn">TRUE</span>))</span></code></pre></div>
+<p>例えば、1頭目のチンパンジーの平均潜時の事後予測分布は以下のようになる。実測値を黒い点で示した。</p>
+<div class="sourceCode" id="cb188"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb188-1"><a href="Chapter8.html#cb188-1" tabindex="-1"></a>m8_4<span class="sc">$</span>marginals.fitted.values[[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> </span>
+<span id="cb188-2"><a href="Chapter8.html#cb188-2" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb188-3"><a href="Chapter8.html#cb188-3" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y))<span class="sc">+</span></span>
+<span id="cb188-4"><a href="Chapter8.html#cb188-4" tabindex="-1"></a>  <span class="fu">geom_area</span>(<span class="at">fill =</span> <span class="st">&quot;lightblue&quot;</span>)<span class="sc">+</span></span>
+<span id="cb188-5"><a href="Chapter8.html#cb188-5" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb188-6"><a href="Chapter8.html#cb188-6" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> chimp <span class="sc">%&gt;%</span> .[<span class="dv">1</span>,],</span>
+<span id="cb188-7"><a href="Chapter8.html#cb188-7" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">x =</span> Z_Latency, <span class="at">y =</span> <span class="dv">0</span>),</span>
+<span id="cb188-8"><a href="Chapter8.html#cb188-8" tabindex="-1"></a>             <span class="at">size =</span> <span class="fl">4.5</span>)<span class="sc">+</span></span>
+<span id="cb188-9"><a href="Chapter8.html#cb188-9" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb188-10"><a href="Chapter8.html#cb188-10" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb188-11"><a href="Chapter8.html#cb188-11" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Latency scores of chimp 1&quot;</span>,</span>
+<span id="cb188-12"><a href="Chapter8.html#cb188-12" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Density&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-133-1.png" width="672" style="display: block; margin: auto;" />
+<br/></p>
+<p>全観測値について95%予測区間(事後予測分布の95%区間)と観測値の関係を示したのが以下の図である。実測値が95%予測区間に入ってないものがかなり多くあることが分かる。このことは、このモデルから実際のデータが得られたとは言いにくいということを示している。</p>
+<div class="sourceCode" id="cb189"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb189-1"><a href="Chapter8.html#cb189-1" tabindex="-1"></a>postpre8_4 <span class="ot">&lt;-</span> m8_4<span class="sc">$</span>marginals.fitted.values</span>
+<span id="cb189-2"><a href="Chapter8.html#cb189-2" tabindex="-1"></a></span>
+<span id="cb189-3"><a href="Chapter8.html#cb189-3" tabindex="-1"></a>postpre_all <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb189-4"><a href="Chapter8.html#cb189-4" tabindex="-1"></a></span>
+<span id="cb189-5"><a href="Chapter8.html#cb189-5" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(chimp)){</span>
+<span id="cb189-6"><a href="Chapter8.html#cb189-6" tabindex="-1"></a>summary_i <span class="ot">&lt;-</span> <span class="fu">inla.qmarginal</span>(<span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span>), postpre8_4[[i]]) <span class="sc">%&gt;%</span> </span>
+<span id="cb189-7"><a href="Chapter8.html#cb189-7" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb189-8"><a href="Chapter8.html#cb189-8" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">value =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb189-9"><a href="Chapter8.html#cb189-9" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">col =</span> <span class="fu">c</span>(<span class="st">&quot;q2.5&quot;</span>,<span class="st">&quot;q50&quot;</span>, <span class="st">&quot;q97.5&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb189-10"><a href="Chapter8.html#cb189-10" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> col, <span class="at">values_from =</span> value) <span class="sc">%&gt;%</span> </span>
+<span id="cb189-11"><a href="Chapter8.html#cb189-11" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id =</span> i)</span>
+<span id="cb189-12"><a href="Chapter8.html#cb189-12" tabindex="-1"></a></span>
+<span id="cb189-13"><a href="Chapter8.html#cb189-13" tabindex="-1"></a>postpre_all <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(postpre_all, summary_i)</span>
+<span id="cb189-14"><a href="Chapter8.html#cb189-14" tabindex="-1"></a>}</span>
+<span id="cb189-15"><a href="Chapter8.html#cb189-15" tabindex="-1"></a></span>
+<span id="cb189-16"><a href="Chapter8.html#cb189-16" tabindex="-1"></a>postpre_all <span class="sc">%&gt;%</span> </span>
+<span id="cb189-17"><a href="Chapter8.html#cb189-17" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id2 =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&quot;1~61&quot;</span>,<span class="dv">61</span>),<span class="fu">rep</span>(<span class="st">&quot;62~122&quot;</span>,<span class="dv">61</span>), <span class="fu">rep</span>(<span class="st">&quot;123~183&quot;</span>,<span class="dv">61</span>), <span class="fu">rep</span>(<span class="st">&quot;184~243&quot;</span>,<span class="dv">60</span>))) <span class="sc">%&gt;%</span> </span>
+<span id="cb189-18"><a href="Chapter8.html#cb189-18" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> id))<span class="sc">+</span></span>
+<span id="cb189-19"><a href="Chapter8.html#cb189-19" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> q2<span class="fl">.5</span>, <span class="at">ymax =</span> q97<span class="fl">.5</span>))<span class="sc">+</span></span>
+<span id="cb189-20"><a href="Chapter8.html#cb189-20" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> chimp <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>(),</span>
+<span id="cb189-21"><a href="Chapter8.html#cb189-21" tabindex="-1"></a>                                     <span class="at">id2 =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">&quot;1~61&quot;</span>,<span class="dv">61</span>),<span class="fu">rep</span>(<span class="st">&quot;62~122&quot;</span>,<span class="dv">61</span>), <span class="fu">rep</span>(<span class="st">&quot;123~183&quot;</span>,<span class="dv">61</span>), <span class="fu">rep</span>(<span class="st">&quot;184~243&quot;</span>,<span class="dv">60</span>))),</span>
+<span id="cb189-22"><a href="Chapter8.html#cb189-22" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">x =</span> id, <span class="at">y =</span> Z_Latency),</span>
+<span id="cb189-23"><a href="Chapter8.html#cb189-23" tabindex="-1"></a>             <span class="at">size =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb189-24"><a href="Chapter8.html#cb189-24" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="fl">0.5</span>)<span class="sc">+</span></span>
+<span id="cb189-25"><a href="Chapter8.html#cb189-25" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>id2, <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb189-26"><a href="Chapter8.html#cb189-26" tabindex="-1"></a>                 <span class="at">scales =</span> <span class="st">&quot;free&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-134-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>事後予測分布をもとにモデルの当てはまりを評価するために、事後予測p値という値が考えられているようだ。これは、事後予測分布が実測値よりも小さい値をとる確率<span class="math inline">\(Pr(Latency_i^* \le Latency_i|D)\)</span>で定義される。なお、<span class="math inline">\(Latency_i^*\)</span>は事後予測分布の値である。事後予測p値が0や1に近い値が多いならば、このモデルの当てはまりは悪いということになる。</p>
+<p>では、実際に算出してみる。図示すると、やはり0や1に近い値が多くてモデルの当てはまりが悪いことが分かる。</p>
+<div class="sourceCode" id="cb190"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb190-1"><a href="Chapter8.html#cb190-1" tabindex="-1"></a>pval <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, <span class="fu">nrow</span>(chimp))</span>
+<span id="cb190-2"><a href="Chapter8.html#cb190-2" tabindex="-1"></a></span>
+<span id="cb190-3"><a href="Chapter8.html#cb190-3" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(chimp)){</span>
+<span id="cb190-4"><a href="Chapter8.html#cb190-4" tabindex="-1"></a>  pval[i] <span class="ot">&lt;-</span> <span class="fu">inla.pmarginal</span>(<span class="at">q =</span> chimp<span class="sc">$</span>Z_Latency[[i]],</span>
+<span id="cb190-5"><a href="Chapter8.html#cb190-5" tabindex="-1"></a>                            <span class="at">marginal =</span> postpre8_4[[i]])</span>
+<span id="cb190-6"><a href="Chapter8.html#cb190-6" tabindex="-1"></a>}</span>
+<span id="cb190-7"><a href="Chapter8.html#cb190-7" tabindex="-1"></a></span>
+<span id="cb190-8"><a href="Chapter8.html#cb190-8" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">pval =</span> pval) <span class="sc">%&gt;%</span> </span>
+<span id="cb190-9"><a href="Chapter8.html#cb190-9" tabindex="-1"></a>  <span class="fu">ggplot</span>()<span class="sc">+</span></span>
+<span id="cb190-10"><a href="Chapter8.html#cb190-10" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">x =</span> pval),</span>
+<span id="cb190-11"><a href="Chapter8.html#cb190-11" tabindex="-1"></a>                 <span class="at">bins =</span> <span class="dv">20</span>,</span>
+<span id="cb190-12"><a href="Chapter8.html#cb190-12" tabindex="-1"></a>                 <span class="at">alpha =</span> <span class="dv">0</span>,</span>
+<span id="cb190-13"><a href="Chapter8.html#cb190-13" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">&quot;black&quot;</span>)<span class="sc">+</span></span>
+<span id="cb190-14"><a href="Chapter8.html#cb190-14" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb190-15"><a href="Chapter8.html#cb190-15" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb190-16"><a href="Chapter8.html#cb190-16" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.1</span>))</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-135-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="visualizing-the-model" class="section level2 hasAnchor" number="7.6">
+<h2><span class="header-section-number">7.6</span> Visualizing the model<a href="Chapter8.html#visualizing-the-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>最後に、モデルの予測値とその95%確信区間をデータ上に可視化する。</p>
+<p><code>lm</code>関数を用いた重回帰分析ではこれがかなり簡単に行える。例えば、<code>fColony = 1</code>、<code>frear = 1</code>のときの予測値とその95%信頼区間は以下のように描ける。</p>
+<div class="sourceCode" id="cb191"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb191-1"><a href="Chapter8.html#cb191-1" tabindex="-1"></a>nd <span class="ot">&lt;-</span> <span class="fu">crossing</span>(<span class="at">Age =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">50</span>, <span class="at">length =</span> <span class="dv">100</span>),</span>
+<span id="cb191-2"><a href="Chapter8.html#cb191-2" tabindex="-1"></a>               <span class="at">fSex =</span> <span class="fu">c</span>(<span class="st">&quot;1&quot;</span>,<span class="st">&quot;2&quot;</span>),</span>
+<span id="cb191-3"><a href="Chapter8.html#cb191-3" tabindex="-1"></a>               <span class="at">fColony =</span> <span class="st">&quot;1&quot;</span>,</span>
+<span id="cb191-4"><a href="Chapter8.html#cb191-4" tabindex="-1"></a>               <span class="at">frear =</span> <span class="st">&quot;1&quot;</span>)</span>
+<span id="cb191-5"><a href="Chapter8.html#cb191-5" tabindex="-1"></a></span>
+<span id="cb191-6"><a href="Chapter8.html#cb191-6" tabindex="-1"></a>fit8_2 <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(m8_2,</span>
+<span id="cb191-7"><a href="Chapter8.html#cb191-7" tabindex="-1"></a>                    <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">&quot;Age[4:50,by = 0.1]&quot;</span>,<span class="st">&quot;fSex&quot;</span>),</span>
+<span id="cb191-8"><a href="Chapter8.html#cb191-8" tabindex="-1"></a>                    <span class="at">condition =</span> <span class="fu">c</span>(<span class="at">fColony =</span> <span class="st">&quot;1&quot;</span>, <span class="at">frear =</span> <span class="st">&quot;1&quot;</span>))</span>
+<span id="cb191-9"><a href="Chapter8.html#cb191-9" tabindex="-1"></a></span>
+<span id="cb191-10"><a href="Chapter8.html#cb191-10" tabindex="-1"></a>fit8_2 <span class="sc">%&gt;%</span> </span>
+<span id="cb191-11"><a href="Chapter8.html#cb191-11" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Age =</span> x, <span class="at">fSex =</span> group) <span class="sc">%&gt;%</span> </span>
+<span id="cb191-12"><a href="Chapter8.html#cb191-12" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb191-13"><a href="Chapter8.html#cb191-13" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fSex =</span> <span class="fu">str_c</span>(<span class="st">&quot;fSex = &quot;</span>,fSex)) <span class="sc">%&gt;%</span> </span>
+<span id="cb191-14"><a href="Chapter8.html#cb191-14" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Age, <span class="at">y =</span> predicted))<span class="sc">+</span></span>
+<span id="cb191-15"><a href="Chapter8.html#cb191-15" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb191-16"><a href="Chapter8.html#cb191-16" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high),</span>
+<span id="cb191-17"><a href="Chapter8.html#cb191-17" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>)<span class="sc">+</span></span>
+<span id="cb191-18"><a href="Chapter8.html#cb191-18" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> chimp <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">fSex =</span> <span class="fu">str_c</span>(<span class="st">&quot;fSex = &quot;</span>,fSex)),</span>
+<span id="cb191-19"><a href="Chapter8.html#cb191-19" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">y =</span> Z_Latency),</span>
+<span id="cb191-20"><a href="Chapter8.html#cb191-20" tabindex="-1"></a>             <span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb191-21"><a href="Chapter8.html#cb191-21" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>fSex)<span class="sc">+</span></span>
+<span id="cb191-22"><a href="Chapter8.html#cb191-22" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb191-23"><a href="Chapter8.html#cb191-23" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb191-24"><a href="Chapter8.html#cb191-24" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;Latency&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-136-1.png" width="672" style="display: block; margin: auto;" />
+<br/></p>
+<p><code>INLA</code>で</p>
+
+</div>
+</div>
+<h3>References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Blangiardo2015" class="csl-entry">
+Blangiardo M, Cameletti M (2015) Spatial and spatio-temporal bayesian models with <span>R</span> - <span>INLA</span>. John Wiley &amp; Sons
+</div>
+<div id="ref-Hopkins2015" class="csl-entry">
+Hopkins WD, Reamer L, Mareno MC, Schapiro SJ (2015) Genetic basis in motor skill and hand preference for tool use in chimpanzees (pan troglodytes). Proc Biol Sci 282:20141223
+</div>
+<div id="ref-McElreath2020" class="csl-entry">
+McElreath R (2020) Statistical rethinking : A bayesian course with examples in <span>R</span> and <span>STAN</span>, 2nd Edition. Chapman; Hall/CRC
+</div>
+<div id="ref-Zuur2012" class="csl-entry">
+Zuur AF (2012) A beginner’s guide to generalized additive models with <span>R</span>. Highland Statistics, Newburgh, Scotland
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="6">
+<li id="fn6"><p><code>INLA</code>では、回帰係数<span class="math inline">\(\beta\)</span>については事後分布の期待値(平均)、ハイパーパラメータについては事後分布の最頻値(モード)がDICの計算に使用される。<a href="Chapter8.html#fnref6" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="Chapter7.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="sessioninfo.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
