@@ -1,4 +1,4 @@
-# Linear mixed-effects models and dependency  
+# Linear mixed-effects models and dependency {#c5}   
 本節では、混合モデルがどのようにデータの非独立性に対処しているのかを見ていく。   
 
 ## White Storks  

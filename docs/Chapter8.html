@@ -23,7 +23,7 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-14" />
+<meta name="date" content="2023-09-15" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -31,7 +31,7 @@
   
   
 <link rel="prev" href="Chapter7.html"/>
-<link rel="next" href="sessioninfo.html"/>
+<link rel="next" href="Chapter9.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -328,7 +328,25 @@ div.csl-indent {
 <li class="chapter" data-level="7.5.4" data-path="Chapter8.html"><a href="Chapter8.html#out-of-sample-prediction"><i class="fa fa-check"></i><b>7.5.4</b> Out of sample prediction</a></li>
 <li class="chapter" data-level="7.5.5" data-path="Chapter8.html"><a href="Chapter8.html#posterior-predictive-check"><i class="fa fa-check"></i><b>7.5.5</b> Posterior predictive check</a></li>
 </ul></li>
-<li class="chapter" data-level="7.6" data-path="Chapter8.html"><a href="Chapter8.html#visualizing-the-model"><i class="fa fa-check"></i><b>7.6</b> Visualizing the model</a></li>
+<li class="chapter" data-level="7.6" data-path="Chapter8.html"><a href="Chapter8.html#s8-6"><i class="fa fa-check"></i><b>7.6</b> Visualizing the model</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="Chapter9.html"><a href="Chapter9.html"><i class="fa fa-check"></i><b>8</b> Mixed effects modelling in R-INLA to analysis otolith data</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="Chapter9.html"><a href="Chapter9.html#otoliths-in-plaice"><i class="fa fa-check"></i><b>8.1</b> Otoliths in plaice</a></li>
+<li class="chapter" data-level="8.2" data-path="Chapter9.html"><a href="Chapter9.html#model-formulation-2"><i class="fa fa-check"></i><b>8.2</b> Model formulation</a></li>
+<li class="chapter" data-level="8.3" data-path="Chapter9.html"><a href="Chapter9.html#dependency-1"><i class="fa fa-check"></i><b>8.3</b> Dependency</a></li>
+<li class="chapter" data-level="8.4" data-path="Chapter9.html"><a href="Chapter9.html#data-exploration-1"><i class="fa fa-check"></i><b>8.4</b> Data exploration</a></li>
+<li class="chapter" data-level="8.5" data-path="Chapter9.html"><a href="Chapter9.html#running-the-model-in-r-inla"><i class="fa fa-check"></i><b>8.5</b> Running the model in R-INLA</a></li>
+<li class="chapter" data-level="8.6" data-path="Chapter9.html"><a href="Chapter9.html#model-validation-4"><i class="fa fa-check"></i><b>8.6</b> Model validation</a></li>
+<li class="chapter" data-level="8.7" data-path="Chapter9.html"><a href="Chapter9.html#model-selection-1"><i class="fa fa-check"></i><b>8.7</b> Model selection</a></li>
+<li class="chapter" data-level="8.8" data-path="Chapter9.html"><a href="Chapter9.html#model-interpretation"><i class="fa fa-check"></i><b>8.8</b> Model interpretation</a>
+<ul>
+<li class="chapter" data-level="8.8.1" data-path="Chapter9.html"><a href="Chapter9.html#option-1-for-prediction-adding-extra-data"><i class="fa fa-check"></i><b>8.8.1</b> Option 1 for prediction: Adding extra data</a></li>
+<li class="chapter" data-level="8.8.2" data-path="Chapter9.html"><a href="Chapter9.html#option-2-for-prediction-using-the-inla.make.lincombs"><i class="fa fa-check"></i><b>8.8.2</b> Option 2 for prediction: Using the <code>inla.make.lincombs</code></a></li>
+</ul></li>
+<li class="chapter" data-level="8.9" data-path="Chapter9.html"><a href="Chapter9.html#multiple-random-effects"><i class="fa fa-check"></i><b>8.9</b> Multiple random effects</a></li>
+<li class="chapter" data-level="8.10" data-path="Chapter9.html"><a href="Chapter9.html#changin-prior-of-fixed-parameters"><i class="fa fa-check"></i><b>8.10</b> Changin prior of fixed parameters</a></li>
+<li class="chapter" data-level="8.11" data-path="Chapter9.html"><a href="Chapter9.html#changing-priors-of-hyperparameters"><i class="fa fa-check"></i><b>8.11</b> Changing priors of hyperparameters</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -806,37 +824,64 @@ CPO_i = Pr(除かれた観測値_i|そのほかの観測値)
 <p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-135-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 </div>
-<div id="visualizing-the-model" class="section level2 hasAnchor" number="7.6">
-<h2><span class="header-section-number">7.6</span> Visualizing the model<a href="Chapter8.html#visualizing-the-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div id="s8-6" class="section level2 hasAnchor" number="7.6">
+<h2><span class="header-section-number">7.6</span> Visualizing the model<a href="Chapter8.html#s8-6" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>最後に、モデルの予測値とその95%確信区間をデータ上に可視化する。</p>
 <p><code>lm</code>関数を用いた重回帰分析ではこれがかなり簡単に行える。例えば、<code>fColony = 1</code>、<code>frear = 1</code>のときの予測値とその95%信頼区間は以下のように描ける。</p>
-<div class="sourceCode" id="cb191"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb191-1"><a href="Chapter8.html#cb191-1" tabindex="-1"></a>nd <span class="ot">&lt;-</span> <span class="fu">crossing</span>(<span class="at">Age =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">50</span>, <span class="at">length =</span> <span class="dv">100</span>),</span>
-<span id="cb191-2"><a href="Chapter8.html#cb191-2" tabindex="-1"></a>               <span class="at">fSex =</span> <span class="fu">c</span>(<span class="st">&quot;1&quot;</span>,<span class="st">&quot;2&quot;</span>),</span>
-<span id="cb191-3"><a href="Chapter8.html#cb191-3" tabindex="-1"></a>               <span class="at">fColony =</span> <span class="st">&quot;1&quot;</span>,</span>
-<span id="cb191-4"><a href="Chapter8.html#cb191-4" tabindex="-1"></a>               <span class="at">frear =</span> <span class="st">&quot;1&quot;</span>)</span>
-<span id="cb191-5"><a href="Chapter8.html#cb191-5" tabindex="-1"></a></span>
-<span id="cb191-6"><a href="Chapter8.html#cb191-6" tabindex="-1"></a>fit8_2 <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(m8_2,</span>
-<span id="cb191-7"><a href="Chapter8.html#cb191-7" tabindex="-1"></a>                    <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">&quot;Age[4:50,by = 0.1]&quot;</span>,<span class="st">&quot;fSex&quot;</span>),</span>
-<span id="cb191-8"><a href="Chapter8.html#cb191-8" tabindex="-1"></a>                    <span class="at">condition =</span> <span class="fu">c</span>(<span class="at">fColony =</span> <span class="st">&quot;1&quot;</span>, <span class="at">frear =</span> <span class="st">&quot;1&quot;</span>))</span>
-<span id="cb191-9"><a href="Chapter8.html#cb191-9" tabindex="-1"></a></span>
-<span id="cb191-10"><a href="Chapter8.html#cb191-10" tabindex="-1"></a>fit8_2 <span class="sc">%&gt;%</span> </span>
-<span id="cb191-11"><a href="Chapter8.html#cb191-11" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Age =</span> x, <span class="at">fSex =</span> group) <span class="sc">%&gt;%</span> </span>
-<span id="cb191-12"><a href="Chapter8.html#cb191-12" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb191-13"><a href="Chapter8.html#cb191-13" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fSex =</span> <span class="fu">str_c</span>(<span class="st">&quot;fSex = &quot;</span>,fSex)) <span class="sc">%&gt;%</span> </span>
-<span id="cb191-14"><a href="Chapter8.html#cb191-14" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Age, <span class="at">y =</span> predicted))<span class="sc">+</span></span>
-<span id="cb191-15"><a href="Chapter8.html#cb191-15" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
-<span id="cb191-16"><a href="Chapter8.html#cb191-16" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high),</span>
-<span id="cb191-17"><a href="Chapter8.html#cb191-17" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>)<span class="sc">+</span></span>
-<span id="cb191-18"><a href="Chapter8.html#cb191-18" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> chimp <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">fSex =</span> <span class="fu">str_c</span>(<span class="st">&quot;fSex = &quot;</span>,fSex)),</span>
-<span id="cb191-19"><a href="Chapter8.html#cb191-19" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">y =</span> Z_Latency),</span>
-<span id="cb191-20"><a href="Chapter8.html#cb191-20" tabindex="-1"></a>             <span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
-<span id="cb191-21"><a href="Chapter8.html#cb191-21" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>fSex)<span class="sc">+</span></span>
-<span id="cb191-22"><a href="Chapter8.html#cb191-22" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
-<span id="cb191-23"><a href="Chapter8.html#cb191-23" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
-<span id="cb191-24"><a href="Chapter8.html#cb191-24" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;Latency&quot;</span>)</span></code></pre></div>
-<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-136-1.png" width="672" style="display: block; margin: auto;" />
+<div class="sourceCode" id="cb191"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb191-1"><a href="Chapter8.html#cb191-1" tabindex="-1"></a>fit8_2 <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(m8_2,</span>
+<span id="cb191-2"><a href="Chapter8.html#cb191-2" tabindex="-1"></a>                    <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">&quot;Age[4:50,by = 0.1]&quot;</span>,<span class="st">&quot;fSex&quot;</span>),</span>
+<span id="cb191-3"><a href="Chapter8.html#cb191-3" tabindex="-1"></a>                    <span class="at">condition =</span> <span class="fu">c</span>(<span class="at">fColony =</span> <span class="st">&quot;1&quot;</span>, <span class="at">frear =</span> <span class="st">&quot;1&quot;</span>))</span>
+<span id="cb191-4"><a href="Chapter8.html#cb191-4" tabindex="-1"></a></span>
+<span id="cb191-5"><a href="Chapter8.html#cb191-5" tabindex="-1"></a>fit8_2 <span class="sc">%&gt;%</span> </span>
+<span id="cb191-6"><a href="Chapter8.html#cb191-6" tabindex="-1"></a>  <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb191-7"><a href="Chapter8.html#cb191-7" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Age =</span> x, <span class="at">fSex =</span> group) <span class="sc">%&gt;%</span> </span>
+<span id="cb191-8"><a href="Chapter8.html#cb191-8" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fSex =</span> <span class="fu">str_c</span>(<span class="st">&quot;fSex = &quot;</span>,fSex)) <span class="sc">%&gt;%</span> </span>
+<span id="cb191-9"><a href="Chapter8.html#cb191-9" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Age, <span class="at">y =</span> predicted))<span class="sc">+</span></span>
+<span id="cb191-10"><a href="Chapter8.html#cb191-10" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb191-11"><a href="Chapter8.html#cb191-11" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high),</span>
+<span id="cb191-12"><a href="Chapter8.html#cb191-12" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>)<span class="sc">+</span></span>
+<span id="cb191-13"><a href="Chapter8.html#cb191-13" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> chimp <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">fSex =</span> <span class="fu">str_c</span>(<span class="st">&quot;fSex = &quot;</span>,fSex)),</span>
+<span id="cb191-14"><a href="Chapter8.html#cb191-14" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">y =</span> Z_Latency),</span>
+<span id="cb191-15"><a href="Chapter8.html#cb191-15" tabindex="-1"></a>             <span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb191-16"><a href="Chapter8.html#cb191-16" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>fSex)<span class="sc">+</span></span>
+<span id="cb191-17"><a href="Chapter8.html#cb191-17" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb191-18"><a href="Chapter8.html#cb191-18" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb191-19"><a href="Chapter8.html#cb191-19" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;Latency&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-136-1.png" width="960" style="display: block; margin: auto;" />
 <br/></p>
-<p><code>INLA</code>で</p>
+<p><code>INLA</code>で同様のグラフを95%確信区間で書く方法は2つある。そのうち1つをここで紹介する(もう一つは第<a href="#c9"><strong>??</strong></a>章で紹介する)。　　</p>
+<p>この方法は少しトリッキーだがうまくいく。まず、予測値を求めたい範囲のデータを格納し、かつ<code>Z_Latency = NA</code>のデータフレームを作成する。</p>
+<div class="sourceCode" id="cb192"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb192-1"><a href="Chapter8.html#cb192-1" tabindex="-1"></a>newdata <span class="ot">&lt;-</span> <span class="fu">crossing</span>(<span class="at">Z_Latency =</span> <span class="cn">NA</span>,</span>
+<span id="cb192-2"><a href="Chapter8.html#cb192-2" tabindex="-1"></a>                    <span class="at">Age =</span> <span class="fu">seq</span>(<span class="dv">4</span>,<span class="dv">50</span>,<span class="at">length =</span> <span class="dv">100</span>),</span>
+<span id="cb192-3"><a href="Chapter8.html#cb192-3" tabindex="-1"></a>                    <span class="at">fSex =</span> <span class="fu">c</span>(<span class="st">&quot;1&quot;</span>,<span class="st">&quot;2&quot;</span>),</span>
+<span id="cb192-4"><a href="Chapter8.html#cb192-4" tabindex="-1"></a>                    <span class="at">fColony =</span> <span class="st">&quot;1&quot;</span>,</span>
+<span id="cb192-5"><a href="Chapter8.html#cb192-5" tabindex="-1"></a>                    <span class="at">frear =</span> <span class="st">&quot;1&quot;</span>)</span></code></pre></div>
+<p>これをもとのデータにくっつけてモデルを実行すると、パラメータの推定自体に影響はないが、先ほど<code>newdata</code>で指定した範囲についても予測値を算出することができる。</p>
+<div class="sourceCode" id="cb193"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb193-1"><a href="Chapter8.html#cb193-1" tabindex="-1"></a>chimp2 <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(chimp, newdata)</span>
+<span id="cb193-2"><a href="Chapter8.html#cb193-2" tabindex="-1"></a></span>
+<span id="cb193-3"><a href="Chapter8.html#cb193-3" tabindex="-1"></a>m8_5 <span class="ot">&lt;-</span> <span class="fu">inla</span>(Z_Latency <span class="sc">~</span> Age <span class="sc">+</span> fSex <span class="sc">+</span> fColony <span class="sc">+</span> frear,</span>
+<span id="cb193-4"><a href="Chapter8.html#cb193-4" tabindex="-1"></a>             <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb193-5"><a href="Chapter8.html#cb193-5" tabindex="-1"></a>             <span class="at">data =</span> chimp2,</span>
+<span id="cb193-6"><a href="Chapter8.html#cb193-6" tabindex="-1"></a>             <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">compute =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb193-7"><a href="Chapter8.html#cb193-7" tabindex="-1"></a>             <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">return.marginals.predictor=</span><span class="cn">TRUE</span>))</span></code></pre></div>
+<p>確信区間等を算出し、244番目以降のデータについて抽出すれば<code>newdata</code>で指定したデータについての予測値と95%確信区間が得られる。図示した結果は頻度論の結果とほぼ変わらない。</p>
+<div class="sourceCode" id="cb194"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb194-1"><a href="Chapter8.html#cb194-1" tabindex="-1"></a>fit8_5 <span class="ot">&lt;-</span> m8_5<span class="sc">$</span>summary.fitted.values[<span class="dv">244</span><span class="sc">:</span><span class="dv">443</span>,] <span class="sc">%&gt;%</span> </span>
+<span id="cb194-2"><a href="Chapter8.html#cb194-2" tabindex="-1"></a>  <span class="fu">bind_cols</span>(newdata)</span>
+<span id="cb194-3"><a href="Chapter8.html#cb194-3" tabindex="-1"></a></span>
+<span id="cb194-4"><a href="Chapter8.html#cb194-4" tabindex="-1"></a>fit8_5 <span class="sc">%&gt;%</span> </span>
+<span id="cb194-5"><a href="Chapter8.html#cb194-5" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fSex =</span> <span class="fu">str_c</span>(<span class="st">&quot;fSex = &quot;</span>,fSex)) <span class="sc">%&gt;%</span> </span>
+<span id="cb194-6"><a href="Chapter8.html#cb194-6" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Age, <span class="at">y =</span> mean))<span class="sc">+</span></span>
+<span id="cb194-7"><a href="Chapter8.html#cb194-7" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb194-8"><a href="Chapter8.html#cb194-8" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> <span class="st">`</span><span class="at">0.025quant</span><span class="st">`</span>, <span class="at">ymax =</span> <span class="st">`</span><span class="at">0.975quant</span><span class="st">`</span>),</span>
+<span id="cb194-9"><a href="Chapter8.html#cb194-9" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.4</span>)<span class="sc">+</span></span>
+<span id="cb194-10"><a href="Chapter8.html#cb194-10" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> chimp <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">fSex =</span> <span class="fu">str_c</span>(<span class="st">&quot;fSex = &quot;</span>,fSex)),</span>
+<span id="cb194-11"><a href="Chapter8.html#cb194-11" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">y =</span> Z_Latency),</span>
+<span id="cb194-12"><a href="Chapter8.html#cb194-12" tabindex="-1"></a>             <span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb194-13"><a href="Chapter8.html#cb194-13" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>fSex)<span class="sc">+</span></span>
+<span id="cb194-14"><a href="Chapter8.html#cb194-14" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb194-15"><a href="Chapter8.html#cb194-15" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb194-16"><a href="Chapter8.html#cb194-16" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;Latency&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-139-1.png" width="960" style="display: block; margin: auto;" /></p>
 
 </div>
 </div>
@@ -867,7 +912,7 @@ Zuur AF (2012) A beginner’s guide to generalized additive models with <span>R<
         </div>
       </div>
 <a href="Chapter7.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-<a href="sessioninfo.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+<a href="Chapter9.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

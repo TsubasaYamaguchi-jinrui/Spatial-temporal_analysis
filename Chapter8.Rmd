@@ -491,24 +491,19 @@ data.frame(pval = pval) %>%
   scale_x_continuous(breaks = seq(0,1,0.1))
 ```
 
-## Visualizing the model  
+## Visualizing the model {#s8-6}   
 最後に、モデルの予測値とその95%確信区間をデータ上に可視化する。  
 
 `lm`関数を用いた重回帰分析ではこれがかなり簡単に行える。例えば、`fColony = 1`、`frear = 1`のときの予測値とその95%信頼区間は以下のように描ける。  
 
-```{r, fig.cap = c(10,4.5)}
-nd <- crossing(Age = seq(0,50, length = 100),
-               fSex = c("1","2"),
-               fColony = "1",
-               frear = "1")
-
+```{r, fig.dim = c(10,4.5)}
 fit8_2 <- ggpredict(m8_2,
                     terms = c("Age[4:50,by = 0.1]","fSex"),
                     condition = c(fColony = "1", frear = "1"))
 
 fit8_2 %>% 
-  rename(Age = x, fSex = group) %>% 
   data.frame() %>% 
+  rename(Age = x, fSex = group) %>% 
   mutate(fSex = str_c("fSex = ",fSex)) %>% 
   ggplot(aes(x = Age, y = predicted))+
   geom_line()+
@@ -524,7 +519,48 @@ fit8_2 %>%
 ```
 <br/>  
 
-`INLA`で
+`INLA`で同様のグラフを95%確信区間で書く方法は2つある。そのうち1つをここで紹介する(もう一つは第\@ref(c9)章で紹介する)。　　
+
+この方法は少しトリッキーだがうまくいく。まず、予測値を求めたい範囲のデータを格納し、かつ`Z_Latency = NA`のデータフレームを作成する。  
+```{r}
+newdata <- crossing(Z_Latency = NA,
+                    Age = seq(4,50,length = 100),
+                    fSex = c("1","2"),
+                    fColony = "1",
+                    frear = "1")
+```
+
+これをもとのデータにくっつけてモデルを実行すると、パラメータの推定自体に影響はないが、先ほど`newdata`で指定した範囲についても予測値を算出することができる。  
+```{r}
+chimp2 <- bind_rows(chimp, newdata)
+
+m8_5 <- inla(Z_Latency ~ Age + fSex + fColony + frear,
+             family = "gaussian",
+             data = chimp2,
+             control.predictor = list(compute = TRUE),
+             control.compute = list(return.marginals.predictor=TRUE))
+```
+
+確信区間等を算出し、244番目以降のデータについて抽出すれば`newdata`で指定したデータについての予測値と95%確信区間が得られる。図示した結果は頻度論の結果とほぼ変わらない。    
+```{r, fig.dim = c(10,4.5)}
+fit8_5 <- m8_5$summary.fitted.values[244:443,] %>% 
+  bind_cols(newdata)
+
+fit8_5 %>% 
+  mutate(fSex = str_c("fSex = ",fSex)) %>% 
+  ggplot(aes(x = Age, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymin = `0.025quant`, ymax = `0.975quant`),
+              alpha = 0.4)+
+  geom_point(data = chimp %>% mutate(fSex = str_c("fSex = ",fSex)),
+             aes(y = Z_Latency),
+             shape = 1)+
+  facet_rep_wrap(~fSex)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Latency")
+```
+
 
 
 
