@@ -23,7 +23,7 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-15" />
+<meta name="date" content="2023-09-16" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -346,7 +346,7 @@ div.csl-indent {
 <li class="chapter" data-level="8.8" data-path="Chapter9.html"><a href="Chapter9.html#model-interpretation"><i class="fa fa-check"></i><b>8.8</b> Model interpretation</a>
 <ul>
 <li class="chapter" data-level="8.8.1" data-path="Chapter9.html"><a href="Chapter9.html#option-1-for-prediction-adding-extra-data"><i class="fa fa-check"></i><b>8.8.1</b> Option 1 for prediction: Adding extra data</a></li>
-<li class="chapter" data-level="8.8.2" data-path="Chapter9.html"><a href="Chapter9.html#option-2-for-prediction-using-the-inla.make.lincombs"><i class="fa fa-check"></i><b>8.8.2</b> Option 2 for prediction: Using the <code>inla.make.lincombs</code></a></li>
+<li class="chapter" data-level="8.8.2" data-path="Chapter9.html"><a href="Chapter9.html#s9-8-2"><i class="fa fa-check"></i><b>8.8.2</b> Option 2 for prediction: Using the <code>inla.make.lincombs</code></a></li>
 </ul></li>
 <li class="chapter" data-level="8.9" data-path="Chapter9.html"><a href="Chapter9.html#multiple-random-effects"><i class="fa fa-check"></i><b>8.9</b> Multiple random effects</a></li>
 <li class="chapter" data-level="8.10" data-path="Chapter9.html"><a href="Chapter9.html#changin-prior-of-fixed-parameters"><i class="fa fa-check"></i><b>8.10</b> Changin prior of fixed parameters</a></li>
@@ -365,6 +365,13 @@ div.csl-indent {
 <li class="chapter" data-level="9.1.4" data-path="Chapter10.html"><a href="Chapter10.html#negative-binomial-glm-in-r-inla"><i class="fa fa-check"></i><b>9.1.4</b> Negative binomial GLM in R-INLA</a></li>
 <li class="chapter" data-level="9.1.5" data-path="Chapter10.html"><a href="Chapter10.html#model-selection-for-the-nb-glm"><i class="fa fa-check"></i><b>9.1.5</b> Model selection for the NB GLM</a></li>
 <li class="chapter" data-level="9.1.6" data-path="Chapter10.html"><a href="Chapter10.html#visualization-of-the-nb-glm"><i class="fa fa-check"></i><b>9.1.6</b> Visualization of the NB GLM</a></li>
+</ul></li>
+<li class="chapter" data-level="9.2" data-path="Chapter10.html"><a href="Chapter10.html#bernoulli-and-binomial-glm"><i class="fa fa-check"></i><b>9.2</b> Bernoulli and binomial GLM</a>
+<ul>
+<li class="chapter" data-level="9.2.1" data-path="Chapter10.html"><a href="Chapter10.html#bernoulli-glm"><i class="fa fa-check"></i><b>9.2.1</b> Bernoulli GLM</a></li>
+<li class="chapter" data-level="9.2.2" data-path="Chapter10.html"><a href="Chapter10.html#model-selection-with-the-marginal-likelihood"><i class="fa fa-check"></i><b>9.2.2</b> 10.2.2 Model selection with the marginal likelihood</a></li>
+<li class="chapter" data-level="9.2.3" data-path="Chapter10.html"><a href="Chapter10.html#binomial-glm"><i class="fa fa-check"></i><b>9.2.3</b> Binomial GLM</a></li>
+<li class="chapter" data-level="9.2.4" data-path="Chapter10.html"><a href="Chapter10.html#gamma-glm"><i class="fa fa-check"></i><b>9.2.4</b> Gamma GLM</a></li>
 </ul></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
@@ -711,8 +718,8 @@ div.csl-indent {
 <span id="cb235-15"><a href="Chapter9.html#cb235-15" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)</span></code></pre></div>
 <p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-169-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="option-2-for-prediction-using-the-inla.make.lincombs" class="section level3 hasAnchor" number="8.8.2">
-<h3><span class="header-section-number">8.8.2</span> Option 2 for prediction: Using the <code>inla.make.lincombs</code><a href="Chapter9.html#option-2-for-prediction-using-the-inla.make.lincombs" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<div id="s9-8-2" class="section level3 hasAnchor" number="8.8.2">
+<h3><span class="header-section-number">8.8.2</span> Option 2 for prediction: Using the <code>inla.make.lincombs</code><a href="Chapter9.html#s9-8-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>続いて、もう一つの方法を解説する。ここでは、<code>inla.make.limcombs</code>を使用する。先ほどと全く同じではないが似た結果が得られる。</p>
 <p>まず、1つ目の方法と同様に予測値が欲しい範囲の変数を格納したデータフレームを作る。ただし、このときランダム効果と応答変数は含めなくていい。</p>
 <div class="sourceCode" id="cb236"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb236-1"><a href="Chapter9.html#cb236-1" tabindex="-1"></a>newdata2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Sex =</span> <span class="fu">factor</span>(<span class="st">&quot;F&quot;</span>, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">&quot;F&quot;</span>, <span class="st">&quot;M&quot;</span>)), </span>

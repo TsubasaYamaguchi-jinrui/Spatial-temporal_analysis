@@ -509,4 +509,253 @@ data.frame(x = sum_E2_sim.nb) %>%
 ```
 
 ### Visualization of the NB GLM  
+以下では、結果の可視化を行う。なお、ここでは前章(\@ref(s9-8-2))で用いた`inla.make.lincoms`を用いる方法で実行する。  
 
+まずは予測値が欲しい範囲の変数を格納したデータフレームを作る。  
+```{r}
+newdata <- crossing(LT = seq(min(sp$LT), max(sp$LT),length =100),
+                    fLoc = c("1","2","3"))
+
+X <- model.matrix(~ LT*fLoc, data = newdata) %>% 
+  as.data.frame()
+```
+
+次に、`lincombs`オプションで`lcb`を指定してモデルを実行する。  
+```{r}
+lcb <- inla.make.lincombs(X)
+
+m10_6 <- inla(Totalparasites ~  LT*fLoc,
+              family = "nbinomial",
+              lincomb = lcb,
+              control.predictor = list(compute = TRUE),
+              control.compute = list(return.marginals.predictor = TRUE),
+              control.family = list(hyper = hyper.nb),
+              data = sp)
+```
+
+注意しなければならないのは、`m10_6$summary.lincomb.derived`などは線形予測子、つまり$log(\mu_i)$の事後分布についての情報を返してくるということだ。私たちは$\mu_i$の予測値が欲しいので、これを変換する必要がある。    
+```{r}
+m10_6$summary.lincomb.derived %>% 
+  head(10)
+```
+<br/>  
+
+以下のようにして変換して事後分布の要約統計量を算出する。    
+```{r}
+## 線形予測子の事後周辺分布  
+post_pred10_6 <- m10_6$marginals.lincomb.derived
+
+## 変換を行って要約統計量を計算
+
+## 95%確信区間
+ci.10_6 <- map_df(post_pred10_6, ~inla.qmarginal(c(0.025, 0.975),
+                                                 inla.tmarginal(exp,.))) %>% 
+  t() %>% 
+  as.data.frame() %>% 
+  rename(lower = 1, upper = 2)
+
+## 事後平均値  
+mean.10_6 <- map_df(post_pred10_6, ~inla.emarginal(exp,.)) %>% 
+  t() %>% 
+  as.data.frame() %>% 
+  rename(fitted = 1)
+```
+
+結果を図示したのが以下の図である。  
+```{r, fig.dim = c(14,4.5), fig.cap = "Posterior mean fitted values and 95% credible intervals."}
+## 作図  
+bind_cols(newdata, ci.10_6, mean.10_6) %>% 
+  mutate(fLoc = str_c("Location = ", fLoc)) %>% 
+  ggplot(aes(x = LT, y = fitted))+
+  geom_line()+
+  geom_ribbon(aes(ymin = lower, ymax = upper),
+              alpha = 0.2)+
+  geom_point(data = sp %>% 
+               mutate(fLoc = str_c("Location = ", fLoc)),
+             aes(y = Totalparasites),
+             shape = 1)+
+  facet_rep_wrap(~fLoc, repeat.tick.labels = TRUE)+
+  coord_cartesian(ylim = c(0,300))+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Total parasites")
+```
+
+## Bernoulli and binomial GLM  
+本節では、`INLA`でベルヌーイ分布と二項分布のモデルを実行する方法を学ぶ。  
+
+### Bernoulli GLM  
+ここでは、オーストラリアでワニに襲われた人の生死を分析した @Fukuda2015 のデータを用いる。襲われた場所(`Position`)、ワニと人間の体重の差(`DeltaWeight`)などの要因が生死(`Survival`)に与える影響が分析されている。    
+
+```{r}
+croco <- read_delim("data/Crocodiles.txt") 
+
+datatable(croco,
+          options = list(scrollX = 80),
+          filter = "top")
+```
+<br/>  
+
+ここでは、よりシンプルに考えるため体重差のみを説明変数に入れたモデルを考える。  
+$$
+\begin{aligned}
+&Survived_i \sim Bernoulli(\pi_i)\\
+&E(Survived_i) = \pi_i \; and \; var(Survived_i) = \pi_i \times (1-\pi_i)\\
+&logit(\pi_i) = log \Bigl(\frac{\pi_i}{1 - \pi_i} \Bigl) = \beta_1 + \beta_2 \times DeltaWeight_i 
+\end{aligned}
+$$
+
+Rでは以下のように実行する。応答変数は数字である必要がある。また、ベルヌーイ分布の場合は`Ntrials = 1`となる(なくても実行はできる)。  
+```{r}
+m10_7 <- inla(Survived01 ~ DeltaWeight,
+              data = croco,
+              family = "binomial",
+              control.predictor = list(compute = TRUE),
+              Ntrials = 1)
+```
+
+結果は以下の通り。  
+```{r}
+summary(m10_7)
+```
+
+この結果から、$\mu_i$は以下のように書ける。  
+$$
+\begin{aligned}
+logit(\pi_i) &= 2.70 -0.017 \times DeltaWeight_i \\
+ \therefore \pi_i &= \frac{exp(2.70 -0.017 \times DeltaWeight_i)}{1 + exp(2.70 -0.017 \times DeltaWeight_i)}
+\end{aligned}
+$$
+
+結果を可視化すると以下のようになる(図\@ref(fig:fitted-10-8))。 
+```{r fitted-10-8, fig.cap = "Fitted values of the Bernoulli model applied on the crocodile attack data."}
+newdata <- data.frame(DeltaWeight= seq(min(croco$DeltaWeight),max(croco$DeltaWeight),length = 100))
+Xmat <-  model.matrix(~ DeltaWeight,
+                      data = newdata)
+X <- as.data.frame(Xmat)
+lcb <- inla.make.lincombs(X)
+
+m10_8 <- inla(Survived01 ~ DeltaWeight,
+              data = croco,
+              lincomb = lcb,
+              family = "binomial",
+              control.predictor = list(compute = TRUE),
+              control.compute = list(return.marginals.predictor=TRUE),
+              Ntrials = 1)
+
+## 線形予測子の事後周辺分布  
+post_pred10_8 <- m10_8$marginals.lincomb.derived
+
+## 変換を行って要約統計量を計算
+
+## 95%確信区間
+myfun <- function(x) {exp(x)/(1+exp(x))}
+
+ci.10_8 <- map_df(post_pred10_8, ~inla.qmarginal(c(0.025, 0.975),
+                                                 inla.tmarginal(myfun,.))) %>% 
+  t() %>% 
+  as.data.frame() %>% 
+  rename(lower = 1, upper = 2)
+
+## 事後平均値  
+mean.10_8 <- map_df(post_pred10_8, ~inla.emarginal(myfun,.)) %>% 
+  t() %>% 
+  as.data.frame() %>% 
+  rename(fitted = 1)
+
+## 図示  
+bind_cols(newdata, mean.10_8, ci.10_8) %>% 
+  ggplot(aes(x = DeltaWeight, y = fitted))+
+  geom_line()+
+  geom_ribbon(aes(ymin = lower, ymax = upper),
+              alpha = 0.2)+
+  geom_point(data = croco ,
+             aes(y = Survived01),
+             shape = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Survived")
+
+summary(m10_7)
+```
+
+### 10.2.2 Model selection with the marginal likelihood  
+ここでは、**ベイズファクター(Bayes factor)**を用いてモデル比較を行う方法を解説する。ここで、2つのモデルがあるとしよう。1つ目は先ほど実行したモデルで、切片と体重差を含むモデル(`Model1`)、もう1つは切片のみを含むモデル(`Model2`)である。このとき、ベイズファクターは以下のように定義される。  
+
+$$
+\begin{aligned}
+\rm{Bayes} \; \rm{factor} &= \frac{Prob(Model1|D)}{Prob(Model2|D)} \\
+                          &= \frac{Prob(D|Model1)}{Prob(D|Model2)} \times \frac{Model1}{Model2}
+\end{aligned}                          
+$$
+
+周辺尤度$Prob(D|Model1)$と$Prob(D|Model2)$はそれに対数をとったものが`INLA`の結果で示されている(それぞれ-37.97と-54.43)。各モデルの事前確率$Prob(Model1), Prob(Model2)$は分からないが、何も知識がない状況ではどちらのモデルが正しいかはわからない(五分五分)なので、その比は$0.5/0.5 = 1$とする。  
+
+このとき、ベイズファクターは以下の値になる。この結果は、モデル1が正しい確率がモデル2が正しい確率よりもはるかに大きいことを示す。すなわち、体重差は生存に大きく影響しているといえる。    
+$$
+\begin{aligned}
+\rm{Bayes} \; \rm{factor} &= \frac{Prob(D|Model1)}{Prob(D|Model2)} \times \frac{Model1}{Model2}\\
+                          &= \frac{exp(-37.97)}{exp(-54.43)} \times 1\\
+                          &= 14076257
+\end{aligned}    
+$$
+
+過分散の診断を含むモデル診断も行う必要があるが、ここでは省略する。  
+
+### Binomial GLM  
+ここからは、商用のダニ駆除剤がミツバチへのダニの寄生に影響するかを調べたMaggi(unpublished data)のデータを用いる。4種類の駆除剤(`Toxic`)が異なる濃度(`Concentration`)で使用された24時間後に死亡したダニの数(`Dead_mites`)がバッチごとに記録されている。`Total`はもともといたダニの数を示す。  
+
+```{r}
+mite <- read_delim("data/Drugsmites.txt") %>% 
+  mutate(fToxic = as.factor(Toxic))
+
+datatable(mite,
+          options = list(scrollX = 80),
+          filter = "top")
+```
+<br/>  
+
+応答変数をバッチごとに死んだダニの割合(`Dead_mites`/`Total`)とする以下のモデルを考える。ただし、$N_i = Total_i$である。回帰係数は省略している。
+$$
+\begin{aligned}
+&Deadmites_i \sim Binomial(\pi_i, N_i)\\
+&E(Deadmites_i) = \pi_i \times N_i \; and \; var(Deadmites_i) = N_i \times \pi_i \times (1-\pi_i)\\
+&logit(\pi_i ) = Intercept + Concentration_i + Toxic_i + Concentration_i \times Toxic_i
+\end{aligned}
+$$
+
+Rでは以下のように実行する。  
+```{r}
+m10_9 <- inla(Dead_mites ~ Concentration*fToxic,
+              family = "binomial",
+              data = mite,
+              Ntrials = Total,
+              control.compute = list(waic = TRUE,
+                                     dic = TRUE),
+              control.predictor = list(compute = TRUE))
+```
+
+交互作用がないモデルとどちらが良いか確かめるためDICとWAICを用いたモデル選択を行う。結果、交互作用を含むモデルの方がよいことが分かった。  
+```{r}
+m10_10 <- inla(Dead_mites ~ Concentration + fToxic,
+              family = "binomial",
+              data = mite,
+              Ntrials = Total,
+              control.compute = list(waic = TRUE,
+                                     dic = TRUE),
+              control.predictor = list(compute = TRUE))
+
+waic.10 <- c(m10_9$waic$waic, m10_10$waic$waic)
+dic.10 <- c(m10_9$dic$dic, m10_10$dic$dic)
+
+data.frame(type = c("Full", "- Conc × Toxic"),
+           WAIC = waic.10,
+           DIC = dic.10) %>% 
+  column_to_rownames(var = "type")
+```
+<br/>  
+
+過分散の診断を含むモデル診断も行う必要があるが、ここでは省略する。  
+
+## Gamma GLM  
+ここでは、

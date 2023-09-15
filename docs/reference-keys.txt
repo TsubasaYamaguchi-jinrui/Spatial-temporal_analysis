@@ -59,6 +59,8 @@ fig:sp-scatter2
 fig:unnamed-chunk-197
 fig:od-nb
 fig:od-nb2
+fig:unnamed-chunk-211
+fig:fitted-10-8
 c2
 pseudoreplication
 疑似反復とは
@@ -174,7 +176,7 @@ model-validation-4
 model-selection-1
 model-interpretation
 option-1-for-prediction-adding-extra-data
-option-2-for-prediction-using-the-inla.make.lincombs
+s9-8-2
 multiple-random-effects
 changin-prior-of-fixed-parameters
 changing-priors-of-hyperparameters
@@ -189,3 +191,8 @@ bayesian-method-for-looking-for-overunder-dispersion
 negative-binomial-glm-in-r-inla
 model-selection-for-the-nb-glm
 visualization-of-the-nb-glm
+bernoulli-and-binomial-glm
+bernoulli-glm
+model-selection-with-the-marginal-likelihood
+binomial-glm
+gamma-glm

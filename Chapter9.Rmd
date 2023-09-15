@@ -339,7 +339,7 @@ fit9_2 %>%
   theme(aspect.ratio = 1)
 ```
 
-### Option 2 for prediction: Using the `inla.make.lincombs`  
+### Option 2 for prediction: Using the `inla.make.lincombs` {#s9-8-2}   
 続いて、もう一つの方法を解説する。ここでは、`inla.make.limcombs`を使用する。先ほどと全く同じではないが似た結果が得られる。  
 
 まず、1つ目の方法と同様に予測値が欲しい範囲の変数を格納したデータフレームを作る。ただし、このときランダム効果と応答変数は含めなくていい。  
