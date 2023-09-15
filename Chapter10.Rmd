@@ -1,0 +1,512 @@
+# Poisson, negative binomial, binomial and g amma GLMs in R-INLA  
+本章では、ポワソン分布、負の二項分布、二項分布、そしてガンマ分布の一般化線形モデル(GLM: generalized linea model)を`INLA`で行う方法を学ぶ。  
+
+## Poisson and negative binomial GLMs in R-INLA  
+### Introduction  
+本節では、ブラジルに生息するトラギスという魚の体表にいる寄生虫の数を分析した @Timi2008 の研究データを用いる。魚のサンプルはアルゼンチンの3つの海域で採集された(`Location`)。また、性別(`SEX`)、体長(`LT`)、重さ(`Weight`)、矢状長(`LS`)が測定されている。`Location`と`Sex`は因子型に変換しておく。    
+
+```{r}
+sp <- read_delim("data/Turcoparasitos.txt") %>% 
+  mutate(fSex = as.factor(SEX),
+         fLoc = as.factor(Location))
+
+datatable(sp,
+          options = list(scrollX = 20),
+          filter = "top")
+```
+<br/>  
+
+### Data exploration  
+まずはデータの確認を行う。変数のdotplotを見たところ、そこまで極端な外れ値はないよう。  
+
+```{r}
+sp %>% 
+  mutate(n = 1:n()) %>% 
+  pivot_longer(2:7) %>% 
+  ggplot(aes(x = value, y = n))+
+  geom_point()+
+  facet_rep_wrap(~name, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  labs(y = "Sample number")
+```
+<br/>  
+
+続いて、変数間の関係を確認してみる。体重と体長、矢状長はかなり強く相関しており、これらを同じモデルで使うのは望ましくない。本節では、体長のみを用いる。  
+```{r}
+sp %>% 
+  select(2:7) %>% 
+  ggpairs()
+```
+<br/>  
+
+図\@ref(fig:sp-scatter)は海域(`Location`)ごとに体長と寄生虫の数の関連をプロットしたものである。曲線はポワソン分布のGLMを当てはめたものである。明らかに海域によって傾向が違うことが分かる。つまり、モデルには**体長と海域の交互作用を入れる必要がある**。  
+
+```{r sp-scatter, fig.dim = c(14, 4.5), fig.cap = "Scatterplot of total number of parasites per fish plotted versus length of the fish. Each pane l corresponds to a location."}
+sp %>% 
+  ggplot(aes(x = LT, y = Totalparasites))+
+  geom_point(shape = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  facet_rep_wrap(~Location)+
+  geom_smooth(method = "glm", 
+              method.args = list(family = "poisson"))
+```
+<br/>  
+
+性別でも見てみたが、こちらはそこまで明確ではない(図\@ref(fig:sp-scatter2))。よって、性別については交互作用を考慮しないこととする。  
+```{r sp-scatter2, fig.dim = c(14, 4.5), fig.cap = "Scatterplot of total number of parasites per fish plotted versus length of the fish. Each pane l corresponds to sex."}
+sp %>% 
+  ggplot(aes(x = LT, y = Totalparasites))+
+  geom_point(shape = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  facet_rep_wrap(~ SEX)+
+  geom_smooth(method = "glm", 
+              method.args = list(family = "poisson"))
+```
+
+### Poisson GLM an R-INLA  
+以上から、以下のモデルを考える。$TP_i$は寄生虫の数である。なお、回帰係数は省いている。      
+
+$$
+\begin{aligned}
+&TP_i \sim Poisson(\mu_i) \\
+&E(TP_i) = \mu_i \; and \; var(TP_i) = \mu_i\\
+&log(\mu_i) = Intercept + Sex_i + LT_i + Location_i + LT_i \times Location_i
+\end{aligned}
+$$
+
+`INLA`では以下のように実行できる。  
+```{r}
+m10_1 <- inla(Totalparasites ~ fSex + LT*fLoc,
+              family = "poisson",
+              control.compute = list(dic = TRUE),
+              data = sp)
+```
+
+結果は以下の通り。  
+```{r}
+summary(m10_1)
+```
+
+この結果から、$log(\mu_i)$は以下のように書ける。  
+$$
+\begin{aligned}
+log(\mu_i) =
+\begin{cases}
+0.171 + 0.119 \times LT_i \;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\; \rm{for \; location = 1, Sex = 1}\\
+0.171 + 2.977 + (0.119 - 0.146) \times LT_i \;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\; \rm{for \; location = 2, Sex = 1}\\
+0.171 + 0.892 + (0.119 - 0.071) \times LT_i \;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\; \rm{for \; location = 3, Sex = 1}\\
+0.171 + 0.008 + 0.119 \times LT_i \;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\; \rm{for \; location = 1, Sex = 2}\\
+0.171 + 0.008 + 2.977 + (0.119 - 0.146) \times LT_i \;\;\;\; \rm{for \; location = 2, Sex = 2}\\
+0.171 + 0.008 + 0.892 + (0.119 - 0.071) \times LT_i \;\;\;\; \rm{for \; location = 3, Sex = 2}
+\end{cases}
+\end{aligned}
+$$
+
+#### Checking overdispersion  
+##### Calculating dispersion parameter  
+モデル選択やモデルの解釈に移る前に、まずはこのデータに対してポワソン分布が適切かを確認する。**過分散**の有無を確認するため、**分散パラメータ**を算出する。分散パラメータ$\phi$は以下のように計算できる。なお、$N$はサンプル数、$k$はパラメータ数である。もし$\phi$が1を超えていれば過分散が生じており、1以下であれば過少分散である。通常、$\phi = 1.5$くらいまでであれば問題ないと判断される[@Ohigashi2010]。       
+
+$$
+\begin{aligned}
+&E_i = \frac{TP_i - E(TP_i)}{\sqrt{var(TP_i)}}\\
+&\phi = \frac{\sum_{i=1}^k E_i^2}{N - k}
+\end{aligned}
+$$
+
+Rでは以下のように算出できる。分散パラメータは18.19であり、明らかに過分散が生じている。    
+```{r}
+mu <- m10_1$summary.fitted.values$mean
+E <- (sp$Totalparasites - mu)/sqrt(mu)
+
+N <- nrow(sp)
+p <- nrow(m10_1$summary.fixed)
+
+phi <- sum(E^2)/(N-p)
+
+phi
+```
+
+##### Bayesian method for looking for over/under-dispersion  
+ただし、ベイズモデリングの場合、事前分布が無情報ではない場合には分散パラメータがそのまま解釈できない可能性がある。そこで、ベイズモデリングでは異なる方法で確認を行う。  
+
+MCMCの場合には、各MCMCサンプルごとにデータをシミュレートして実データと比べることで過分散の検討を行える[@Zuur2016]。`INLA`ではMCMCをしていないので、事後分布から新たなデータをシミュレートし、これを実測値と比較することで過分散がないかを確認する。具体的には、以下の手順を行う。  
+
+1. `INLA`でGLMを実行する。  
+2. 事後分布から1セットの回帰係数$\beta_1, \dots, \beta_7$をサンプリングする。  
+3. サンプリングしたパラメータを用いて期待値$\bf{\mu} = exp(\bf{X} \times \bf{\beta})$を算出する。  
+4. 計算した期待値から`rpois`関数を用いてデータをシミュレートする。  
+5. シミュレートしたデータセットのピアソン残差($E_i$)を算出し、その平方和($\sum_i^N E_i^2$)を計算する。    
+6. 2から5を1000回繰り返す。  
+7. シミュレートしたデータセットのピアソン残差の平方和と実測値のピアソン残差の平方和を比較する。  
+
+シミュレートしたデータセットのピアソン残差の平方和の分布は、もしモデルが正しいときにそれに従うデータセットが持つピアソン残差の平方和の分布である。もし過分散/過少分散が生じているのであれば、実際のデータセットのピアソン残差の平方和がこの分布から外れた値をとるはずである。  
+
+それでは、実際に行ってみよう。事後分布からパラメータのサンプリングを行うには、`control.compute`オプションで`config = TRUE`とする必要がある。  
+```{r}
+m10_2 <- inla(Totalparasites ~ fSex + LT*fLoc,
+              family = "poisson",
+              control.compute = list(dic = TRUE,
+                                     config = TRUE),
+              data = sp)
+```
+
+それでは、パラメータの事後同時分布から1000セットのパラメータをサンプリングする(第\@ref(s8-5-5-2)節を参照)。  
+```{r}
+sim_param <- inla.posterior.sample(n = 1000, m10_2)
+```
+
+例えば1セット目にサンプリングされた値は以下の通り。なお、ここでは既にサンプリングしたパラメータを用いた期待値$\bf{\mu} = exp(\bf{X} \times \bf{\beta})$も算出されている(最初の155行)。最後の7行はサンプリングされたパラメータの値である。      
+```{r}
+sim_param[[1]]$latent %>% 
+  data.frame() %>% 
+  rename(mu = 1) %>% 
+  datatable()
+```
+<br/>  
+
+それでは、抽出した1000セットのパラメータを用いて1000個のデータセットをシミュレートする。  
+```{r}
+y_sim <- matrix(nrow = nrow(sp),
+                ncol = 1000)
+
+for(i in 1:1000){
+ y_sim[,i] <- rpois(n = nrow(sp), lambda = exp(sim_param[[i]]$latent[1:nrow(sp),])) 
+}
+```
+
+続いて、それぞれのデータセットについてピアソン残差の平方和を算出する。  
+```{r}
+sum_E2_sim <- vector()
+
+for(i in 1:1000){
+  E <- (y_sim[,i] - mu)/sqrt(mu)
+  sum_E2_sim[i] <- sum(E^2)
+}
+```
+
+さて、実際に得られた実測値のピアソン残差の平方和は以下の通り、2691.504であった。    
+```{r}
+E <-(sp$Totalparasites - mu)/sqrt(mu)
+sum_E2 <- sum(E^2)
+
+sum_E2
+```
+
+これをシミュレートしたデータセットのピアソン湾差の平方和と比べると、そのすべてよりも大きいことが分かった。すなわち、実データはデータが想定するよりも非常に大きなばらつきがあるといえる(= 過分散が生じている)。      
+```{r}
+mean(sum_E2 > sum_E2_sim)
+```
+
+これは、シミュレートしたでーらセットにおけるピアソン残差の平方和の分布をみても明らかである。モデルに従うのであれば、ピアソン残差の平方和はせいぜい100から300くらいの値しか取らない。  
+```{r, fig.cap = "シミュレートされたデータのピアソン残差の平方和の分布"}
+data.frame(x = sum_E2_sim) %>% 
+  ggplot(aes(x = x)) +
+  geom_histogram(binwidth = 5) +
+  theme_bw()+
+  theme(aspect.ratio = 0.8)
+```
+
+過分散はデータのばらつきがポワソン分布が仮定するよりも大きすぎるときのほかに、外れ値の影響や共変量を入れていないこと、交互作用がないことやリンク関数が間違っていること、非線形のパターンがあることやゼロ過剰、データの非独立性などが原因でも起きる。データをしっかりとみて原因に合った解決をしなくてはならない。  
+
+今回はゼロ過剰や外れ値の影響はなさそうである。また、予測値とピアソン残差の関係を見ても、明確にパターンがあるわけではなさそう。また、ピアソン残差と共変量の間にパターンもなく、応答変数と説明変数の間に非線形な関係があるというわけでもなさそう。    
+
+```{r}
+data.frame(resid = (sp$Totalparasites - mu)/sqrt(mu),
+           fitted = m10_2$summary.fitted.values$mean) %>% 
+  ggplot(aes(x = fitted, y = resid))+
+  geom_point()+
+  geom_hline(yintercept = 0,
+             linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "Fitted values",
+       y = "Pearson residuals")-> p1
+
+data.frame(resid = (sp$Totalparasites - mu)/sqrt(mu),
+           LT = sp$LT) %>% 
+  ggplot(aes(x = LT, y = resid))+
+  geom_point()+
+  geom_hline(yintercept = 0,
+             linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "LT",
+       y = "Pearson residuals")-> p2
+
+data.frame(resid = (sp$Totalparasites - mu)/sqrt(mu),
+           Loc = sp$fLoc,
+           Sex = sp$fSex) %>% 
+  pivot_longer(2:3) %>% 
+  ggplot(aes(x = value, y = resid))+
+  geom_boxplot()+
+  facet_rep_wrap(~name, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "",
+       y = "Pearson residuals")-> p3
+
+
+(p1 + p2)/p3
+```
+<br/>  
+
+そこで、本節では以下で負の二項分布を適用したもでリン負を行う。  
+
+### Negative binomial GLM in R-INLA  
+モデル式は以下のとおりである。$k$は負の二項分布の分散パラメータで、分布の分散を調整する。`INLA`では`size`パラメータと呼ばれる。      
+
+$$
+\begin{aligned}
+&TP_i \sim NegBinomial(\mu_i, k) \\
+&E(TP_i) = \mu_i \; and \; var(TP_i) = \mu_i + \frac{\mu_i^2}{k}\\
+&log(\mu_i) = Intercept + Sex_i + LT_i + Location_i + LT_i \times Location_i
+\end{aligned}
+$$
+
+`INLA`では以下のように実行する。  
+```{r}
+m10_3 <- inla(Totalparasites ~ fSex + LT*fLoc,
+              family = "nbinomial",
+              control.compute = list(dic = TRUE,
+                                     config = TRUE),
+              data = sp)
+```
+
+結果は以下の通り。ポワソンモデルのときと比べて、確信区間が全て広くなっている。  
+```{r}
+summary(m10_3)
+```
+
+`INLA`では`size`パラメータ$k$の事前分布は、$\theta = log(k)$の事前分布が$logGamma(1,0.1)$になるようになっている。$k$の事後平均値は1.56であった。事後分布は以下の通り。    
+
+```{r}
+m10_3$marginals.hyperpar$`size for the nbinomial observations (1/overdispersion)` %>% 
+  data.frame() %>% 
+  ggplot(aes(x = x, y = y))+
+  geom_area(fill = "lightblue")+
+  geom_line()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = expression(k),
+       y = expression(paste("Pr(",k,"|D)")))
+```
+<br/>  
+
+もし$k$の値を固定したいときは以下のようにすればよい。モデル選択をする際など$k$の値が変わると困る場合に用いればよい。  
+```{r}
+hyp.nb <- list(size = list(initial = 1,
+                           fixed = TRUE))
+
+m10_4 <- inla(Totalparasites ~ fSex + LT*fLoc,
+              family = "nbinomial",
+              control.compute = list(dic = TRUE,
+                                     config = TRUE),
+              control.family = list(hyper = hyp.nb),
+              data = sp)
+```
+
+以下では、ポワソン分布のときと同じように過分散のチェックを行う。確認の結果、シミュレーションによって得られたポワソン残差の平方和の分布と実際のポワソン残差の平方和を示したのが図\@ref(fig:od-nb)である。実際の平方和はシミュレーションの値の87%より大きいが、ポワソン分布に比べると過分散がかなり改善していることが分かった。  
+
+```{r od-nb, fig.cap = "シミュレートされたデータのピアソン残差の平方和の分布の実データのピアソン残差の平方和"}
+sim_param.nb <- inla.posterior.sample(n = 1000, m10_3)
+
+y_sim.nb <- matrix(nrow = nrow(sp),
+                   ncol = 1000)
+
+for(i in 1:1000){
+ y_sim.nb[,i] <- rnbinom(n = nrow(sp), 
+                      mu = exp(sim_param[[i]]$latent[1:nrow(sp),]),
+                      size = sim_param.nb[[i]]$hyperpar[[1]]) 
+}
+
+### シミュレートしたデータセットのピアソン残差の平方和
+sum_E2_sim.nb <- vector()
+mu <- m10_3$summary.fitted.values$mean
+k <- m10_3$summary.hyperpar$mean
+
+for(i in 1:1000){
+  E <- (y_sim.nb[,i] - mu)/sqrt(mu + mu^2/k)
+  sum_E2_sim.nb[i] <- sum(E^2)
+}
+
+### 実データのピアソン残差の平方和
+E <-(sp$Totalparasites - mu)/sqrt(mu + mu^2/k)
+sum_E2.nb <- sum(E^2)
+
+### 比較  
+p <- mean(sum_E2.nb > sum_E2_sim.nb)
+
+data.frame(x = sum_E2_sim.nb) %>% 
+  ggplot(aes(x = x)) +
+  geom_histogram(binwidth = 5) +
+  theme_bw()+
+  theme(aspect.ratio = 0.8) +
+  geom_vline(xintercept = sum_E2.nb,
+             color = "red2")+
+  geom_text(aes(x = 210, y = 60),
+            label = str_c("p = ", p))
+```
+
+### Model selection for the NB GLM  
+モデル選択は議論の多い話題ではあるが、以下ではひとまずDICとWAICによるモデル選択を行う。なお、比較のため$k$は先ほどのモデルで得られた値に固定する。ひとまず、1つずつ説明変数をなくした場合と比較を行う。  
+
+```{r}
+hyper.nb <- list(size = list(initial = k,
+                             fixed = TRUE))
+
+## フルモデル  
+m10_5 <- inla(Totalparasites ~ fSex + LT*fLoc,
+              family = "nbinomial",
+              control.compute = list(dic = TRUE,
+                                     waic = TRUE,
+                                     config = TRUE),
+              control.family = list(hyper = hyp.nb),
+              data = sp)
+
+## fSexなし  
+m10_5a <- inla(Totalparasites ~  LT*fLoc,
+              family = "nbinomial",
+              control.compute = list(dic = TRUE,
+                                     waic = TRUE,
+                                     config = TRUE),
+              control.family = list(hyper = hyp.nb),
+              data = sp)
+
+## 交互作用項なし
+m10_5b <- inla(Totalparasites ~  fSex + LT + fLoc,
+              family = "nbinomial",
+              control.compute = list(dic = TRUE,
+                                     waic = TRUE,
+                                     config = TRUE),
+              control.family = list(hyper = hyp.nb),
+              data = sp)
+```
+
+まずこれらの3つのモデルでDICとWAICを比較したところ、`fSex`がないモデルがどちらも最も低いことが分かった。  
+```{r}
+dic10_5 <- c(m10_5$dic$dic, m10_5a$dic$dic, m10_5b$dic$dic)
+waic10_5 <- c(m10_5$waic$waic, m10_5a$waic$waic, m10_5b$waic$waic)
+
+data.frame("type" = c("Full", "-fSex", "-LT × fLoc"),
+           DIC = dic10_5,
+           WAIC = waic10_5) %>% 
+  column_as_rownames(var = "type")
+```
+<br/>  
+
+最後に、ここから交互作用を除いたモデルと比較を行う。  
+```{r}
+m10_5c <- inla(Totalparasites ~  LT + fLoc,
+              family = "nbinomial",
+              control.compute = list(dic = TRUE,
+                                     waic = TRUE,
+                                     config = TRUE),
+              control.family = list(hyper = hyp.nb),
+              data = sp)
+```
+
+その結果、やはり交互作用を含むモデルの方がDICとWAICは低い。  
+```{r}
+dic10_5.2 <- c(m10_5a$dic$dic, m10_5c$dic$dic)
+waic10_5.2 <- c(m10_5a$waic$waic, m10_5c$waic$waic)
+
+data.frame("type" = c("Full", "-LT × fLoc"),
+           DIC = dic10_5.2,
+           WAIC = waic10_5.2) %>% 
+  column_as_rownames(var = "type")
+```
+<br/>  
+
+以上の結果は、`m10_5a`が最適なモデルであることを示唆している。このモデルの残差と予測値、残差と共変量の関連を示したのが図\@ref(fig:modelvalidation10.5a)である。パターンがあるように見えるが、 @Zuur2017 は問題がなかったと述べている。  
+
+```{r modelvalidation10.5a, fig.cap = "Model validation for m10_5a"}
+mu <- m10_5a$summary.fitted.values$mean
+k <- k
+resid <- (sp$Totalparasites - mu)/sqrt(mu + mu^2/k)
+
+data.frame(resid = resid,
+           fitted = mu) %>% 
+  ggplot(aes(x = fitted, y = resid))+
+  geom_point()+
+  geom_hline(yintercept = 0,
+             linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "Fitted values",
+       y = "Pearson residuals")-> p1
+
+data.frame(resid = resid,
+           LT = sp$LT) %>% 
+  ggplot(aes(x = LT, y = resid))+
+  geom_point()+
+  geom_hline(yintercept = 0,
+             linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "LT",
+       y = "Pearson residuals")-> p2
+
+data.frame(resid = resid,
+           Loc = sp$fLoc,
+           Sex = sp$fSex) %>% 
+  pivot_longer(2:3) %>% 
+  ggplot(aes(x = value, y = resid))+
+  geom_boxplot()+
+  facet_rep_wrap(~name, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "",
+       y = "Pearson residuals")-> p3
+
+
+(p1 + p2)/p3
+```
+<br/>  
+
+これまで同様に過分散のチェックも行ったが、大きな問題はないよう。  
+```{r od-nb2, fig.cap = "シミュレートされたデータのピアソン残差の平方和の分布の実データのピアソン残差の平方和"}
+sim_param.nb <- inla.posterior.sample(n = 1000, m10_5a)
+
+y_sim.nb <- matrix(nrow = nrow(sp),
+                   ncol = 1000)
+
+for(i in 1:1000){
+ y_sim.nb[,i] <- rnbinom(n = nrow(sp), 
+                      mu = exp(sim_param[[i]]$latent[1:nrow(sp),]),
+                      size = k)
+}
+
+### シミュレートしたデータセットのピアソン残差の平方和
+sum_E2_sim.nb <- vector()
+mu <- m10_5a$summary.fitted.values$mean
+k <- k
+
+for(i in 1:1000){
+  E <- (y_sim.nb[,i] - mu)/sqrt(mu + mu^2/k)
+  sum_E2_sim.nb[i] <- sum(E^2)
+}
+
+### 実データのピアソン残差の平方和
+E <-(sp$Totalparasites - mu)/sqrt(mu + mu^2/k)
+sum_E2.nb <- sum(E^2)
+
+### 比較  
+p <- mean(sum_E2.nb > sum_E2_sim.nb)
+
+data.frame(x = sum_E2_sim.nb) %>% 
+  ggplot(aes(x = x)) +
+  geom_histogram(binwidth = 5) +
+  theme_bw()+
+  theme(aspect.ratio = 0.8) +
+  geom_vline(xintercept = sum_E2.nb,
+             color = "red2")+
+  geom_text(aes(x = 210, y = 60),
+            label = str_c("p = ", p))
+```
+
+### Visualization of the NB GLM  
+

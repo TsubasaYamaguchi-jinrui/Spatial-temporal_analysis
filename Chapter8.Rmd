@@ -229,9 +229,9 @@ $$
 
 もし事前分布が無情報なのであればパラメータ数は知ることができるが、事前分布が情報を持っている場合、回帰係数がとりうる範囲は限定されるので、モデルの自由度やパラメータ数は変わってくる。すなわち、このような場合にはAICは適していない。  
 
-このようなときに使えるのが**DIC**である。DICは$\theta$を全てのパラメータを含むベクトル、$f(y|\theta)$を尤度、$D(\bar{\theta}) = -2 \times p(y|\bar{\theta})$をパラメータの期待値[^foot6]が与えられた時の逸脱度とするとき、以下のように定義される。    
+このようなときに使えるのが**DIC**である。DICは$\theta$を全てのパラメータを含むベクトル、$f(y|\theta)$を尤度、$D(\bar{\theta}) = -2 \times p(y|\bar{\theta})$をパラメータの期待値[^foot7]が与えられた時の逸脱度とするとき、以下のように定義される。    
 
-[^foot6]: `INLA`では、回帰係数$\beta$については事後分布の期待値(平均)、ハイパーパラメータについては事後分布の最頻値(モード)がDICの計算に使用される。  
+[^foot7]: `INLA`では、回帰係数$\beta$については事後分布の期待値(平均)、ハイパーパラメータについては事後分布の最頻値(モード)がDICの計算に使用される。  
 
 $$
 DIC = D(\bar{\theta}) + 2 \times p_D
@@ -411,7 +411,10 @@ sum(log(m8_3$cpo$cpo))
 ```
 
 ### Posterior predictive check  
-モデルの当てはまりをチェックする方法としては、モデルから**事後予測分布**を算出するというものである。事後予測分布は、モデルから推定された事後分布をもとに新たにデータを生成したときに、新たに得られるデータの予測分布のことである。`INLA`では以下のようにして容易に事後予測分布を計算できる。  
+モデルの当てはまりをチェックする方法としては、モデルから**事後予測分布**を算出するというものである。事後予測分布は、モデルから推定された事後分布をもとに新たにデータを生成したときに、新たに得られるデータの予測分布のことである。`INLA`では以下のようにして事後予測分布を計算できる。  
+
+#### Zuur (2017)の方法  
+> どうやら、以下は平均$\mu_i$の事後周辺分布を算出しているに過ぎないよう。事後予測分布ではない点に注意。よって、事後予測p値も間違っている。  
 
 ```{r}
 m8_4 <- inla(Z_Latency ~ Age + fSex + fColony + frear,
@@ -468,7 +471,6 @@ postpre_all %>%
                  scales = "free")
 ```
 
-
 事後予測分布をもとにモデルの当てはまりを評価するために、事後予測p値という値が考えられているようだ。これは、事後予測分布が実測値よりも小さい値をとる確率$Pr(Latency_i^* \le Latency_i|D)$で定義される。なお、$Latency_i^*$は事後予測分布の値である。事後予測p値が0や1に近い値が多いならば、このモデルの当てはまりは悪いということになる。  
 
 では、実際に算出してみる。図示すると、やはり0や1に近い値が多くてモデルの当てはまりが悪いことが分かる。    
@@ -489,6 +491,154 @@ data.frame(pval = pval) %>%
   theme_bw()+
   theme(aspect.ratio = 1)+
   scale_x_continuous(breaks = seq(0,1,0.1))
+```
+
+#### 正しい方法 {#s8-5-5-2}    
+> 以下、事後予測分布をシミュレーションによってサンプリングする方法を解説する。参考にしたのは[こちら](http://noserose.net/e/mmm3-blog/2018/03/17/posterior-predictive-in-inla/)と[こちら](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/http://www.leg.ufpr.br/~elias/cursos/montpellier2019/INLA_rinla.pdf)。    
+
+`INLA`パッケージでは、事後同時分布からランダムに値を抽出できる`inla.posterior.sample`関数が存在する。これを使用するためには、モデルを実行する際に`control.compute`オプションで`config = TRUE`とする必要がある。  
+
+```{r}
+m8_4b <- inla(Z_Latency ~ Age + fSex + fColony + frear,
+              family = "gaussian",
+              data = chimp,
+              control.compute = list(config = TRUE))
+```
+
+以下のようにして、事後同時分布からサンプルを抽出できる。  
+```{r}
+sim_jointpost <- inla.posterior.sample(n = 10000, m8_4b)
+```
+
+例えば、1つ目のサンプルは以下のようになる。ここには、事後同時分布からサンプルされた各パラメータの値と、そのときの各個体の期待値(予測値、$\mu_i$)の値が格納されている。 
+```{r}
+sim_jointpost[[1]]
+```
+
+例えば、1つ目のサンプルにおける243番目の個体の予測値とその時使用されたパラメータの値は以下のようになる。  
+```{r}
+tail(sim_jointpost[[1]]$latent, n = 7)
+```
+
+全個体について、予測値(期待値)とハイパーパラメータ$\tau$を10000サンプル分まとめる。  
+```{r}
+post_samples <- matrix(ncol = nrow(chimp),
+                       nrow = 10000)
+tau <- rep(NA, 10000)
+
+for(i in 1:10000){
+  for(j in 1:nrow(chimp)){
+  post_samples[i,j] <- sim_jointpost[[i]]$latent[j,1]
+  tau[i] <- sim_jointpost[[i]]$hyperpar[1]
+  }
+}
+```
+
+例えば、個体21について得られた予測値のサンプルの分布を描くと、図\@ref(fig:posterior21)Aのようになる。これは、`m8_4$marginal.fitted.values`で取得した分布(図\@ref(fig:posterior21)B)とほぼ一致する。このことからも、`m8_4$marginal.fitted.values`で取得されたのはやはり期待値$\mu_i$の事後分布であり、事後予測分布ではなかったことが分かる。  
+
+```{r posterior21, fig.cap = "Posterior distribution of the linear predictor of sample 21. A: siulation based, B: using `marginal.fitted.values`"}
+data.frame(x21 = post_samples[,21]) %>% 
+  ggplot(aes(x = x21))+
+  geom_density()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "Linear predictor of chimp 1",
+       y = "Density")+
+  coord_cartesian(xlim = c(-0.75, 0.15))+
+  labs(title = "Simulation based") -> p1
+
+m8_4$marginals.fitted.values[[1]] %>% 
+  data.frame() %>% 
+  ggplot(aes(x = x, y = y))+
+  geom_line()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "Linear predictor of chimp 1",
+       y = "Density")+
+  coord_cartesian(xlim = c(-0.75, 0.15))+
+  labs(title = "Using `marginal.fitted.values`") -> p2
+
+p1 + p2
+```
+<br/>  
+
+事後予測分布を得るためには、ここからさらに$\sigma$($\tau$)も入れたうえで正規分布からサンプリングを行う必要がある。以下のようにして、平均$\mu_i$、標準偏差$\sigma$の正規分布からサンプリングを行う。  
+
+```{r}
+y.sim <- matrix(ncol = nrow(chimp),
+                       nrow = 10000)
+
+for(j in 1:nrow(chimp)){
+  y.sim[,j] <- rnorm(10000, mean = post_samples[,j], sd = 1/sqrt(tau))
+}
+```
+
+得られた値は以下の通り(最初の10サンプルのみ表示)。  
+```{r}
+y.sim %>% 
+  data.frame() %>% 
+  head(10) %>% 
+  datatable(options = list(scrollX = 243))
+```
+<br/>  
+
+例えば、21番目の個体の事後予測分布は以下のようになる。当然だが、やはり期待値$\mu_i$の事後分布(図\@ref(fig:posterior21))よりも広い範囲の値をとる。    
+```{r}
+data.frame(x = y.sim[,21]) %>% 
+  ggplot(aes(x = x))+
+  geom_histogram(aes(y = ..density..),
+                 color = "black", alpha = 0)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "Posterior predictive samples of chimp 1",
+       y = "Density")
+```
+<br/>  
+
+全個体の95%予測区間(事後予測分布の95%区間)を算出し、それと実測値の関係を見てみよう。図示すると(図\@ref(fig:pi-chimp))、概ね実測値が95%予測区間の中に納まっているが、その範囲に入らないデータが6つあることが分かる。  
+```{r pi-chimp, fig.cap = "95% predictive interval and observed values.", fig.dim = c(14,7)}
+int_pre <- data.frame(id = 1:nrow(chimp),
+                      pi.lower = NA,
+                      pi.upper = NA)
+
+for(j in 1:nrow(chimp)){
+  int_pre[j,2] <- quantile(y.sim[,j], probs = 0.025)
+  int_pre[j,3] <- quantile(y.sim[,j], probs = 0.975)
+}
+
+int_pre %>% 
+  mutate(id2 = c(rep("1~61",61),rep("62~122",61), rep("123~183",61), rep("184~243",60))) %>% 
+  ggplot(aes(x = id))+
+  geom_errorbar(aes(ymin = pi.lower, ymax = pi.upper))+
+  geom_point(data = chimp %>% mutate(id = 1:n(),
+                                     id2 = c(rep("1~61",61),rep("62~122",61), rep("123~183",61), rep("184~243",60))),
+             aes(x = id, y = Z_Latency),
+             size = 1)+
+  theme(aspect.ratio = 0.5)+
+  facet_rep_wrap(~id2, repeat.tick.labels = TRUE,
+                 scales = "free")
+```
+<br/>  
+
+最後に事後予測p値を算出してヒストグラムを書く。わずかながら1にかなり近い値をとるデータがあり、当てはまりがあまり良いわけではないことが分かった。    
+```{r}
+pval <- NA
+
+for(j in 1:nrow(chimp)){
+pval[j] <- sum(y.sim[,j] <= chimp$Z_Latency[j])/nrow(y.sim) 
+}
+
+data.frame(pval = pval) %>% 
+  ggplot()+
+  geom_histogram(aes(x = pval),
+                 bins = 40,
+                 alpha = 0,
+                 color = "black")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  scale_x_continuous(breaks = seq(0,1,0.1))+
+  scale_y_continuous(breaks = seq(0,16,1))+
+  coord_cartesian(xlim = c(0,1))
 ```
 
 ## Visualizing the model {#s8-6}   

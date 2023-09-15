@@ -879,6 +879,8 @@ p1 + p2 + p3 + p4 + plot_layout(ncol = 2)
 `INLA`の詳しい使い方やそれを用いたモデリングについての詳しい解説は、以下の本が役に立つ。いずれも無料でオンラインで閲覧可能である。  
 
 - [Bayesian inference with INLA](https://becarioprecario.bitbucket.io/inla-gitbook/)  
+- [Bayesian Regression Modeling with INLA](https://julianfaraway.github.io/brinlabook/)[^foot6]    
 - [Advanced Spatial Modeling with Stochastic Partial Differential Equations Using R and INLA](https://becarioprecario.bitbucket.io/spde-gitbook/)  
-- [Dynamic Time Series Models using R-INLA: An Applied Perspective](https://ramanbala.github.io/dynamic-time-series-models-R-INLA/)   
+- [Dynamic Time Series Models using R-INLA: An Applied Perspective](https://ramanbala.github.io/dynamic-time-series-models-R-INLA/)  
 
+[^foot6]: この本では、`INLA`をサポートするパッケージとして`brinla`[パッケージ](https://github.com/julianfaraway/brinla/tree/master)が開発されている。関数の説明は[こちら](https://rdrr.io/github/julianfaraway/brinla/)。分析例は[こちら](https://github.com/julianfaraway/brinla/blob/master/docs/examples/index.md)  
