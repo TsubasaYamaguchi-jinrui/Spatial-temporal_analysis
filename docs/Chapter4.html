@@ -23,7 +23,7 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-16" />
+<meta name="date" content="2023-09-18" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -371,8 +371,31 @@ div.csl-indent {
 <li class="chapter" data-level="9.2.1" data-path="Chapter10.html"><a href="Chapter10.html#bernoulli-glm"><i class="fa fa-check"></i><b>9.2.1</b> Bernoulli GLM</a></li>
 <li class="chapter" data-level="9.2.2" data-path="Chapter10.html"><a href="Chapter10.html#model-selection-with-the-marginal-likelihood"><i class="fa fa-check"></i><b>9.2.2</b> 10.2.2 Model selection with the marginal likelihood</a></li>
 <li class="chapter" data-level="9.2.3" data-path="Chapter10.html"><a href="Chapter10.html#binomial-glm"><i class="fa fa-check"></i><b>9.2.3</b> Binomial GLM</a></li>
-<li class="chapter" data-level="9.2.4" data-path="Chapter10.html"><a href="Chapter10.html#gamma-glm"><i class="fa fa-check"></i><b>9.2.4</b> Gamma GLM</a></li>
 </ul></li>
+<li class="chapter" data-level="9.3" data-path="Chapter10.html"><a href="Chapter10.html#gamma-glm"><i class="fa fa-check"></i><b>9.3</b> Gamma GLM</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="Chapter11.html"><a href="Chapter11.html"><i class="fa fa-check"></i><b>10</b> Matern correlation and SPDE</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="Chapter11.html"><a href="Chapter11.html#continuous-gaussian-field"><i class="fa fa-check"></i><b>10.1</b> Continuous Gaussian field</a></li>
+<li class="chapter" data-level="10.2" data-path="Chapter11.html"><a href="Chapter11.html#models-that-we-have-in-mind"><i class="fa fa-check"></i><b>10.2</b> Models that we have in mind</a></li>
+<li class="chapter" data-level="10.3" data-path="Chapter11.html"><a href="Chapter11.html#matern-correlation"><i class="fa fa-check"></i><b>10.3</b> Matern correlation</a></li>
+<li class="chapter" data-level="10.4" data-path="Chapter11.html"><a href="Chapter11.html#spde-approach"><i class="fa fa-check"></i><b>10.4</b> SPDE approach</a>
+<ul>
+<li class="chapter" data-level="10.4.1" data-path="Chapter11.html"><a href="Chapter11.html#mesh"><i class="fa fa-check"></i><b>10.4.1</b> Mesh</a></li>
+<li class="chapter" data-level="10.4.2" data-path="Chapter11.html"><a href="Chapter11.html#finite-element-approach"><i class="fa fa-check"></i><b>10.4.2</b> Finite element approach</a></li>
+<li class="chapter" data-level="10.4.3" data-path="Chapter11.html"><a href="Chapter11.html#simulation-study-with-five-points"><i class="fa fa-check"></i><b>10.4.3</b> Simulation study with five points</a></li>
+</ul></li>
+<li class="chapter" data-level="10.5" data-path="Chapter11.html"><a href="Chapter11.html#weighting-factors-again"><i class="fa fa-check"></i><b>10.5</b> Weighting factors … again</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="Chapter12.html"><a href="Chapter12.html"><i class="fa fa-check"></i><b>11</b> Linear regression model with spatial dependency for the Irish pH data</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="Chapter12.html"><a href="Chapter12.html#introduction-2"><i class="fa fa-check"></i><b>11.1</b> Introduction</a></li>
+<li class="chapter" data-level="11.2" data-path="Chapter12.html"><a href="Chapter12.html#model-formulation-3"><i class="fa fa-check"></i><b>11.2</b> Model formulation</a></li>
+<li class="chapter" data-level="11.3" data-path="Chapter12.html"><a href="Chapter12.html#linear-regression-results"><i class="fa fa-check"></i><b>11.3</b> Linear regression results</a></li>
+<li class="chapter" data-level="11.4" data-path="Chapter12.html"><a href="Chapter12.html#model-validation-5"><i class="fa fa-check"></i><b>11.4</b> Model validation</a></li>
+<li class="chapter" data-level="11.5" data-path="Chapter12.html"><a href="Chapter12.html#adding-spatial-correlation-to-the-model"><i class="fa fa-check"></i><b>11.5</b> Adding spatial correlation to the model</a></li>
+<li class="chapter" data-level="11.6" data-path="Chapter12.html"><a href="Chapter12.html#defining-the-mesh-for-the-irish-ph-data"><i class="fa fa-check"></i><b>11.6</b> Defining the mesh for the Irish pH data</a></li>
+<li class="chapter" data-level="11.7" data-path="Chapter12.html"><a href="Chapter12.html#define-the-weight-factor-aik"><i class="fa fa-check"></i><b>11.7</b> Define the weight factor aik</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -399,7 +422,7 @@ div.csl-indent {
 <h2><span class="header-section-number">3.1</span> Variogram models for spatial dependency<a href="Chapter4.html#variogram-models-for-spatial-dependency" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>時系列データに対しては、異なる残差間の相関を以下のような関数<span class="math inline">\(h()\)</span>で定義した。</p>
 <p><span class="math display">\[
-h(\phi, \epsilon_t, \epsilon_ss) = \phi^{|t-s|}
+h(\phi, \epsilon_t, \epsilon_s) = \phi^{|t-s|}
 \]</span></p>
 <p>しかし、空間データに対して全く同じことをすることはできない。その代わり、残差のバリオグラムの形に応じて数学的モデルを選択し、それを用いて残差の分散共分散行列<span class="math inline">\(\bf{\Sigma}\)</span>を計算することになる。<code>nlme</code>パッケージには、<code>corExp</code>、<code>corSpher</code>、<code>corLin</code>、<code>corGaus</code>、<code>corRatio</code>など、残差の空間的なパターンをモデリングするための様々なモデルがある(これらは、カーネルとも呼ばれる)。それぞれのモデルは2つのパラメータを持つ。詳細な数学的表現については、<code>?corClasses</code>でヘルプを参照するか、 <span class="citation">Dale and Fortin (<a href="#ref-Dale2014">2014</a>)</span> や <span class="citation">村上 (<a href="#ref-Murakami2022">2022</a>)</span> を参照。</p>
 <p>例えば、指数バリオグラム(<code>corExp</code>)は以下のように定義される。なお、<span class="math inline">\(s\)</span>は2地点間の距離、<span class="math inline">\(\phi\)</span>はレンジ(range)と呼ばれるパラメータであり、自己相関がなくなるまでの距離を表す。<br />

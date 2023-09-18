@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>11 Linear regression model with spatial dependency for the Irish pH data | Introduction to spatial-temporal data anlysis using R</title>
+  <meta name="description" content="11 Linear regression model with spatial dependency for the Irish pH data | Introduction to spatial-temporal data anlysis using R" />
+  <meta name="generator" content="bookdown 0.35 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="11 Linear regression model with spatial dependency for the Irish pH data | Introduction to spatial-temporal data anlysis using R" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="11 Linear regression model with spatial dependency for the Irish pH data | Introduction to spatial-temporal data anlysis using R" />
+  
+  
+  
+
+<meta name="author" content="Tsubasa Yamaguchi" />
+
+
+<meta name="date" content="2023-09-18" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="Chapter11.html"/>
+<link rel="next" href="sessioninfo.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.27/datatables.js"></script>
+<link href="libs/dt-core-1.12.1/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.12.1/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.12.1/js/jquery.dataTables.min.js"></script>
+<link href="libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet" />
+<script src="libs/nouislider-7.0.10/jquery.nouislider.min.js"></script>
+<link href="libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet" />
+<script src="libs/selectize-0.12.0/selectize.min.js"></script>
+<link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="custom_style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>本稿の目的</a></li>
+<li class="chapter" data-level="" data-path="Chapter0.html"><a href="Chapter0.html"><i class="fa fa-check"></i>0. パッケージの読み込み</a></li>
+<li class="chapter" data-level="1" data-path="Chapter2.html"><a href="Chapter2.html"><i class="fa fa-check"></i><b>1</b> Recognizing statistical dependency</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="Chapter2.html"><a href="Chapter2.html#pseudoreplication"><i class="fa fa-check"></i><b>1.1</b> Pseudoreplication</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="Chapter2.html"><a href="Chapter2.html#疑似反復とは"><i class="fa fa-check"></i><b>1.1.1</b> 疑似反復とは</a></li>
+<li class="chapter" data-level="1.1.2" data-path="Chapter2.html"><a href="Chapter2.html#時空間的な疑似反復"><i class="fa fa-check"></i><b>1.1.2</b> 時空間的な疑似反復</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="Chapter2.html"><a href="Chapter2.html#s1-2"><i class="fa fa-check"></i><b>1.2</b> Linear regression applied to spatial data</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="Chapter2.html"><a href="Chapter2.html#visualization"><i class="fa fa-check"></i><b>1.2.1</b> Visualization</a></li>
+<li class="chapter" data-level="1.2.2" data-path="Chapter2.html"><a href="Chapter2.html#dependency"><i class="fa fa-check"></i><b>1.2.2</b> Dependency</a></li>
+<li class="chapter" data-level="1.2.3" data-path="Chapter2.html"><a href="Chapter2.html#fit-the-model"><i class="fa fa-check"></i><b>1.2.3</b> Fit the model</a></li>
+<li class="chapter" data-level="1.2.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation"><i class="fa fa-check"></i><b>1.2.4</b> Model validation</a>
+<ul>
+<li class="chapter" data-level="1.2.4.1" data-path="Chapter2.html"><a href="Chapter2.html#check-homogeinity-and-model-misfit"><i class="fa fa-check"></i><b>1.2.4.1</b> Check homogeinity and model misfit</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2.5" data-path="Chapter2.html"><a href="Chapter2.html#check-spatial-dependence"><i class="fa fa-check"></i><b>1.2.5</b> Check spatial dependence</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="Chapter2.html"><a href="Chapter2.html#s2-2"><i class="fa fa-check"></i><b>1.3</b> GAM applied to temporal data</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="Chapter2.html"><a href="Chapter2.html#subnivium-temperature-data"><i class="fa fa-check"></i><b>1.3.1</b> Subnivium temperature data</a></li>
+<li class="chapter" data-level="1.3.2" data-path="Chapter2.html"><a href="Chapter2.html#sources-of-dependency"><i class="fa fa-check"></i><b>1.3.2</b> Sources of dependency</a></li>
+<li class="chapter" data-level="1.3.3" data-path="Chapter2.html"><a href="Chapter2.html#the-model"><i class="fa fa-check"></i><b>1.3.3</b> The model</a></li>
+<li class="chapter" data-level="1.3.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation-1"><i class="fa fa-check"></i><b>1.3.4</b> Model validation</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="Chapter3.html"><a href="Chapter3.html"><i class="fa fa-check"></i><b>2</b> Time series and GLS</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="Chapter3.html"><a href="Chapter3.html#ospreys"><i class="fa fa-check"></i><b>2.1</b> Ospreys</a></li>
+<li class="chapter" data-level="2.2" data-path="Chapter3.html"><a href="Chapter3.html#covariance-and-correlation-coefficients"><i class="fa fa-check"></i><b>2.2</b> Covariance and correlation coefficients</a></li>
+<li class="chapter" data-level="2.3" data-path="Chapter3.html"><a href="Chapter3.html#linear-regression-models"><i class="fa fa-check"></i><b>2.3</b> Linear regression models</a></li>
+<li class="chapter" data-level="2.4" data-path="Chapter3.html"><a href="Chapter3.html#focusing-on-the-residual-covariance-matrix"><i class="fa fa-check"></i><b>2.4</b> Focusing on the residual covariance matrix</a></li>
+<li class="chapter" data-level="2.5" data-path="Chapter3.html"><a href="Chapter3.html#dependency-and-the-covariance-matrix"><i class="fa fa-check"></i><b>2.5</b> Dependency and the covariance matrix</a></li>
+<li class="chapter" data-level="2.6" data-path="Chapter3.html"><a href="Chapter3.html#dealing-with-temporal-dependency"><i class="fa fa-check"></i><b>2.6</b> Dealing with temporal dependency</a>
+<ul>
+<li class="chapter" data-level="2.6.1" data-path="Chapter3.html"><a href="Chapter3.html#adelie-penguins"><i class="fa fa-check"></i><b>2.6.1</b> Adelie penguins</a></li>
+<li class="chapter" data-level="2.6.2" data-path="Chapter3.html"><a href="Chapter3.html#do-we-have-dependency"><i class="fa fa-check"></i><b>2.6.2</b> Do we have dependency?</a></li>
+<li class="chapter" data-level="2.6.3" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.3</b> Formulation of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.4" data-path="Chapter3.html"><a href="Chapter3.html#application-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.4</b> Application of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.5" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-gls-model"><i class="fa fa-check"></i><b>2.6.5</b> Formulation of the GLS model</a></li>
+<li class="chapter" data-level="2.6.6" data-path="Chapter3.html"><a href="Chapter3.html#implementation-using-the-gls-function"><i class="fa fa-check"></i><b>2.6.6</b> Implementation using the gls function</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="Chapter3.html"><a href="Chapter3.html#multiple-time-series"><i class="fa fa-check"></i><b>2.7</b> Multiple time series</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="Chapter4.html"><a href="Chapter4.html"><i class="fa fa-check"></i><b>3</b> Spatial data and GLS</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="Chapter4.html"><a href="Chapter4.html#variogram-models-for-spatial-dependency"><i class="fa fa-check"></i><b>3.1</b> Variogram models for spatial dependency</a></li>
+<li class="chapter" data-level="3.2" data-path="Chapter4.html"><a href="Chapter4.html#application-on-the-irish-ph-data"><i class="fa fa-check"></i><b>3.2</b> Application on the Irish pH data</a></li>
+<li class="chapter" data-level="3.3" data-path="Chapter4.html"><a href="Chapter4.html#s4-3"><i class="fa fa-check"></i><b>3.3</b> Matern correlation function</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="Chapter5.html"><a href="Chapter5.html"><i class="fa fa-check"></i><b>4</b> Linear mixed-effects models and dependency</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="Chapter5.html"><a href="Chapter5.html#white-storks"><i class="fa fa-check"></i><b>4.1</b> White Storks</a></li>
+<li class="chapter" data-level="4.2" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-wrongly-as-one-way-nested"><i class="fa fa-check"></i><b>4.2</b> Considering the data (wrongly) as one-way nested</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="Chapter5.html"><a href="Chapter5.html#model-formulation"><i class="fa fa-check"></i><b>4.2.1</b> model formulation</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="Chapter5.html"><a href="Chapter5.html#fitting-the-one-way-nested-model-using-lmer"><i class="fa fa-check"></i><b>4.3</b> Fitting the one-way nested model using lmer</a></li>
+<li class="chapter" data-level="4.4" data-path="Chapter5.html"><a href="Chapter5.html#model-validation-2"><i class="fa fa-check"></i><b>4.4</b> Model validation</a></li>
+<li class="chapter" data-level="4.5" data-path="Chapter5.html"><a href="Chapter5.html#sketching-the-fitted-value"><i class="fa fa-check"></i><b>4.5</b> Sketching the fitted value</a></li>
+<li class="chapter" data-level="4.6" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-correctly-as-two-way-nested"><i class="fa fa-check"></i><b>4.6</b> Considering the data (correctly) as two-way nested</a></li>
+<li class="chapter" data-level="4.7" data-path="Chapter5.html"><a href="Chapter5.html#differences-with-the-ar1-process-approach"><i class="fa fa-check"></i><b>4.7</b> Differences with the AR1 process approach</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="Chapter6.html"><a href="Chapter6.html"><i class="fa fa-check"></i><b>5</b> Modelling space explicitly</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="Chapter6.html"><a href="Chapter6.html#model-formulation-1"><i class="fa fa-check"></i><b>5.1</b> Model formulation</a></li>
+<li class="chapter" data-level="5.2" data-path="Chapter6.html"><a href="Chapter6.html#s6-2"><i class="fa fa-check"></i><b>5.2</b> Covariance matrix of the spatial random effect</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study"><i class="fa fa-check"></i><b>5.2.1</b> Simulation study</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="Chapter6.html"><a href="Chapter6.html#spatial-temporal-correlation"><i class="fa fa-check"></i><b>5.3</b> Spatial-temporal correlation</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study-continued"><i class="fa fa-check"></i><b>5.3.1</b> Simulation study (continued)</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="Chapter7.html"><a href="Chapter7.html"><i class="fa fa-check"></i><b>6</b> Introduction to Bayesian statistics</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="Chapter7.html"><a href="Chapter7.html#why-go-bayesian"><i class="fa fa-check"></i><b>6.1</b> Why go Bayesian?</a></li>
+<li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#s7-2"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
+<li class="chapter" data-level="6.3" data-path="Chapter7.html"><a href="Chapter7.html#s7-3"><i class="fa fa-check"></i><b>6.3</b> The mean of a distribution</a></li>
+<li class="chapter" data-level="6.4" data-path="Chapter7.html"><a href="Chapter7.html#bayes-theorem-again"><i class="fa fa-check"></i><b>6.4</b> Bayes theorem again</a></li>
+<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#s7-5"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="Chapter7.html"><a href="Chapter7.html#likelihood-function"><i class="fa fa-check"></i><b>6.5.1</b> Likelihood function</a></li>
+<li class="chapter" data-level="6.5.2" data-path="Chapter7.html"><a href="Chapter7.html#priors"><i class="fa fa-check"></i><b>6.5.2</b> Priors</a></li>
+<li class="chapter" data-level="6.5.3" data-path="Chapter7.html"><a href="Chapter7.html#posterior-distribution"><i class="fa fa-check"></i><b>6.5.3</b> Posterior distribution</a></li>
+<li class="chapter" data-level="6.5.4" data-path="Chapter7.html"><a href="Chapter7.html#diffuse-prior"><i class="fa fa-check"></i><b>6.5.4</b> Diffuse prior</a></li>
+<li class="chapter" data-level="6.5.5" data-path="Chapter7.html"><a href="Chapter7.html#informative-prior"><i class="fa fa-check"></i><b>6.5.5</b> Informative prior</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="Chapter7.html"><a href="Chapter7.html#markov-chain-monte-carlo-simulation"><i class="fa fa-check"></i><b>6.6</b> Markov chain Monte Carlo simulation</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="Chapter7.html"><a href="Chapter7.html#underlying-idea"><i class="fa fa-check"></i><b>6.6.1</b> underlying idea</a></li>
+<li class="chapter" data-level="6.6.2" data-path="Chapter7.html"><a href="Chapter7.html#simple-example-of-mcmc-algorithm"><i class="fa fa-check"></i><b>6.6.2</b> Simple example of MCMC algorithm</a></li>
+<li class="chapter" data-level="6.6.3" data-path="Chapter7.html"><a href="Chapter7.html#methods-in-mcmc"><i class="fa fa-check"></i><b>6.6.3</b> Methods in MCMC</a></li>
+<li class="chapter" data-level="6.6.4" data-path="Chapter7.html"><a href="Chapter7.html#flowchart-for-running-a-model-in-stan"><i class="fa fa-check"></i><b>6.6.4</b> Flowchart for running a model in Stan</a>
+<ul>
+<li class="chapter" data-level="6.6.4.1" data-path="Chapter7.html"><a href="Chapter7.html#preparing-the-data-for-stan"><i class="fa fa-check"></i><b>6.6.4.1</b> Preparing the data for Stan</a></li>
+<li class="chapter" data-level="6.6.4.2" data-path="Chapter7.html"><a href="Chapter7.html#decide-model-formulation-and-priors"><i class="fa fa-check"></i><b>6.6.4.2</b> Decide model formulation and priors</a></li>
+<li class="chapter" data-level="6.6.4.3" data-path="Chapter7.html"><a href="Chapter7.html#preparing-stan-file"><i class="fa fa-check"></i><b>6.6.4.3</b> Preparing stan file</a></li>
+<li class="chapter" data-level="6.6.4.4" data-path="Chapter7.html"><a href="Chapter7.html#initial-values"><i class="fa fa-check"></i><b>6.6.4.4</b> Initial values</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6.5" data-path="Chapter7.html"><a href="Chapter7.html#running-model-in-stan"><i class="fa fa-check"></i><b>6.6.5</b> Running model in Stan</a></li>
+<li class="chapter" data-level="6.6.6" data-path="Chapter7.html"><a href="Chapter7.html#assess-mixing"><i class="fa fa-check"></i><b>6.6.6</b> Assess mixing</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="Chapter7.html"><a href="Chapter7.html#integrated-nested-laplace-approximation"><i class="fa fa-check"></i><b>6.7</b> Integrated nested Laplace approximation</a>
+<ul>
+<li class="chapter" data-level="6.7.1" data-path="Chapter7.html"><a href="Chapter7.html#joint-posterior-distribution"><i class="fa fa-check"></i><b>6.7.1</b> Joint posterior distribution</a></li>
+<li class="chapter" data-level="6.7.2" data-path="Chapter7.html"><a href="Chapter7.html#marginal-distributions"><i class="fa fa-check"></i><b>6.7.2</b> Marginal distributions</a></li>
+<li class="chapter" data-level="6.7.3" data-path="Chapter7.html"><a href="Chapter7.html#back-to-high-school"><i class="fa fa-check"></i><b>6.7.3</b> Back to high school</a></li>
+<li class="chapter" data-level="6.7.4" data-path="Chapter7.html"><a href="Chapter7.html#inla"><i class="fa fa-check"></i><b>6.7.4</b> INLA</a></li>
+</ul></li>
+<li class="chapter" data-level="6.8" data-path="Chapter7.html"><a href="Chapter7.html#examples-using-r-inla"><i class="fa fa-check"></i><b>6.8</b> Examples using R-INLA</a>
+<ul>
+<li class="chapter" data-level="6.8.1" data-path="Chapter7.html"><a href="Chapter7.html#s7-8-1"><i class="fa fa-check"></i><b>6.8.1</b> Posterior summary</a></li>
+<li class="chapter" data-level="6.8.2" data-path="Chapter7.html"><a href="Chapter7.html#posterior-marginal-distributions"><i class="fa fa-check"></i><b>6.8.2</b> Posterior marginal distributions</a></li>
+</ul></li>
+<li class="chapter" data-level="6.9" data-path="Chapter7.html"><a href="Chapter7.html#追記"><i class="fa fa-check"></i><b>6.9</b> 追記</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="Chapter8.html"><a href="Chapter8.html"><i class="fa fa-check"></i><b>7</b> Multiple linear regression in R-INLA</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="Chapter8.html"><a href="Chapter8.html#introduction"><i class="fa fa-check"></i><b>7.1</b> Introduction</a></li>
+<li class="chapter" data-level="7.2" data-path="Chapter8.html"><a href="Chapter8.html#data-exploration"><i class="fa fa-check"></i><b>7.2</b> Data exploration</a></li>
+<li class="chapter" data-level="7.3" data-path="Chapter8.html"><a href="Chapter8.html#linear-regression-result"><i class="fa fa-check"></i><b>7.3</b> Linear regression result</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="Chapter8.html"><a href="Chapter8.html#executing-the-model-in-rinla"><i class="fa fa-check"></i><b>7.3.1</b> Executing the model in R=INLA</a></li>
+<li class="chapter" data-level="7.3.2" data-path="Chapter8.html"><a href="Chapter8.html#output-for-betas"><i class="fa fa-check"></i><b>7.3.2</b> Output for betas</a>
+<ul>
+<li class="chapter" data-level="7.3.2.1" data-path="Chapter8.html"><a href="Chapter8.html#numerical-output-for-the-betas"><i class="fa fa-check"></i><b>7.3.2.1</b> Numerical output for the betas</a></li>
+<li class="chapter" data-level="7.3.2.2" data-path="Chapter8.html"><a href="Chapter8.html#graphical-output-for-the-betas"><i class="fa fa-check"></i><b>7.3.2.2</b> Graphical output for the betas</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3.3" data-path="Chapter8.html"><a href="Chapter8.html#output-for-hyperparameters"><i class="fa fa-check"></i><b>7.3.3</b> Output for hyperparameters</a>
+<ul>
+<li class="chapter" data-level="7.3.3.1" data-path="Chapter8.html"><a href="Chapter8.html#numerical-output-for-hyper-parameters"><i class="fa fa-check"></i><b>7.3.3.1</b> Numerical output for hyper parameters</a></li>
+<li class="chapter" data-level="7.3.3.2" data-path="Chapter8.html"><a href="Chapter8.html#graphical-output-for-the-hyperparameters"><i class="fa fa-check"></i><b>7.3.3.2</b> Graphical output for the hyperparameters</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3.4" data-path="Chapter8.html"><a href="Chapter8.html#fitted-model"><i class="fa fa-check"></i><b>7.3.4</b> Fitted model</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="Chapter8.html"><a href="Chapter8.html#model-validation-3"><i class="fa fa-check"></i><b>7.4</b> Model validation</a></li>
+<li class="chapter" data-level="7.5" data-path="Chapter8.html"><a href="Chapter8.html#model-selection"><i class="fa fa-check"></i><b>7.5</b> Model selection</a>
+<ul>
+<li class="chapter" data-level="7.5.1" data-path="Chapter8.html"><a href="Chapter8.html#what-should-we-do"><i class="fa fa-check"></i><b>7.5.1</b> What should we do?</a></li>
+<li class="chapter" data-level="7.5.2" data-path="Chapter8.html"><a href="Chapter8.html#usind-the-dic"><i class="fa fa-check"></i><b>7.5.2</b> Usind the DIC</a>
+<ul>
+<li class="chapter" data-level="7.5.2.1" data-path="Chapter8.html"><a href="Chapter8.html#effective-number-of-parameters"><i class="fa fa-check"></i><b>7.5.2.1</b> Effective number of parameters</a></li>
+<li class="chapter" data-level="7.5.2.2" data-path="Chapter8.html"><a href="Chapter8.html#dic-related-output"><i class="fa fa-check"></i><b>7.5.2.2</b> DIC related output</a></li>
+<li class="chapter" data-level="7.5.2.3" data-path="Chapter8.html"><a href="Chapter8.html#model-selection-using-dic"><i class="fa fa-check"></i><b>7.5.2.3</b> Model selection using DIC</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5.3" data-path="Chapter8.html"><a href="Chapter8.html#waic"><i class="fa fa-check"></i><b>7.5.3</b> WAIC</a></li>
+<li class="chapter" data-level="7.5.4" data-path="Chapter8.html"><a href="Chapter8.html#out-of-sample-prediction"><i class="fa fa-check"></i><b>7.5.4</b> Out of sample prediction</a></li>
+<li class="chapter" data-level="7.5.5" data-path="Chapter8.html"><a href="Chapter8.html#posterior-predictive-check"><i class="fa fa-check"></i><b>7.5.5</b> Posterior predictive check</a>
+<ul>
+<li class="chapter" data-level="7.5.5.1" data-path="Chapter8.html"><a href="Chapter8.html#zuur-2017の方法"><i class="fa fa-check"></i><b>7.5.5.1</b> Zuur (2017)の方法</a></li>
+<li class="chapter" data-level="7.5.5.2" data-path="Chapter8.html"><a href="Chapter8.html#s8-5-5-2"><i class="fa fa-check"></i><b>7.5.5.2</b> 正しい方法</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7.6" data-path="Chapter8.html"><a href="Chapter8.html#s8-6"><i class="fa fa-check"></i><b>7.6</b> Visualizing the model</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="Chapter9.html"><a href="Chapter9.html"><i class="fa fa-check"></i><b>8</b> Mixed effects modelling in R-INLA to analysis otolith data</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="Chapter9.html"><a href="Chapter9.html#otoliths-in-plaice"><i class="fa fa-check"></i><b>8.1</b> Otoliths in plaice</a></li>
+<li class="chapter" data-level="8.2" data-path="Chapter9.html"><a href="Chapter9.html#model-formulation-2"><i class="fa fa-check"></i><b>8.2</b> Model formulation</a></li>
+<li class="chapter" data-level="8.3" data-path="Chapter9.html"><a href="Chapter9.html#dependency-1"><i class="fa fa-check"></i><b>8.3</b> Dependency</a></li>
+<li class="chapter" data-level="8.4" data-path="Chapter9.html"><a href="Chapter9.html#data-exploration-1"><i class="fa fa-check"></i><b>8.4</b> Data exploration</a></li>
+<li class="chapter" data-level="8.5" data-path="Chapter9.html"><a href="Chapter9.html#running-the-model-in-r-inla"><i class="fa fa-check"></i><b>8.5</b> Running the model in R-INLA</a></li>
+<li class="chapter" data-level="8.6" data-path="Chapter9.html"><a href="Chapter9.html#model-validation-4"><i class="fa fa-check"></i><b>8.6</b> Model validation</a></li>
+<li class="chapter" data-level="8.7" data-path="Chapter9.html"><a href="Chapter9.html#model-selection-1"><i class="fa fa-check"></i><b>8.7</b> Model selection</a></li>
+<li class="chapter" data-level="8.8" data-path="Chapter9.html"><a href="Chapter9.html#model-interpretation"><i class="fa fa-check"></i><b>8.8</b> Model interpretation</a>
+<ul>
+<li class="chapter" data-level="8.8.1" data-path="Chapter9.html"><a href="Chapter9.html#option-1-for-prediction-adding-extra-data"><i class="fa fa-check"></i><b>8.8.1</b> Option 1 for prediction: Adding extra data</a></li>
+<li class="chapter" data-level="8.8.2" data-path="Chapter9.html"><a href="Chapter9.html#s9-8-2"><i class="fa fa-check"></i><b>8.8.2</b> Option 2 for prediction: Using the <code>inla.make.lincombs</code></a></li>
+</ul></li>
+<li class="chapter" data-level="8.9" data-path="Chapter9.html"><a href="Chapter9.html#multiple-random-effects"><i class="fa fa-check"></i><b>8.9</b> Multiple random effects</a></li>
+<li class="chapter" data-level="8.10" data-path="Chapter9.html"><a href="Chapter9.html#changin-prior-of-fixed-parameters"><i class="fa fa-check"></i><b>8.10</b> Changin prior of fixed parameters</a></li>
+<li class="chapter" data-level="8.11" data-path="Chapter9.html"><a href="Chapter9.html#changing-priors-of-hyperparameters"><i class="fa fa-check"></i><b>8.11</b> Changing priors of hyperparameters</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="Chapter10.html"><a href="Chapter10.html"><i class="fa fa-check"></i><b>9</b> Poisson, negative binomial, binomial and g amma GLMs in R-INLA</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="Chapter10.html"><a href="Chapter10.html#poisson-and-negative-binomial-glms-in-r-inla"><i class="fa fa-check"></i><b>9.1</b> Poisson and negative binomial GLMs in R-INLA</a>
+<ul>
+<li class="chapter" data-level="9.1.1" data-path="Chapter10.html"><a href="Chapter10.html#introduction-1"><i class="fa fa-check"></i><b>9.1.1</b> Introduction</a></li>
+<li class="chapter" data-level="9.1.2" data-path="Chapter10.html"><a href="Chapter10.html#data-exploration-2"><i class="fa fa-check"></i><b>9.1.2</b> Data exploration</a></li>
+<li class="chapter" data-level="9.1.3" data-path="Chapter10.html"><a href="Chapter10.html#poisson-glm-an-r-inla"><i class="fa fa-check"></i><b>9.1.3</b> Poisson GLM an R-INLA</a>
+<ul>
+<li class="chapter" data-level="9.1.3.1" data-path="Chapter10.html"><a href="Chapter10.html#checking-overdispersion"><i class="fa fa-check"></i><b>9.1.3.1</b> Checking overdispersion</a></li>
+</ul></li>
+<li class="chapter" data-level="9.1.4" data-path="Chapter10.html"><a href="Chapter10.html#negative-binomial-glm-in-r-inla"><i class="fa fa-check"></i><b>9.1.4</b> Negative binomial GLM in R-INLA</a></li>
+<li class="chapter" data-level="9.1.5" data-path="Chapter10.html"><a href="Chapter10.html#model-selection-for-the-nb-glm"><i class="fa fa-check"></i><b>9.1.5</b> Model selection for the NB GLM</a></li>
+<li class="chapter" data-level="9.1.6" data-path="Chapter10.html"><a href="Chapter10.html#visualization-of-the-nb-glm"><i class="fa fa-check"></i><b>9.1.6</b> Visualization of the NB GLM</a></li>
+</ul></li>
+<li class="chapter" data-level="9.2" data-path="Chapter10.html"><a href="Chapter10.html#bernoulli-and-binomial-glm"><i class="fa fa-check"></i><b>9.2</b> Bernoulli and binomial GLM</a>
+<ul>
+<li class="chapter" data-level="9.2.1" data-path="Chapter10.html"><a href="Chapter10.html#bernoulli-glm"><i class="fa fa-check"></i><b>9.2.1</b> Bernoulli GLM</a></li>
+<li class="chapter" data-level="9.2.2" data-path="Chapter10.html"><a href="Chapter10.html#model-selection-with-the-marginal-likelihood"><i class="fa fa-check"></i><b>9.2.2</b> 10.2.2 Model selection with the marginal likelihood</a></li>
+<li class="chapter" data-level="9.2.3" data-path="Chapter10.html"><a href="Chapter10.html#binomial-glm"><i class="fa fa-check"></i><b>9.2.3</b> Binomial GLM</a></li>
+</ul></li>
+<li class="chapter" data-level="9.3" data-path="Chapter10.html"><a href="Chapter10.html#gamma-glm"><i class="fa fa-check"></i><b>9.3</b> Gamma GLM</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="Chapter11.html"><a href="Chapter11.html"><i class="fa fa-check"></i><b>10</b> Matern correlation and SPDE</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="Chapter11.html"><a href="Chapter11.html#continuous-gaussian-field"><i class="fa fa-check"></i><b>10.1</b> Continuous Gaussian field</a></li>
+<li class="chapter" data-level="10.2" data-path="Chapter11.html"><a href="Chapter11.html#models-that-we-have-in-mind"><i class="fa fa-check"></i><b>10.2</b> Models that we have in mind</a></li>
+<li class="chapter" data-level="10.3" data-path="Chapter11.html"><a href="Chapter11.html#matern-correlation"><i class="fa fa-check"></i><b>10.3</b> Matern correlation</a></li>
+<li class="chapter" data-level="10.4" data-path="Chapter11.html"><a href="Chapter11.html#spde-approach"><i class="fa fa-check"></i><b>10.4</b> SPDE approach</a>
+<ul>
+<li class="chapter" data-level="10.4.1" data-path="Chapter11.html"><a href="Chapter11.html#mesh"><i class="fa fa-check"></i><b>10.4.1</b> Mesh</a></li>
+<li class="chapter" data-level="10.4.2" data-path="Chapter11.html"><a href="Chapter11.html#finite-element-approach"><i class="fa fa-check"></i><b>10.4.2</b> Finite element approach</a></li>
+<li class="chapter" data-level="10.4.3" data-path="Chapter11.html"><a href="Chapter11.html#simulation-study-with-five-points"><i class="fa fa-check"></i><b>10.4.3</b> Simulation study with five points</a></li>
+</ul></li>
+<li class="chapter" data-level="10.5" data-path="Chapter11.html"><a href="Chapter11.html#weighting-factors-again"><i class="fa fa-check"></i><b>10.5</b> Weighting factors … again</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="Chapter12.html"><a href="Chapter12.html"><i class="fa fa-check"></i><b>11</b> Linear regression model with spatial dependency for the Irish pH data</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="Chapter12.html"><a href="Chapter12.html#introduction-2"><i class="fa fa-check"></i><b>11.1</b> Introduction</a></li>
+<li class="chapter" data-level="11.2" data-path="Chapter12.html"><a href="Chapter12.html#model-formulation-3"><i class="fa fa-check"></i><b>11.2</b> Model formulation</a></li>
+<li class="chapter" data-level="11.3" data-path="Chapter12.html"><a href="Chapter12.html#linear-regression-results"><i class="fa fa-check"></i><b>11.3</b> Linear regression results</a></li>
+<li class="chapter" data-level="11.4" data-path="Chapter12.html"><a href="Chapter12.html#model-validation-5"><i class="fa fa-check"></i><b>11.4</b> Model validation</a></li>
+<li class="chapter" data-level="11.5" data-path="Chapter12.html"><a href="Chapter12.html#adding-spatial-correlation-to-the-model"><i class="fa fa-check"></i><b>11.5</b> Adding spatial correlation to the model</a></li>
+<li class="chapter" data-level="11.6" data-path="Chapter12.html"><a href="Chapter12.html#defining-the-mesh-for-the-irish-ph-data"><i class="fa fa-check"></i><b>11.6</b> Defining the mesh for the Irish pH data</a></li>
+<li class="chapter" data-level="11.7" data-path="Chapter12.html"><a href="Chapter12.html#define-the-weight-factor-aik"><i class="fa fa-check"></i><b>11.7</b> Define the weight factor aik</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to spatial-temporal data anlysis using R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="linear-regression-model-with-spatial-dependency-for-the-irish-ph-data" class="section level1 hasAnchor" number="11">
+<h1><span class="header-section-number">11</span> Linear regression model with spatial dependency for the Irish pH data<a href="Chapter12.html#linear-regression-model-with-spatial-dependency-for-the-irish-ph-data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>本章では、前章で学んだ手法を実際の空間データに適用して分析を行う。</p>
+<div id="introduction-2" class="section level2 hasAnchor" number="11.1">
+<h2><span class="header-section-number">11.1</span> Introduction<a href="Chapter12.html#introduction-2" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>用いるのは第<a href="Chapter2.html#c2">1</a>章で用いた、アイルランドの257の川において、川の<code>pH</code>が<code>SDI</code>(Sodium Dominance Index; 陽イオン中のナトリウムイオン)と関連しているかを、緯度(<code>Altitude</code>)やその場所が森林化されているか(<code>Forested</code>)も考慮したうえで調べた <span class="citation">Cruikshanks et al. (<a href="#ref-Cruikshanks2006">2006</a>)</span> のデータである。第<a href="Chapter2.html#c2">1</a>章では、地理的に近いデータほど類似しており、疑似反復の問題を避けるためには空間的相関を考慮したモデルを適用する必要があることを確認した。</p>
+</div>
+<div id="model-formulation-3" class="section level2 hasAnchor" number="11.2">
+<h2><span class="header-section-number">11.2</span> Model formulation<a href="Chapter12.html#model-formulation-3" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>まず、空間的な相関を考慮しないモデルとして以下のモデルを考える。2-way interaction と 3-way interactionをすべて含んでいる。</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;pH_i \sim N(\mu_i, \sigma^2)\\
+&amp;E(pH_i) = \mu_i \; and \; var(pH_i) = \sigma^2\\
+&amp;\mu_i = \alpha + \beta_1 \times SDI_i + \beta_2 \times logAltitude_i + \beta_3 + Forested_i \\
+&amp; \;\;\;\;\;\;\;\; + \beta_4 \times SDI_i \times LogAltitude_i + \beta_5 \times SDI_i \times Forested_i + \\
+&amp; \;\;\;\;\;\;\;\; + \beta_6 \times LogAltitude_i \times Forested_i \\
+&amp; \;\;\;\;\;\;\;\; + \beta_7 \times LogAltitude_i \times Forested_i
+\end{aligned}
+\]</span></p>
+</div>
+<div id="linear-regression-results" class="section level2 hasAnchor" number="11.3">
+<h2><span class="header-section-number">11.3</span> Linear regression results<a href="Chapter12.html#linear-regression-results" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>それでは、<code>INLA</code>で上記のモデルを実行する。</p>
+<div class="sourceCode" id="cb319"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb319-1"><a href="Chapter12.html#cb319-1" tabindex="-1"></a>iph <span class="sc">%&gt;%</span> </span>
+<span id="cb319-2"><a href="Chapter12.html#cb319-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logAlt =</span> <span class="fu">log10</span>(Altitude)) <span class="ot">-&gt;</span> iph</span>
+<span id="cb319-3"><a href="Chapter12.html#cb319-3" tabindex="-1"></a></span>
+<span id="cb319-4"><a href="Chapter12.html#cb319-4" tabindex="-1"></a>m12_1 <span class="ot">&lt;-</span> <span class="fu">inla</span>(pH <span class="sc">~</span> logAlt<span class="sc">*</span>SDI<span class="sc">*</span>fForested,</span>
+<span id="cb319-5"><a href="Chapter12.html#cb319-5" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb319-6"><a href="Chapter12.html#cb319-6" tabindex="-1"></a>              <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">compute =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb319-7"><a href="Chapter12.html#cb319-7" tabindex="-1"></a>              <span class="at">data =</span> iph)</span></code></pre></div>
+<p>結果は以下の通り。3-way interactionは95%確信区間に0を含んでおり、</p>
+<div class="sourceCode" id="cb320"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb320-1"><a href="Chapter12.html#cb320-1" tabindex="-1"></a>m12_1<span class="sc">$</span>summary.fixed <span class="sc">%&gt;%</span> </span>
+<span id="cb320-2"><a href="Chapter12.html#cb320-2" tabindex="-1"></a>  <span class="fu">select</span>(mean, sd, <span class="st">&quot;0.025quant&quot;</span>, <span class="st">&quot;0.975quant&quot;</span>)</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["mean"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["sd"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["0.025quant"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["0.975quant"],"name":[4],"type":["dbl"],"align":["right"]}],"data":[{"1":"8.251961408","2":"0.764594876","3":"6.75097836","4":"9.752981404","_rn_":"(Intercept)"},{"1":"0.105519318","2":"0.390053867","3":"-0.66021775","4":"0.871237590","_rn_":"logAlt"},{"1":"-0.028039422","2":"0.017161281","3":"-0.06172970","4":"0.005650075","_rn_":"SDI"},{"1":"1.785039908","2":"2.062506142","3":"-2.26402934","4":"5.833847933","_rn_":"fForestedyes"},{"1":"0.001777926","2":"0.008600042","3":"-0.01510491","4":"0.018661153","_rn_":"logAlt:SDI"},{"1":"-0.880867657","2":"1.008174320","3":"-2.85996723","4":"1.098359165","_rn_":"logAlt:fForestedyes"},{"1":"-0.008004224","2":"0.036972846","3":"-0.08058400","4":"0.064580069","_rn_":"SDI:fForestedyes"},{"1":"0.003493397","2":"0.017871602","3":"-0.03159175","4":"0.038576352","_rn_":"logAlt:SDI:fForestedyes"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p><br/></p>
+<p>ハイパーパラメータの要約統計量は以下の通り。ここでは、<span class="math inline">\(\sigma\)</span>について情報を算出した。</p>
+<div class="sourceCode" id="cb321"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb321-1"><a href="Chapter12.html#cb321-1" tabindex="-1"></a>tau <span class="ot">&lt;-</span> m12_1<span class="sc">$</span>marginals.hyperpar<span class="sc">$</span><span class="st">`</span><span class="at">Precision for the Gaussian observations</span><span class="st">`</span></span>
+<span id="cb321-2"><a href="Chapter12.html#cb321-2" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="fu">inla.tmarginal</span>(<span class="cf">function</span>(x) <span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(x), tau)</span>
+<span id="cb321-3"><a href="Chapter12.html#cb321-3" tabindex="-1"></a></span>
+<span id="cb321-4"><a href="Chapter12.html#cb321-4" tabindex="-1"></a>sigma_summary <span class="ot">&lt;-</span> <span class="fu">inla.qmarginal</span>(<span class="at">p =</span> <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span>), sigma) <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> <span class="fu">t</span>()</span>
+<span id="cb321-5"><a href="Chapter12.html#cb321-5" tabindex="-1"></a><span class="fu">colnames</span>(sigma_summary) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;0.025quant&quot;</span>, <span class="st">&quot;0.5quant&quot;</span>, <span class="st">&quot;0.975quant&quot;</span>)</span>
+<span id="cb321-6"><a href="Chapter12.html#cb321-6" tabindex="-1"></a></span>
+<span id="cb321-7"><a href="Chapter12.html#cb321-7" tabindex="-1"></a>sigma_summary</span></code></pre></div>
+<pre><code>##   0.025quant  0.5quant 0.975quant
+## .  0.3408095 0.3743001  0.4136209</code></pre>
+</div>
+<div id="model-validation-5" class="section level2 hasAnchor" number="11.4">
+<h2><span class="header-section-number">11.4</span> Model validation<a href="Chapter12.html#model-validation-5" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>続いて、モデル診断を行う。</p>
+<p>まず、残差と予測値、残差と共変量の関係を調べたら問題はなかった。これは第<a href="Chapter2.html#c2">1</a>と一緒である。</p>
+<div class="sourceCode" id="cb323"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb323-1"><a href="Chapter12.html#cb323-1" tabindex="-1"></a>fitted <span class="ot">&lt;-</span> m12_1<span class="sc">$</span>summary.fitted.values<span class="sc">$</span>mean</span>
+<span id="cb323-2"><a href="Chapter12.html#cb323-2" tabindex="-1"></a>resid <span class="ot">&lt;-</span> iph<span class="sc">$</span>pH <span class="sc">-</span> fitted</span>
+<span id="cb323-3"><a href="Chapter12.html#cb323-3" tabindex="-1"></a></span>
+<span id="cb323-4"><a href="Chapter12.html#cb323-4" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">fitted =</span> fitted,</span>
+<span id="cb323-5"><a href="Chapter12.html#cb323-5" tabindex="-1"></a>           <span class="at">resid =</span> resid) <span class="sc">%&gt;%</span> </span>
+<span id="cb323-6"><a href="Chapter12.html#cb323-6" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> fitted, <span class="at">y =</span> resid))<span class="sc">+</span></span>
+<span id="cb323-7"><a href="Chapter12.html#cb323-7" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb323-8"><a href="Chapter12.html#cb323-8" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb323-9"><a href="Chapter12.html#cb323-9" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb323-10"><a href="Chapter12.html#cb323-10" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb323-11"><a href="Chapter12.html#cb323-11" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">&quot;Fitted values&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Residuals&quot;</span>) <span class="ot">-&gt;</span> p1</span>
+<span id="cb323-12"><a href="Chapter12.html#cb323-12" tabindex="-1"></a></span>
+<span id="cb323-13"><a href="Chapter12.html#cb323-13" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">SDI =</span> iph<span class="sc">$</span>SDI,</span>
+<span id="cb323-14"><a href="Chapter12.html#cb323-14" tabindex="-1"></a>           <span class="at">resid =</span> resid) <span class="sc">%&gt;%</span> </span>
+<span id="cb323-15"><a href="Chapter12.html#cb323-15" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> SDI, <span class="at">y =</span> resid))<span class="sc">+</span></span>
+<span id="cb323-16"><a href="Chapter12.html#cb323-16" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb323-17"><a href="Chapter12.html#cb323-17" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb323-18"><a href="Chapter12.html#cb323-18" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb323-19"><a href="Chapter12.html#cb323-19" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb323-20"><a href="Chapter12.html#cb323-20" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">&quot;SDI&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Residuals&quot;</span>) <span class="ot">-&gt;</span> p2</span>
+<span id="cb323-21"><a href="Chapter12.html#cb323-21" tabindex="-1"></a></span>
+<span id="cb323-22"><a href="Chapter12.html#cb323-22" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">SDI =</span> iph<span class="sc">$</span>logAlt,</span>
+<span id="cb323-23"><a href="Chapter12.html#cb323-23" tabindex="-1"></a>           <span class="at">resid =</span> resid) <span class="sc">%&gt;%</span> </span>
+<span id="cb323-24"><a href="Chapter12.html#cb323-24" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> SDI, <span class="at">y =</span> resid))<span class="sc">+</span></span>
+<span id="cb323-25"><a href="Chapter12.html#cb323-25" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb323-26"><a href="Chapter12.html#cb323-26" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb323-27"><a href="Chapter12.html#cb323-27" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb323-28"><a href="Chapter12.html#cb323-28" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb323-29"><a href="Chapter12.html#cb323-29" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">&quot;Log(Altitude)&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Residuals&quot;</span>) <span class="ot">-&gt;</span> p3</span>
+<span id="cb323-30"><a href="Chapter12.html#cb323-30" tabindex="-1"></a></span>
+<span id="cb323-31"><a href="Chapter12.html#cb323-31" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">forested =</span> iph<span class="sc">$</span>fForested,</span>
+<span id="cb323-32"><a href="Chapter12.html#cb323-32" tabindex="-1"></a>           <span class="at">resid =</span> resid) <span class="sc">%&gt;%</span> </span>
+<span id="cb323-33"><a href="Chapter12.html#cb323-33" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> forested, <span class="at">y =</span> resid))<span class="sc">+</span></span>
+<span id="cb323-34"><a href="Chapter12.html#cb323-34" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>()<span class="sc">+</span></span>
+<span id="cb323-35"><a href="Chapter12.html#cb323-35" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb323-36"><a href="Chapter12.html#cb323-36" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb323-37"><a href="Chapter12.html#cb323-37" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">&quot;Forested&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Residuals&quot;</span>) <span class="ot">-&gt;</span> p4</span>
+<span id="cb323-38"><a href="Chapter12.html#cb323-38" tabindex="-1"></a></span>
+<span id="cb323-39"><a href="Chapter12.html#cb323-39" tabindex="-1"></a>(p1 <span class="sc">+</span> p2)<span class="sc">/</span>(p3<span class="sc">+</span>p4)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-234-1.png" width="672" style="display: block; margin: auto;" />
+<br/></p>
+<p>続いて、バリオグラムを確認する。第<a href="Chapter2.html#c2">1</a>章で確認したときと同様、やはり空間的な相関が存在することがわかる。</p>
+<div class="sourceCode" id="cb324"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb324-1"><a href="Chapter12.html#cb324-1" tabindex="-1"></a>vario_12_1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">resid =</span> resid,</span>
+<span id="cb324-2"><a href="Chapter12.html#cb324-2" tabindex="-1"></a>                        <span class="at">Easting.km =</span> iph<span class="sc">$</span>Easting<span class="sc">/</span><span class="dv">1000</span>,</span>
+<span id="cb324-3"><a href="Chapter12.html#cb324-3" tabindex="-1"></a>                        <span class="at">Northing.km =</span> iph<span class="sc">$</span>Northing<span class="sc">/</span><span class="dv">1000</span>)</span>
+<span id="cb324-4"><a href="Chapter12.html#cb324-4" tabindex="-1"></a></span>
+<span id="cb324-5"><a href="Chapter12.html#cb324-5" tabindex="-1"></a>sp<span class="sc">::</span><span class="fu">coordinates</span>(vario_12_1) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Easting.km&quot;</span>, <span class="st">&quot;Northing.km&quot;</span>)</span>
+<span id="cb324-6"><a href="Chapter12.html#cb324-6" tabindex="-1"></a></span>
+<span id="cb324-7"><a href="Chapter12.html#cb324-7" tabindex="-1"></a>vario_12_1 <span class="sc">%&gt;%</span> </span>
+<span id="cb324-8"><a href="Chapter12.html#cb324-8" tabindex="-1"></a>  <span class="fu">variogram</span>(resid <span class="sc">~</span> Easting.km <span class="sc">+</span> Northing.km, <span class="at">data =</span> .,</span>
+<span id="cb324-9"><a href="Chapter12.html#cb324-9" tabindex="-1"></a>            <span class="do">## 0が南北方向、90が東西方向</span></span>
+<span id="cb324-10"><a href="Chapter12.html#cb324-10" tabindex="-1"></a>            <span class="at">alpha =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">90</span>),</span>
+<span id="cb324-11"><a href="Chapter12.html#cb324-11" tabindex="-1"></a>            <span class="at">cressie =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb324-12"><a href="Chapter12.html#cb324-12" tabindex="-1"></a>            <span class="at">cutoff =</span> <span class="dv">150</span>,</span>
+<span id="cb324-13"><a href="Chapter12.html#cb324-13" tabindex="-1"></a>            <span class="at">width =</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb324-14"><a href="Chapter12.html#cb324-14" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dist, <span class="at">y =</span> gamma))<span class="sc">+</span></span>
+<span id="cb324-15"><a href="Chapter12.html#cb324-15" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">size =</span> np))<span class="sc">+</span></span>
+<span id="cb324-16"><a href="Chapter12.html#cb324-16" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb324-17"><a href="Chapter12.html#cb324-17" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb324-18"><a href="Chapter12.html#cb324-18" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span> dir.hor,</span>
+<span id="cb324-19"><a href="Chapter12.html#cb324-19" tabindex="-1"></a>                 <span class="at">labeller =</span> <span class="fu">as_labeller</span>(<span class="fu">c</span>(<span class="st">&quot;0&quot;</span> <span class="ot">=</span> <span class="st">&quot;North-South&quot;</span>,</span>
+<span id="cb324-20"><a href="Chapter12.html#cb324-20" tabindex="-1"></a>                                          <span class="st">&quot;90&quot;</span> <span class="ot">=</span> <span class="st">&quot;East-West&quot;</span>)))<span class="sc">+</span></span>
+<span id="cb324-21"><a href="Chapter12.html#cb324-21" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;semivariogram&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-235-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="adding-spatial-correlation-to-the-model" class="section level2 hasAnchor" number="11.5">
+<h2><span class="header-section-number">11.5</span> Adding spatial correlation to the model<a href="Chapter12.html#adding-spatial-correlation-to-the-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>それでは、空間的な相関を考慮したモデルを実行する。モデル式は以下の通り。先ほどとの唯一の違いは<span class="math inline">\(u_i\)</span>が入っている点である。まず、<span class="math inline">\(u_i\)</span>は正規分布に従っており、ガウス場である。続いて、その分散共分散行列はマルコフ過程に従う(隣り合う観測値のみが相関する)。このとき、<span class="math inline">\(u_i\)</span>はガウスマルコフランダム場(GMRF)である。<span class="math inline">\(\bf{\Sigma}\)</span>はMatern関数を用いて表現される。</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;pH_i \sim N(\mu_i, \sigma^2)\\
+&amp;E(pH_i) = \mu_i \; and \; var(pH_i) = \sigma^2\\
+&amp;\mu_i = \alpha + \beta_1 \times SDI_i + \beta_2 \times logAltitude_i + \beta_3 + Forested_i \\
+&amp; \;\;\;\;\;\;\;\; + \beta_4 \times SDI_i \times LogAltitude_i + \beta_5 \times SDI_i \times Forested_i + \\
+&amp; \;\;\;\;\;\;\;\; + \beta_6 \times LogAltitude_i \times Forested_i \\
+&amp; \;\;\;\;\;\;\;\; + \beta_7 \times LogAltitude_i \times Forested_i + u_i\\
+&amp;u_i \sim GMRF(0,\bf{\Sigma})
+\end{aligned}
+\]</span></p>
+<p>Matern関数のパラメータは、確率偏微分方程式(SPDE)を解くことで求められる。これを解くため、サンプリング空間に多くの三角形から成るメッシュが作られる。最後に、有限要素アプローチ(finite element approach)で各頂点について<span class="math inline">\(w_k\)</span>が得られ、これをもとに<span class="math inline">\(u_i\)</span>の事後分布が得られる。</p>
+<p><code>INLA</code>で上記のようなことを行うには、以下のステップを踏む。</p>
+<ol style="list-style-type: decimal">
+<li>メッシュを作成する。<br />
+</li>
+<li>各頂点の重みづけ因子<span class="math inline">\(a_{ik}\)</span>を定義する。<br />
+</li>
+<li>確率偏微分方程式(SPDE)を定義する。<br />
+</li>
+<li>ランダム場を定義する。<br />
+</li>
+<li>メッシュのどの点で応答変数と共変量を得たか、またランダム効果などがあればメッシュのどの点にあるかを<code>INLA</code>に伝える。<br />
+</li>
+<li>モデル式を決める。<br />
+</li>
+<li><code>INLA</code>で空間モデルを実行する。</li>
+</ol>
+</div>
+<div id="defining-the-mesh-for-the-irish-ph-data" class="section level2 hasAnchor" number="11.6">
+<h2><span class="header-section-number">11.6</span> Defining the mesh for the Irish pH data<a href="Chapter12.html#defining-the-mesh-for-the-irish-ph-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>ここでは、アイルランドの河川データに対してメッシュを作成する。まず、データの座標をkmに直す。</p>
+<div class="sourceCode" id="cb325"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb325-1"><a href="Chapter12.html#cb325-1" tabindex="-1"></a>iph <span class="sc">%&gt;%</span> </span>
+<span id="cb325-2"><a href="Chapter12.html#cb325-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Easting.km =</span> Easting<span class="sc">/</span><span class="dv">1000</span>,</span>
+<span id="cb325-3"><a href="Chapter12.html#cb325-3" tabindex="-1"></a>         <span class="at">Northing.km =</span> Northing<span class="sc">/</span><span class="dv">1000</span>) <span class="ot">-&gt;</span> iph</span></code></pre></div>
+<p>2つの場所間の距離<span class="math inline">\(||s_i - s_j||\)</span>のヒストグラムと、距離の累積割合を示したのが図<a href="Chapter12.html#fig:dist-iph">11.1</a>である。図<a href="Chapter12.html#fig:dist-iph">11.1</a>Bは、50%以上の観測値が200km以内でサンプリングされたことを示している。</p>
+<div class="sourceCode" id="cb326"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb326-1"><a href="Chapter12.html#cb326-1" tabindex="-1"></a>dist_iph <span class="ot">&lt;-</span> <span class="fu">dist</span>(<span class="fu">cbind</span>(iph<span class="sc">$</span>Easting.km, iph<span class="sc">$</span>Northing.km)) <span class="sc">%&gt;%</span> <span class="fu">as.matrix</span>()</span>
+<span id="cb326-2"><a href="Chapter12.html#cb326-2" tabindex="-1"></a><span class="fu">diag</span>(dist_iph) <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb326-3"><a href="Chapter12.html#cb326-3" tabindex="-1"></a>dist_iph.vec <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(dist_iph) <span class="sc">%&gt;%</span> <span class="fu">na.omit</span>()</span>
+<span id="cb326-4"><a href="Chapter12.html#cb326-4" tabindex="-1"></a></span>
+<span id="cb326-5"><a href="Chapter12.html#cb326-5" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">dist =</span> dist_iph.vec) <span class="sc">%&gt;%</span> </span>
+<span id="cb326-6"><a href="Chapter12.html#cb326-6" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dist))<span class="sc">+</span></span>
+<span id="cb326-7"><a href="Chapter12.html#cb326-7" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">alpha =</span> <span class="dv">0</span>,</span>
+<span id="cb326-8"><a href="Chapter12.html#cb326-8" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb326-9"><a href="Chapter12.html#cb326-9" tabindex="-1"></a>                 <span class="at">binwidth =</span> <span class="dv">8</span>)<span class="sc">+</span></span>
+<span id="cb326-10"><a href="Chapter12.html#cb326-10" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb326-11"><a href="Chapter12.html#cb326-11" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb326-12"><a href="Chapter12.html#cb326-12" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;A&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Distances between sites&quot;</span>,</span>
+<span id="cb326-13"><a href="Chapter12.html#cb326-13" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Frequency&quot;</span>) <span class="ot">-&gt;</span> p1</span>
+<span id="cb326-14"><a href="Chapter12.html#cb326-14" tabindex="-1"></a></span>
+<span id="cb326-15"><a href="Chapter12.html#cb326-15" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">sort</span>(dist_iph.vec),</span>
+<span id="cb326-16"><a href="Chapter12.html#cb326-16" tabindex="-1"></a>           <span class="at">y =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(dist_iph.vec)<span class="sc">/</span><span class="fu">length</span>(dist_iph.vec)) <span class="sc">%&gt;%</span> </span>
+<span id="cb326-17"><a href="Chapter12.html#cb326-17" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span>x, <span class="at">y =</span> y))<span class="sc">+</span></span>
+<span id="cb326-18"><a href="Chapter12.html#cb326-18" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb326-19"><a href="Chapter12.html#cb326-19" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb326-20"><a href="Chapter12.html#cb326-20" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb326-21"><a href="Chapter12.html#cb326-21" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;B&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Distances between sites&quot;</span>,</span>
+<span id="cb326-22"><a href="Chapter12.html#cb326-22" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Cumlutive proportion&quot;</span>) <span class="ot">-&gt;</span> p2</span>
+<span id="cb326-23"><a href="Chapter12.html#cb326-23" tabindex="-1"></a></span>
+<span id="cb326-24"><a href="Chapter12.html#cb326-24" tabindex="-1"></a>p1 <span class="sc">+</span> p2</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:dist-iph"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/dist-iph-1.png" alt="A: Histogram of distances between sites in the simulation study. B: Cumulative proportion versus distance between sites." width="960" />
+<p class="caption">
+図11.1: A: Histogram of distances between sites in the simulation study. B: Cumulative proportion versus distance between sites.
+</p>
+</div>
+<p><br/></p>
+<p>メッシュは以下のように作成する。<code>max.edge</code>はメッシュの内側と外側の辺の最大の長さをそれぞれ指定する。これが小さいほどメッシュ内の三角形の数は多くなる。作成したメッシュは図<a href="Chapter12.html#fig:mesh-iph">11.2</a>の1行目の一番左である。 　　</p>
+<div class="sourceCode" id="cb327"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb327-1"><a href="Chapter12.html#cb327-1" tabindex="-1"></a>mesh12_1 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(<span class="at">loc =</span> <span class="fu">cbind</span>(iph<span class="sc">$</span>Easting.km, iph<span class="sc">$</span>Northing.km),</span>
+<span id="cb327-2"><a href="Chapter12.html#cb327-2" tabindex="-1"></a>                         <span class="at">max.edge =</span> <span class="fu">c</span>(<span class="dv">10</span>,<span class="dv">10</span>),</span>
+<span id="cb327-3"><a href="Chapter12.html#cb327-3" tabindex="-1"></a>                         <span class="at">cutoff =</span> <span class="dv">0</span>)</span></code></pre></div>
+<p>メッシュは太い線で内側と外側に分けられている(図<a href="Chapter12.html#fig:mesh-iph">11.2</a>)。メッシュは<span class="math inline">\(w_k\)</span>を計算するのに用いられ、アルゴリズムはその過程で近傍の情報を利用する。もし三角形が調査地の端に位置しているとすると、近傍の三角形が少なくなるので頂点の<span class="math inline">\(w_k\)</span>のばらつきが大きくなってしまう可能性がある。これを避けるため、メッシュの外側のエリアが使われる。このエリアは2つの太い線に囲われる領域で、サンプリングポイントが存在しない(図<a href="Chapter12.html#fig:mesh-iph">11.2</a>)。外側のエリアは内側のエリアに先ほどの問題が生じないようにする緩衝領域だと考えることができる。<code>offset</code>というオプションを用いると、外側と内側のエリアの範囲を調整することができる。一般的に、外側のエリアはレンジ(空間相関がなくなる距離)よりも広いことが推奨されている。</p>
+<p><code>cutoff</code>オプションは、その距離より近いサンプリングポイント同士が1つの頂点に入れ替えられることを示す。以下、<code>max.edge</code>と<code>cutoff</code>に様々な値を割り当てたメッシュを作成し、図<a href="Chapter12.html#fig:mesh-iph">11.2</a>に示した。</p>
+<div class="sourceCode" id="cb328"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb328-1"><a href="Chapter12.html#cb328-1" tabindex="-1"></a>Loc <span class="ot">&lt;-</span> <span class="fu">cbind</span>(iph<span class="sc">$</span>Easting.km, iph<span class="sc">$</span>Northing.km)</span>
+<span id="cb328-2"><a href="Chapter12.html#cb328-2" tabindex="-1"></a></span>
+<span id="cb328-3"><a href="Chapter12.html#cb328-3" tabindex="-1"></a>mesh12_2 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(<span class="at">loc =</span> Loc,</span>
+<span id="cb328-4"><a href="Chapter12.html#cb328-4" tabindex="-1"></a>                         <span class="at">max.edge =</span> <span class="fu">c</span>(<span class="dv">10</span>,<span class="dv">10</span>),</span>
+<span id="cb328-5"><a href="Chapter12.html#cb328-5" tabindex="-1"></a>                         <span class="at">cutoff =</span> <span class="dv">10</span>)</span>
+<span id="cb328-6"><a href="Chapter12.html#cb328-6" tabindex="-1"></a></span>
+<span id="cb328-7"><a href="Chapter12.html#cb328-7" tabindex="-1"></a>mesh12_3 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(<span class="at">loc =</span> Loc,</span>
+<span id="cb328-8"><a href="Chapter12.html#cb328-8" tabindex="-1"></a>                         <span class="at">max.edge =</span> <span class="fu">c</span>(<span class="dv">50</span>,<span class="dv">50</span>))</span>
+<span id="cb328-9"><a href="Chapter12.html#cb328-9" tabindex="-1"></a></span>
+<span id="cb328-10"><a href="Chapter12.html#cb328-10" tabindex="-1"></a>mesh12_4 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(<span class="at">loc =</span> Loc,</span>
+<span id="cb328-11"><a href="Chapter12.html#cb328-11" tabindex="-1"></a>                         <span class="at">max.edge =</span> <span class="fu">c</span>(<span class="dv">75</span>,<span class="dv">75</span>),</span>
+<span id="cb328-12"><a href="Chapter12.html#cb328-12" tabindex="-1"></a>                         <span class="at">cutoff =</span> <span class="dv">1</span>)</span>
+<span id="cb328-13"><a href="Chapter12.html#cb328-13" tabindex="-1"></a></span>
+<span id="cb328-14"><a href="Chapter12.html#cb328-14" tabindex="-1"></a>mesh12_5 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(<span class="at">loc =</span> Loc,</span>
+<span id="cb328-15"><a href="Chapter12.html#cb328-15" tabindex="-1"></a>                         <span class="at">max.edge =</span> <span class="fu">c</span>(<span class="dv">25</span>,<span class="dv">50</span>),</span>
+<span id="cb328-16"><a href="Chapter12.html#cb328-16" tabindex="-1"></a>                         <span class="at">cutoff =</span> <span class="dv">1</span>)</span>
+<span id="cb328-17"><a href="Chapter12.html#cb328-17" tabindex="-1"></a></span>
+<span id="cb328-18"><a href="Chapter12.html#cb328-18" tabindex="-1"></a>mesh12_6 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(<span class="at">loc =</span> Loc,</span>
+<span id="cb328-19"><a href="Chapter12.html#cb328-19" tabindex="-1"></a>                         <span class="at">max.edge =</span> <span class="fu">c</span>(<span class="dv">50</span>,<span class="dv">80</span>),</span>
+<span id="cb328-20"><a href="Chapter12.html#cb328-20" tabindex="-1"></a>                         <span class="at">cutoff =</span> <span class="dv">1</span>)</span>
+<span id="cb328-21"><a href="Chapter12.html#cb328-21" tabindex="-1"></a></span>
+<span id="cb328-22"><a href="Chapter12.html#cb328-22" tabindex="-1"></a>mesh12_7 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(<span class="at">loc =</span> Loc,</span>
+<span id="cb328-23"><a href="Chapter12.html#cb328-23" tabindex="-1"></a>                         <span class="at">max.edge =</span> <span class="fu">c</span>(<span class="dv">100</span>,<span class="dv">120</span>),</span>
+<span id="cb328-24"><a href="Chapter12.html#cb328-24" tabindex="-1"></a>                         <span class="at">cutoff =</span> <span class="dv">1</span>)</span>
+<span id="cb328-25"><a href="Chapter12.html#cb328-25" tabindex="-1"></a></span>
+<span id="cb328-26"><a href="Chapter12.html#cb328-26" tabindex="-1"></a>mesh12_8 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(<span class="at">loc =</span> Loc,</span>
+<span id="cb328-27"><a href="Chapter12.html#cb328-27" tabindex="-1"></a>                         <span class="at">max.edge =</span> <span class="fu">c</span>(<span class="dv">150</span>,<span class="dv">150</span>),</span>
+<span id="cb328-28"><a href="Chapter12.html#cb328-28" tabindex="-1"></a>                         <span class="at">cutoff =</span> <span class="dv">1</span>)</span>
+<span id="cb328-29"><a href="Chapter12.html#cb328-29" tabindex="-1"></a></span>
+<span id="cb328-30"><a href="Chapter12.html#cb328-30" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">3</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb328-31"><a href="Chapter12.html#cb328-31" tabindex="-1"></a></span>
+<span id="cb328-32"><a href="Chapter12.html#cb328-32" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>){</span>
+<span id="cb328-33"><a href="Chapter12.html#cb328-33" tabindex="-1"></a>  <span class="fu">plot</span>(<span class="fu">get</span>(<span class="fu">paste</span>(<span class="st">&#39;mesh12_&#39;</span>, i, <span class="at">sep =</span> <span class="st">&#39;&#39;</span>)), <span class="at">main =</span> <span class="st">&quot;&quot;</span>,<span class="at">asp=</span><span class="dv">1</span>)</span>
+<span id="cb328-34"><a href="Chapter12.html#cb328-34" tabindex="-1"></a>    <span class="fu">points</span>(Loc, <span class="at">col =</span> <span class="dv">2</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">cex =</span> <span class="dv">1</span>)</span>
+<span id="cb328-35"><a href="Chapter12.html#cb328-35" tabindex="-1"></a>}</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:mesh-iph"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/mesh-iph-1.png" alt="Various meshes. Top row from left to right: meshes 1 to 3. Middle row from left to right: meshes 4 to 6. Bottom row from left to right: meshes 7 to 9." width="960" />
+<p class="caption">
+図11.2: Various meshes. Top row from left to right: meshes 1 to 3. Middle row from left to right: meshes 4 to 6. Bottom row from left to right: meshes 7 to 9.
+</p>
+</div>
+<p><br/></p>
+<p>各メッシュの頂点の数は以下の通り。</p>
+<div class="sourceCode" id="cb329"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb329-1"><a href="Chapter12.html#cb329-1" tabindex="-1"></a><span class="fu">c</span>(mesh12_1<span class="sc">$</span>n, mesh12_2<span class="sc">$</span>n, mesh12_3<span class="sc">$</span>n, mesh12_4<span class="sc">$</span>n, mesh12_5<span class="sc">$</span>n, mesh12_6<span class="sc">$</span>n, mesh12_7<span class="sc">$</span>n, mesh12_8<span class="sc">$</span>n)</span></code></pre></div>
+<pre><code>## [1] 4982 4856  649  523  737  528  515  515</code></pre>
+<p>他のアプローチとしては、すべてのサンプリングポイントが境界領域内にあるように境界領域を指定することである。</p>
+<div class="sourceCode" id="cb331"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb331-1"><a href="Chapter12.html#cb331-1" tabindex="-1"></a>bound <span class="ot">&lt;-</span> <span class="fu">inla.nonconvex.hull</span>(Loc)</span>
+<span id="cb331-2"><a href="Chapter12.html#cb331-2" tabindex="-1"></a></span>
+<span id="cb331-3"><a href="Chapter12.html#cb331-3" tabindex="-1"></a>mesh12_9 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(<span class="at">loc =</span> Loc,</span>
+<span id="cb331-4"><a href="Chapter12.html#cb331-4" tabindex="-1"></a>                         <span class="at">boundary =</span> bound,</span>
+<span id="cb331-5"><a href="Chapter12.html#cb331-5" tabindex="-1"></a>                         <span class="at">max.edge =</span> <span class="dv">50</span>,</span>
+<span id="cb331-6"><a href="Chapter12.html#cb331-6" tabindex="-1"></a>                         <span class="at">cutoff =</span> <span class="dv">5</span>)</span>
+<span id="cb331-7"><a href="Chapter12.html#cb331-7" tabindex="-1"></a></span>
+<span id="cb331-8"><a href="Chapter12.html#cb331-8" tabindex="-1"></a><span class="fu">plot</span>(mesh12_9, <span class="at">main =</span> <span class="st">&quot;&quot;</span>, <span class="at">asp=</span><span class="dv">1</span>)</span>
+<span id="cb331-9"><a href="Chapter12.html#cb331-9" tabindex="-1"></a><span class="fu">points</span>(Loc, <span class="at">col =</span> <span class="dv">2</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">cex =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-239-1.png" width="576" style="display: block; margin: auto;" /></p>
+<p>メッシュの選択には、確率偏微分方程式(SPDE)の近似の精度と計算時間のトレードオフがある。700-800の頂点しかない場合は計算が数秒で終わるが、4000-5000個あると数分かかる。一般的にはまず700-800の頂点を持つメッシュで最初の分析を行い、最終的な結果はより多くの頂点を持つメッシュで示す。ひとまず、ここでは737個の頂点があるメッシュ<code>mesh12_5</code>を用いて分析する。</p>
+<div class="sourceCode" id="cb332"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb332-1"><a href="Chapter12.html#cb332-1" tabindex="-1"></a><span class="fu">plot</span>(mesh12_5, <span class="at">main =</span> <span class="st">&quot;&quot;</span>, <span class="at">asp=</span><span class="dv">1</span>)</span>
+<span id="cb332-2"><a href="Chapter12.html#cb332-2" tabindex="-1"></a><span class="fu">points</span>(Loc, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">cex =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-240-1.png" width="576" style="display: block; margin: auto;" /></p>
+</div>
+<div id="define-the-weight-factor-aik" class="section level2 hasAnchor" number="11.7">
+<h2><span class="header-section-number">11.7</span> Define the weight factor aik<a href="Chapter12.html#define-the-weight-factor-aik" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>メッシュ<code>mesh12_5</code>は737個の頂点があるので、分析の結果737個の<span class="math inline">\(w_k\)</span>(<span class="math inline">\(w_1,w_2,\dots, w_{731}\)</span>)の事後分布を得る。また、データは210個あるので、<span class="math inline">\(u_i\)</span>(<span class="math inline">\(u_1, u_2, \dots. u_{210}\)</span>)も201個ある。メッシュの種類によって各サンプリングポイントはメッシュの三角形内か頂点に配置されるが、今回選択したメッシュ(<code>mesh12_5</code>)では頂点にある。つまり今回の場合は<span class="math inline">\(s_i\)</span>がk番目の頂点にあるとき、<span class="math inline">\(u_i\)</span>は<span class="math inline">\(w_k\)</span>と一致する。一方で、もし<span class="math inline">\(s_i\)</span>が三角形内にあるのであれば、<span class="math inline">\(u_i\)</span>はその三角形の頂点<span class="math inline">\(w_k\)</span>の重みづけ平均になる(第<a href="Chapter11.html#c11">10</a>章、式<a href="Chapter11.html#eq:fma">(10.6)</a>参照)。</p>
+<p><span class="math display">\[
+u_i = \Sigma_{k=1}^{731} a_{ik} \times w_k
+\]</span></p>
+<p><span class="math inline">\(a_{ik}\)</span>は重みづけ関数と呼ばれる。Rでは以下のようにかくにんできる</p>
+
+</div>
+</div>
+<h3>References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Cruikshanks2006" class="csl-entry">
+Cruikshanks R, Lauridsen R, Harrison A, et al (2006) Evaluation of the use of the sodium dominance index as a potential measure of acid sensitivity
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="Chapter11.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="sessioninfo.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

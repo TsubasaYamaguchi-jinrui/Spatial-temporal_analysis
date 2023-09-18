@@ -23,14 +23,14 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-16" />
+<meta name="date" content="2023-09-18" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   
   
-<link rel="prev" href="Chapter10.html"/>
+<link rel="prev" href="Chapter12.html"/>
 
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
@@ -371,8 +371,31 @@ div.csl-indent {
 <li class="chapter" data-level="9.2.1" data-path="Chapter10.html"><a href="Chapter10.html#bernoulli-glm"><i class="fa fa-check"></i><b>9.2.1</b> Bernoulli GLM</a></li>
 <li class="chapter" data-level="9.2.2" data-path="Chapter10.html"><a href="Chapter10.html#model-selection-with-the-marginal-likelihood"><i class="fa fa-check"></i><b>9.2.2</b> 10.2.2 Model selection with the marginal likelihood</a></li>
 <li class="chapter" data-level="9.2.3" data-path="Chapter10.html"><a href="Chapter10.html#binomial-glm"><i class="fa fa-check"></i><b>9.2.3</b> Binomial GLM</a></li>
-<li class="chapter" data-level="9.2.4" data-path="Chapter10.html"><a href="Chapter10.html#gamma-glm"><i class="fa fa-check"></i><b>9.2.4</b> Gamma GLM</a></li>
 </ul></li>
+<li class="chapter" data-level="9.3" data-path="Chapter10.html"><a href="Chapter10.html#gamma-glm"><i class="fa fa-check"></i><b>9.3</b> Gamma GLM</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="Chapter11.html"><a href="Chapter11.html"><i class="fa fa-check"></i><b>10</b> Matern correlation and SPDE</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="Chapter11.html"><a href="Chapter11.html#continuous-gaussian-field"><i class="fa fa-check"></i><b>10.1</b> Continuous Gaussian field</a></li>
+<li class="chapter" data-level="10.2" data-path="Chapter11.html"><a href="Chapter11.html#models-that-we-have-in-mind"><i class="fa fa-check"></i><b>10.2</b> Models that we have in mind</a></li>
+<li class="chapter" data-level="10.3" data-path="Chapter11.html"><a href="Chapter11.html#matern-correlation"><i class="fa fa-check"></i><b>10.3</b> Matern correlation</a></li>
+<li class="chapter" data-level="10.4" data-path="Chapter11.html"><a href="Chapter11.html#spde-approach"><i class="fa fa-check"></i><b>10.4</b> SPDE approach</a>
+<ul>
+<li class="chapter" data-level="10.4.1" data-path="Chapter11.html"><a href="Chapter11.html#mesh"><i class="fa fa-check"></i><b>10.4.1</b> Mesh</a></li>
+<li class="chapter" data-level="10.4.2" data-path="Chapter11.html"><a href="Chapter11.html#finite-element-approach"><i class="fa fa-check"></i><b>10.4.2</b> Finite element approach</a></li>
+<li class="chapter" data-level="10.4.3" data-path="Chapter11.html"><a href="Chapter11.html#simulation-study-with-five-points"><i class="fa fa-check"></i><b>10.4.3</b> Simulation study with five points</a></li>
+</ul></li>
+<li class="chapter" data-level="10.5" data-path="Chapter11.html"><a href="Chapter11.html#weighting-factors-again"><i class="fa fa-check"></i><b>10.5</b> Weighting factors … again</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="Chapter12.html"><a href="Chapter12.html"><i class="fa fa-check"></i><b>11</b> Linear regression model with spatial dependency for the Irish pH data</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="Chapter12.html"><a href="Chapter12.html#introduction-2"><i class="fa fa-check"></i><b>11.1</b> Introduction</a></li>
+<li class="chapter" data-level="11.2" data-path="Chapter12.html"><a href="Chapter12.html#model-formulation-3"><i class="fa fa-check"></i><b>11.2</b> Model formulation</a></li>
+<li class="chapter" data-level="11.3" data-path="Chapter12.html"><a href="Chapter12.html#linear-regression-results"><i class="fa fa-check"></i><b>11.3</b> Linear regression results</a></li>
+<li class="chapter" data-level="11.4" data-path="Chapter12.html"><a href="Chapter12.html#model-validation-5"><i class="fa fa-check"></i><b>11.4</b> Model validation</a></li>
+<li class="chapter" data-level="11.5" data-path="Chapter12.html"><a href="Chapter12.html#adding-spatial-correlation-to-the-model"><i class="fa fa-check"></i><b>11.5</b> Adding spatial correlation to the model</a></li>
+<li class="chapter" data-level="11.6" data-path="Chapter12.html"><a href="Chapter12.html#defining-the-mesh-for-the-irish-ph-data"><i class="fa fa-check"></i><b>11.6</b> Defining the mesh for the Irish pH data</a></li>
+<li class="chapter" data-level="11.7" data-path="Chapter12.html"><a href="Chapter12.html#define-the-weight-factor-aik"><i class="fa fa-check"></i><b>11.7</b> Define the weight factor aik</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -394,7 +417,7 @@ div.csl-indent {
             <section class="normal" id="section-">
 <div id="実行環境" class="section level1 unnumbered hasAnchor">
 <h1>実行環境<a href="sessioninfo.html#実行環境" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<div class="sourceCode" id="cb300"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb300-1"><a href="sessioninfo.html#cb300-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb333"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb333-1"><a href="sessioninfo.html#cb333-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 4.2.2 (2022-10-31 ucrt)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
 ## Running under: Windows 10 x64 (build 22621)
@@ -407,7 +430,7 @@ div.csl-indent {
 ## [5] LC_TIME=Japanese_Japan.utf8    
 ## 
 ## attached base packages:
-## [1] parallel  stats     graphics  grDevices utils     datasets  methods  
+## [1] parallel  graphics  grDevices utils     datasets  stats     methods  
 ## [8] base     
 ## 
 ## other attached packages:
@@ -438,45 +461,43 @@ div.csl-indent {
 ##   [4] grid_4.2.2           munsell_0.5.0        codetools_0.2-18    
 ##   [7] units_0.8-1          miniUI_0.1.1.1       withr_2.5.0         
 ##  [10] Brobdingnag_1.2-9    colorspace_2.0-3     rstudioapi_0.15.0   
-##  [13] stats4_4.2.2         Rttf2pt1_1.3.12      labeling_0.4.3      
-##  [16] emmeans_1.8.8        splancs_2.01-44      bit64_4.0.5         
-##  [19] farver_2.1.1         bridgesampling_1.1-2 coda_0.19-4         
-##  [22] vctrs_0.6.3          generics_0.1.3       TH.data_1.1-2       
-##  [25] xfun_0.39            timechange_0.1.1     R6_2.5.1            
-##  [28] markdown_1.8         reshape_0.8.9        cachem_1.0.6        
-##  [31] vroom_1.6.0          promises_1.2.0.1     multcomp_1.4-25     
-##  [34] gtable_0.3.4         processx_3.8.0       sandwich_3.0-2      
-##  [37] MatrixModels_0.5-2   rlang_1.1.1          splines_4.2.2       
-##  [40] extrafontdb_1.0      checkmate_2.1.0      inline_0.3.19       
-##  [43] yaml_2.3.7           reshape2_1.4.4       abind_1.4-5         
-##  [46] threejs_0.3.3        crosstalk_1.2.0      backports_1.4.1     
-##  [49] httpuv_1.6.7         tensorA_0.36.2       tools_4.2.2         
-##  [52] tcltk_4.2.2          bookdown_0.35        ellipsis_0.3.2      
-##  [55] RColorBrewer_1.1-3   jquerylib_0.1.4      proxy_0.4-27        
-##  [58] plyr_1.8.8           base64enc_0.1-3      classInt_0.4-8      
-##  [61] ps_1.7.2             prettyunits_1.1.1    zoo_1.8-11          
-##  [64] magrittr_2.0.3       spacetime_1.3-0      colourpicker_1.3.0  
-##  [67] mvtnorm_1.1-3        matrixStats_0.63.0   archive_1.1.5       
-##  [70] hms_1.1.3            shinyjs_2.1.0        mime_0.12           
-##  [73] evaluate_0.21        xtable_1.8-4         shinystan_2.6.0     
-##  [76] gridExtra_2.3        rstantools_2.3.1.1   compiler_4.2.2      
-##  [79] maps_3.4.1           KernSmooth_2.23-20   crayon_1.5.2        
-##  [82] minqa_1.2.5          htmltools_0.5.4      later_1.3.0         
-##  [85] tzdb_0.3.0           RcppParallel_5.1.6   DBI_1.1.3           
-##  [88] boot_1.3-28          cli_3.6.1            dotCall64_1.0-2     
-##  [91] igraph_1.3.5         pkgconfig_2.0.3      xml2_1.3.5          
-##  [94] svglite_2.1.1        dygraphs_1.1.1.6     QuickJSR_1.0.5      
-##  [97] bslib_0.5.1          webshot_0.5.5        estimability_1.4.1  
-## [100] rvest_1.0.3          distributional_0.3.2 callr_3.7.3         
-## [103] digest_0.6.31        rmarkdown_2.24       intervals_0.15.4    
-## [106] Deriv_4.1.3          shiny_1.7.5          gtools_3.9.4        
-## [109] nloptr_2.0.3         lifecycle_1.0.3      jsonlite_1.8.4      
-## [112] fansi_1.0.3          pillar_1.9.0         lattice_0.20-45     
-## [115] loo_2.6.0            httr_1.4.7           fastmap_1.1.1       
-## [118] pkgbuild_1.4.2       survival_3.5-5       glue_1.6.2          
-## [121] xts_0.12.2           FNN_1.1.3.2          shinythemes_1.2.0   
-## [124] iterators_1.0.14     bit_4.0.5            class_7.3-20        
-## [127] stringi_1.7.12       sass_0.4.5           e1071_1.7-12</code></pre>
+##  [13] stats4_4.2.2         Rttf2pt1_1.3.12      emmeans_1.8.8       
+##  [16] splancs_2.01-44      farver_2.1.1         bridgesampling_1.1-2
+##  [19] coda_0.19-4          vctrs_0.6.3          generics_0.1.3      
+##  [22] TH.data_1.1-2        xfun_0.39            timechange_0.1.1    
+##  [25] R6_2.5.1             markdown_1.8         cachem_1.0.6        
+##  [28] reshape_0.8.9        promises_1.2.0.1     multcomp_1.4-25     
+##  [31] gtable_0.3.4         processx_3.8.0       sandwich_3.0-2      
+##  [34] rlang_1.1.1          splines_4.2.2        extrafontdb_1.0     
+##  [37] checkmate_2.1.0      inline_0.3.19        yaml_2.3.7          
+##  [40] reshape2_1.4.4       abind_1.4-5          threejs_0.3.3       
+##  [43] crosstalk_1.2.0      backports_1.4.1      httpuv_1.6.7        
+##  [46] tensorA_0.36.2       tools_4.2.2          tcltk_4.2.2         
+##  [49] bookdown_0.35        ellipsis_0.3.2       jquerylib_0.1.4     
+##  [52] RColorBrewer_1.1-3   proxy_0.4-27         plyr_1.8.8          
+##  [55] base64enc_0.1-3      classInt_0.4-8       ps_1.7.2            
+##  [58] prettyunits_1.1.1    zoo_1.8-11           magrittr_2.0.3      
+##  [61] spacetime_1.3-0      colourpicker_1.3.0   mvtnorm_1.1-3       
+##  [64] matrixStats_0.63.0   hms_1.1.3            shinyjs_2.1.0       
+##  [67] mime_0.12            evaluate_0.21        xtable_1.8-4        
+##  [70] shinystan_2.6.0      gridExtra_2.3        rstantools_2.3.1.1  
+##  [73] compiler_4.2.2       maps_3.4.1           KernSmooth_2.23-20  
+##  [76] crayon_1.5.2         minqa_1.2.5          htmltools_0.5.4     
+##  [79] later_1.3.0          tzdb_0.3.0           RcppParallel_5.1.6  
+##  [82] DBI_1.1.3            boot_1.3-28          cli_3.6.1           
+##  [85] dotCall64_1.0-2      igraph_1.3.5         pkgconfig_2.0.3     
+##  [88] xml2_1.3.5           svglite_2.1.1        dygraphs_1.1.1.6    
+##  [91] QuickJSR_1.0.5       bslib_0.5.1          webshot_0.5.5       
+##  [94] estimability_1.4.1   rvest_1.0.3          distributional_0.3.2
+##  [97] callr_3.7.3          digest_0.6.31        rmarkdown_2.24      
+## [100] intervals_0.15.4     shiny_1.7.5          gtools_3.9.4        
+## [103] nloptr_2.0.3         lifecycle_1.0.3      jsonlite_1.8.4      
+## [106] fansi_1.0.3          pillar_1.9.0         lattice_0.20-45     
+## [109] loo_2.6.0            httr_1.4.7           fastmap_1.1.1       
+## [112] pkgbuild_1.4.2       survival_3.5-5       glue_1.6.2          
+## [115] xts_0.12.2           FNN_1.1.3.2          shinythemes_1.2.0   
+## [118] iterators_1.0.14     class_7.3-20         stringi_1.7.12      
+## [121] sass_0.4.5           e1071_1.7-12</code></pre>
 <p><strong>References</strong></p>
 
 <div id="refs" class="references csl-bib-body hanging-indent">
@@ -512,6 +533,15 @@ Hopkins WD, Reamer L, Mareno MC, Schapiro SJ (2015) Genetic basis in motor skill
 </div>
 <div class="csl-entry">
 Kruschke J (2014) Doing bayesian data analysis: A tutorial with r, <span>JAGS</span>, and stan. Academic Press
+</div>
+<div class="csl-entry">
+Ligas A (2008) Population dynamics of procambarus clarkii (girard, 1852) (decapoda, astacidea, cambaridae) from southern tuscany (italy). Crustaceana 81:601–609
+</div>
+<div class="csl-entry">
+Lindgren F, Rue H (2015) Bayesian spatial modelling with <span>R-INLA</span>. J Stat Softw 63:1–25
+</div>
+<div class="csl-entry">
+Lindgren F, Rue H, Lindström J (2011) An explicit link between gaussian fields and gaussian markov random fields: The stochastic partial differential equation approach. J R Stat Soc Series B Stat Methodol 73:423–498
 </div>
 <div class="csl-entry">
 McElreath R (2020) Statistical rethinking : A bayesian course with examples in <span>R</span> and <span>STAN</span>, 2nd Edition. Chapman; Hall/CRC
@@ -585,12 +615,13 @@ Zuur AF, Ieno EN (2016) Beginner’s guide to zero-inflated models with <span>R<
 
 
 
+
             </section>
 
           </div>
         </div>
       </div>
-<a href="Chapter10.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="Chapter12.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
 
     </div>
   </div>

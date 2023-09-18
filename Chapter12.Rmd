@@ -1,0 +1,375 @@
+# Linear regression model with spatial dependency for the Irish pH data  
+本章では、前章で学んだ手法を実際の空間データに適用して分析を行う。  
+
+## Introduction  
+用いるのは第\@ref(c2)章で用いた、アイルランドの257の川において、川の`pH`が`SDI`(Sodium Dominance Index; 陽イオン中のナトリウムイオン)と関連しているかを、緯度(`Altitude`)やその場所が森林化されているか(`Forested`)も考慮したうえで調べた @Cruikshanks2006 のデータである。第\@ref(c2)章では、地理的に近いデータほど類似しており、疑似反復の問題を避けるためには空間的相関を考慮したモデルを適用する必要があることを確認した。  
+
+## Model formulation  
+まず、空間的な相関を考慮しないモデルとして以下のモデルを考える。2-way interaction と 3-way interactionをすべて含んでいる。  
+
+$$
+\begin{aligned}
+&pH_i \sim N(\mu_i, \sigma^2)\\
+&E(pH_i) = \mu_i \; and \; var(pH_i) = \sigma^2\\
+&\mu_i = \alpha + \beta_1 \times SDI_i + \beta_2 \times logAltitude_i + \beta_3 + Forested_i \\
+& \;\;\;\;\;\;\;\; + \beta_4 \times SDI_i \times LogAltitude_i + \beta_5 \times SDI_i \times Forested_i + \\
+& \;\;\;\;\;\;\;\; + \beta_6 \times LogAltitude_i \times Forested_i \\
+& \;\;\;\;\;\;\;\; + \beta_7 \times LogAltitude_i \times Forested_i 
+\end{aligned}
+$$
+
+## Linear regression results  
+それでは、`INLA`で上記のモデルを実行する。  
+
+```{r}
+iph %>% 
+  mutate(logAlt = log10(Altitude)) -> iph
+
+m12_1 <- inla(pH ~ logAlt*SDI*fForested,
+              family = "gaussian",
+              control.predictor = list(compute = TRUE),
+              data = iph)
+```
+
+結果は以下の通り。3-way interactionは95%確信区間に0を含んでおり、  
+```{r}
+m12_1$summary.fixed %>% 
+  select(mean, sd, "0.025quant", "0.975quant")
+```
+<br/>  
+
+ハイパーパラメータの要約統計量は以下の通り。ここでは、$\sigma$について情報を算出した。    
+```{r}
+tau <- m12_1$marginals.hyperpar$`Precision for the Gaussian observations`
+sigma <- inla.tmarginal(function(x) 1/sqrt(x), tau)
+
+sigma_summary <- inla.qmarginal(p = c(0.025, 0.5, 0.975), sigma) %>% data.frame() %>% t()
+colnames(sigma_summary) <- c("0.025quant", "0.5quant", "0.975quant")
+
+sigma_summary
+```
+
+## Model validation  
+続いて、モデル診断を行う。  
+
+まず、残差と予測値、残差と共変量の関係を調べたら問題はなかった。これは第\@ref(c2)と一緒である。  
+```{r}
+fitted <- m12_1$summary.fitted.values$mean
+resid <- iph$pH - fitted
+
+data.frame(fitted = fitted,
+           resid = resid) %>% 
+  ggplot(aes(x= fitted, y = resid))+
+  geom_point(shape = 1)+
+  geom_hline(yintercept = 0, linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x= "Fitted values", y = "Residuals") -> p1
+
+data.frame(SDI = iph$SDI,
+           resid = resid) %>% 
+  ggplot(aes(x= SDI, y = resid))+
+  geom_point(shape = 1)+
+  geom_hline(yintercept = 0, linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x= "SDI", y = "Residuals") -> p2
+
+data.frame(SDI = iph$logAlt,
+           resid = resid) %>% 
+  ggplot(aes(x= SDI, y = resid))+
+  geom_point(shape = 1)+
+  geom_hline(yintercept = 0, linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x= "Log(Altitude)", y = "Residuals") -> p3
+
+data.frame(forested = iph$fForested,
+           resid = resid) %>% 
+  ggplot(aes(x= forested, y = resid))+
+  geom_boxplot()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x= "Forested", y = "Residuals") -> p4
+
+(p1 + p2)/(p3+p4)
+```
+<br/>  
+
+続いて、バリオグラムを確認する。第\@ref(c2)章で確認したときと同様、やはり空間的な相関が存在することがわかる。    
+```{r, fig.dim = c(10,4.5)}
+vario_12_1 <- data.frame(resid = resid,
+                        Easting.km = iph$Easting/1000,
+                        Northing.km = iph$Northing/1000)
+
+sp::coordinates(vario_12_1) <- c("Easting.km", "Northing.km")
+
+vario_12_1 %>% 
+  variogram(resid ~ Easting.km + Northing.km, data = .,
+            ## 0が南北方向、90が東西方向
+            alpha = c(0, 90),
+            cressie = TRUE,
+            cutoff = 150,
+            width = 10) %>% 
+  ggplot(aes(x = dist, y = gamma))+
+  geom_point(aes(size = np))+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  facet_rep_wrap(~ dir.hor,
+                 labeller = as_labeller(c("0" = "North-South",
+                                          "90" = "East-West")))+
+  labs(y = "semivariogram")
+```
+
+## Adding spatial correlation to the model  
+それでは、空間的な相関を考慮したモデルを実行する。モデル式は以下の通り。先ほどとの唯一の違いは$u_i$が入っている点である。まず、$u_i$は正規分布に従っており、ガウス場である。続いて、その分散共分散行列はマルコフ過程に従う(隣り合う観測値のみが相関する)。このとき、$u_i$はガウスマルコフランダム場(GMRF)である。$\bf{\Sigma}$はMatern関数を用いて表現される。        
+
+$$
+\begin{aligned}
+&pH_i \sim N(\mu_i, \sigma^2)\\
+&E(pH_i) = \mu_i \; and \; var(pH_i) = \sigma^2\\
+&\mu_i = \alpha + \beta_1 \times SDI_i + \beta_2 \times logAltitude_i + \beta_3 + Forested_i \\
+& \;\;\;\;\;\;\;\; + \beta_4 \times SDI_i \times LogAltitude_i + \beta_5 \times SDI_i \times Forested_i + \\
+& \;\;\;\;\;\;\;\; + \beta_6 \times LogAltitude_i \times Forested_i \\
+& \;\;\;\;\;\;\;\; + \beta_7 \times LogAltitude_i \times Forested_i + u_i\\
+&u_i \sim GMRF(0,\bf{\Sigma})
+\end{aligned}
+$$
+
+Matern関数のパラメータは、確率偏微分方程式(SPDE)を解くことで求められる。これを解くため、サンプリング空間に多くの三角形から成るメッシュが作られる。最後に、有限要素アプローチ(finite element approach)で各頂点について$w_k$が得られ、これをもとに$u_i$の事後分布が得られる。  
+
+`INLA`で上記のようなことを行うには、以下のステップを踏む。  
+
+1. メッシュを作成する。    
+2. 各頂点の重みづけ因子$a_{ik}$を定義する。  
+3. 確率偏微分方程式(SPDE)を定義する。  
+4. ランダム場を定義する。  
+5. メッシュのどの点で応答変数と共変量を得たか、またランダム効果などがあればメッシュのどの点にあるかを`INLA`に伝える。   
+6. モデル式を決める。  
+7. `INLA`で空間モデルを実行する。  
+
+## Defining the mesh for the Irish pH data  
+ここでは、アイルランドの河川データに対してメッシュを作成する。まず、データの座標をkmに直す。  
+```{r}
+iph %>% 
+  mutate(Easting.km = Easting/1000,
+         Northing.km = Northing/1000) -> iph
+```
+
+2つの場所間の距離$||s_i - s_j||$のヒストグラムと、距離の累積割合を示したのが図\@ref(fig:dist-iph)である。図\@ref(fig:dist-iph)Bは、50%以上の観測値が200km以内でサンプリングされたことを示している。  
+
+```{r dist-iph, fig.dim = c(10,4.5), fig.cap = "A: Histogram of distances between sites in the simulation study. B: Cumulative proportion versus distance between sites."}
+dist_iph <- dist(cbind(iph$Easting.km, iph$Northing.km)) %>% as.matrix()
+diag(dist_iph) <- NA
+dist_iph.vec <- as.vector(dist_iph) %>% na.omit()
+
+data.frame(dist = dist_iph.vec) %>% 
+  ggplot(aes(x = dist))+
+  geom_histogram(alpha = 0,
+                 color = "black",
+                 binwidth = 8)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(title = "A", x = "Distances between sites",
+       y = "Frequency") -> p1
+
+data.frame(x = sort(dist_iph.vec),
+           y = 1:length(dist_iph.vec)/length(dist_iph.vec)) %>% 
+  ggplot(aes(x =x, y = y))+
+  geom_line()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(title = "B", x = "Distances between sites",
+       y = "Cumlutive proportion") -> p2
+
+p1 + p2
+```
+<br/>  
+
+メッシュは以下のように作成する。`max.edge`はメッシュの内側と外側の辺の最大の長さをそれぞれ指定する。これが小さいほどメッシュ内の三角形の数は多くなる。作成したメッシュは図\@ref(fig:mesh-iph)の1行目の一番左である。      　　
+```{r}
+mesh12_1 <- inla.mesh.2d(loc = cbind(iph$Easting.km, iph$Northing.km),
+                         max.edge = c(10,10),
+                         cutoff = 0)
+```
+
+メッシュは太い線で内側と外側に分けられている(図\@ref(fig:mesh-iph))。メッシュは$w_k$を計算するのに用いられ、アルゴリズムはその過程で近傍の情報を利用する。もし三角形が調査地の端に位置しているとすると、近傍の三角形が少なくなるので頂点の$w_k$のばらつきが大きくなってしまう可能性がある。これを避けるため、メッシュの外側のエリアが使われる。このエリアは2つの太い線に囲われる領域で、サンプリングポイントが存在しない(図\@ref(fig:mesh-iph))。外側のエリアは内側のエリアに先ほどの問題が生じないようにする緩衝領域だと考えることができる。`offset`というオプションを用いると、外側と内側のエリアの範囲を調整することができる。一般的に、外側のエリアはレンジ(空間相関がなくなる距離)よりも広いことが推奨されている。  
+
+`cutoff`オプションは、その距離より近いサンプリングポイント同士が1つの頂点に入れ替えられることを示す。以下、`max.edge`と`cutoff`に様々な値を割り当てたメッシュを作成し、図\@ref(fig:mesh-iph)に示した。  
+
+```{r mesh-iph, fig.cap = "Various meshes. Top row from left to right: meshes 1 to 3. Middle row from left to right: meshes 4 to 6. Bottom row from left to right: meshes 7 to 9.", fig.dim = c(10,10)}
+
+Loc <- cbind(iph$Easting.km, iph$Northing.km)
+
+mesh12_2 <- inla.mesh.2d(loc = Loc,
+                         max.edge = c(10,10),
+                         cutoff = 10)
+
+mesh12_3 <- inla.mesh.2d(loc = Loc,
+                         max.edge = c(50,50))
+
+mesh12_4 <- inla.mesh.2d(loc = Loc,
+                         max.edge = c(75,75),
+                         cutoff = 1)
+
+mesh12_5 <- inla.mesh.2d(loc = Loc,
+                         max.edge = c(25,50),
+                         cutoff = 1)
+
+mesh12_6 <- inla.mesh.2d(loc = Loc,
+                         max.edge = c(50,80),
+                         cutoff = 1)
+
+mesh12_7 <- inla.mesh.2d(loc = Loc,
+                         max.edge = c(100,120),
+                         cutoff = 1)
+
+mesh12_8 <- inla.mesh.2d(loc = Loc,
+                         max.edge = c(150,150),
+                         cutoff = 1)
+
+par(mfrow=c(3,3), mar=c(1,1,1,1))
+
+for(i in 1:8){
+  plot(get(paste('mesh12_', i, sep = '')), main = "",asp=1)
+	points(Loc, col = 2, pch = 16, cex = 1)
+}
+```
+<br/>  
+
+各メッシュの頂点の数は以下の通り。  
+```{r}
+c(mesh12_1$n, mesh12_2$n, mesh12_3$n, mesh12_4$n, mesh12_5$n, mesh12_6$n, mesh12_7$n, mesh12_8$n)
+```
+
+
+他のアプローチとしては、すべてのサンプリングポイントが境界領域内にあるように境界領域を指定することである。  
+```{r, fig.dim = c(6,6)}
+bound <- inla.nonconvex.hull(Loc)
+
+mesh12_9 <- inla.mesh.2d(loc = Loc,
+                         boundary = bound,
+                         max.edge = 50,
+                         cutoff = 5)
+
+plot(mesh12_9, main = "", asp=1)
+points(Loc, col = 2, pch = 16, cex = 1)
+```
+
+メッシュの選択には、確率偏微分方程式(SPDE)の近似の精度と計算時間のトレードオフがある。700-800の頂点しかない場合は計算が数秒で終わるが、4000-5000個あると数分かかる。一般的にはまず700-800の頂点を持つメッシュで最初の分析を行い、最終的な結果はより多くの頂点を持つメッシュで示す。ひとまず、ここでは737個の頂点があるメッシュ`mesh12_5`を用いて分析する。  
+
+```{r, fig.dim = c(6,6)}
+plot(mesh12_5, main = "", asp=1)
+points(Loc, pch = 16, cex = 1)
+```
+
+
+## Define the weight factor aik  
+メッシュ`mesh12_5`は737個の頂点があるので、分析の結果737個の$w_k$($w_1,w_2,\dots, w_{731}$)の事後分布を得る。また、データは210個あるので、$u_i$($u_1, u_2, \dots. u_{210}$)も201個ある。メッシュの種類によって各サンプリングポイントはメッシュの三角形内か頂点に配置されるが、今回選択したメッシュ(`mesh12_5`)では頂点にある。つまり今回の場合は$s_i$がk番目の頂点にあるとき、$u_i$は$w_k$と一致する。一方で、もし$s_i$が三角形内にあるのであれば、$u_i$はその三角形の頂点$w_k$の重みづけ平均になる(第\@ref(c11)章、式\@ref(eq:fma)参照)。  
+
+$$
+u_i = \Sigma_{k=1}^{731} a_{ik} \times w_k (\#eq:fma3)
+$$
+
+$a_{ik}$は重みづけ関数と呼ばれる。Rでは以下のように確認できる。例えば、$a_{1k}$は以下のようになる。
+
+```{r}
+A <- inla.spde.make.A(mesh12_5, loc = Loc)
+
+A[1,]
+```
+
+## Define the SPDE  
+空間相関を持つランダム切片$u_i$で、その分散共分散行列がMatern関数で表現されるとき、SPDEは以下のように定義できる。`alpha = 2`はMatern関数のパラメータ$\nu$が1であることを示す(式\@ref(eq:SPDE2)を参照)。    
+```{r}
+spde <- inla.spde2.matern(mesh12_5, alpha = 2)
+```
+
+## Define the spatial field  
+続いて、ランダム切片の行列$\bf{u}$を求めるためのリストを作成する。$\bf{u}$は$\bf{A}$と$\bf{w}$を以下のように定義するとき、$\bf{u} = \bf{A} \times \bf{w}$と書ける。$\bf{w}$は`INLA`で推定する必要がある。  
+
+$$
+\begin{aligned}
+&\bf{A} = 
+\begin{pmatrix}
+a_{1,1} & a_{1,2} & \cdots & a_{1,737} \\
+\vdots & \ddots & & \vdots \\
+a_{210,1} & a_{210,2} & \cdots & a_{210,737}
+\end{pmatrix} \\
+&\bf{w} = (w_1, w_2, \dots, w_{737}) 
+\end{aligned}
+$$
+
+$\bf{w}$は`INLA`で推定する必要がある。これは以下のようにできる。`w.index`中の`w`は1から737の数字を含む。`w.group`と`w.repl`については時空間モデルを実行するときに解説する。    
+```{r}
+w.index <- inla.spde.make.index(
+  name = "w",
+  n.spde = spde$n.spde,
+  n.group = 1,
+  n.repl = 1)
+
+str(w.index)
+```
+
+## Define the stack  
+続いて、メッシュのどの点で応答変数と共変量を得たかを`INLA`に伝える必要がある。Rでは、`inla.stack`関数を用いてこれを行う。これについて理解するため、まずモデルをマトリックス形式で書く。  
+
+$$
+\mu_i = \alpha + \Sigma_{j = 1}^7 \beta_j X_{ij} + u_i
+$$
+
+$X_{ij}$は交互作用項を含む説明変数($SDI_i,LogAltitude_i, \dots, SDI_i \times LogAltitude_i \times Forested_i$)を含む。また、式\@ref(eq:fma3)よりこの式は以下のように変形できる。  
+
+$$
+\mu_i = \alpha + \Sigma_{j = 1}^7 \beta_j X_{ij} + \Sigma_{k=1}^{731} a_{ik} \times w_k
+$$
+
+行列式で書くと以下のように書ける。  
+$$
+\bf{X} = 1 \times \alpha + \bf{X \times \beta} + \bf{A \times w} (\#eq:m12-2)
+$$
+
+ハイパーパラメータは`pH`が得られる正規分布の標準偏差$\sigma$、Matern関数の$\kappa$と$u_i$の分散共分散行列の$\sigma_u$、そして$\bf{w}$である。式\@ref(eq:m12-2)を実行するためには、`INLA`に`inla.stack`関数で3つの要素を与える必要がある。  
+
+一つ目は共変量を含む行列$\bf{X}$で、以下のように作成する。  
+```{r}
+Xm <- model.matrix(~ -1 + SDI*logAlt*fForested, data = iph)
+X <- data.frame(SDI = Xm[,1],
+                Alt = Xm[,2],
+                fFor = Xm[,4],
+                SDI.Alt = Xm[,5],
+                SDI.fFor = Xm[,6],
+                Alt.fFor = Xm[,7],
+                SDI.Alt.fFor = Xm[,8])
+```
+
+それでは、`inla.stack`関数で`INLA`に情報を与える。これで作られたオブジェクトは"stack"といわれる。`A`のリストはガウス場への射影行列で、`effects`の各要素に対応している。  
+```{r}
+N <- nrow(iph)
+
+StackFit <- inla.stack(
+  ## stackの名前
+  tag = "Fit",
+  data = list(y = iph$pH),
+  A = list(1, 1, A),
+  effects = list(Intercept = rep(1,N),
+                 X = X,
+                 w = w.index))
+```
+
+## Define the formula for the spatial model   
+それでは、以下で空間相関のあるモデルとないモデルをフィットする。煩雑になるので、モデル式はあらかじめ作っておく。  
+
+```{r}
+## 空間相関なし
+f2a <- y ~ -1 + Intercept + SDO + Alt + fFor + SDI.Alt + SDI.fFor + Alt.fFor + SDI.Alt.fFor
+
+## 空間相関あり
+f2b <- y ~ -1 + Intercept + SDO + Alt + fFor + SDI.Alt + SDI.fFor + Alt.fFor + SDI.Alt.fFor + f(w, model = spde)
+```
+
+## Execute the spatial model in R  
+```{r}
+
+```
+

@@ -1,4 +1,4 @@
-CTL	Weight	Sex	
+CTL	Weight	Sex
 47.6	23.5	1	
 45.1	16.5	2	
 59.7	50.0	1	

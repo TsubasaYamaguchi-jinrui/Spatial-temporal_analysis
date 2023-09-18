@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>10 Matern correlation and SPDE | Introduction to spatial-temporal data anlysis using R</title>
+  <meta name="description" content="10 Matern correlation and SPDE | Introduction to spatial-temporal data anlysis using R" />
+  <meta name="generator" content="bookdown 0.35 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="10 Matern correlation and SPDE | Introduction to spatial-temporal data anlysis using R" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="10 Matern correlation and SPDE | Introduction to spatial-temporal data anlysis using R" />
+  
+  
+  
+
+<meta name="author" content="Tsubasa Yamaguchi" />
+
+
+<meta name="date" content="2023-09-18" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="Chapter10.html"/>
+<link rel="next" href="Chapter12.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.27/datatables.js"></script>
+<link href="libs/dt-core-1.12.1/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.12.1/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.12.1/js/jquery.dataTables.min.js"></script>
+<link href="libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet" />
+<script src="libs/nouislider-7.0.10/jquery.nouislider.min.js"></script>
+<link href="libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet" />
+<script src="libs/selectize-0.12.0/selectize.min.js"></script>
+<link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="custom_style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>本稿の目的</a></li>
+<li class="chapter" data-level="" data-path="Chapter0.html"><a href="Chapter0.html"><i class="fa fa-check"></i>0. パッケージの読み込み</a></li>
+<li class="chapter" data-level="1" data-path="Chapter2.html"><a href="Chapter2.html"><i class="fa fa-check"></i><b>1</b> Recognizing statistical dependency</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="Chapter2.html"><a href="Chapter2.html#pseudoreplication"><i class="fa fa-check"></i><b>1.1</b> Pseudoreplication</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="Chapter2.html"><a href="Chapter2.html#疑似反復とは"><i class="fa fa-check"></i><b>1.1.1</b> 疑似反復とは</a></li>
+<li class="chapter" data-level="1.1.2" data-path="Chapter2.html"><a href="Chapter2.html#時空間的な疑似反復"><i class="fa fa-check"></i><b>1.1.2</b> 時空間的な疑似反復</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="Chapter2.html"><a href="Chapter2.html#s1-2"><i class="fa fa-check"></i><b>1.2</b> Linear regression applied to spatial data</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="Chapter2.html"><a href="Chapter2.html#visualization"><i class="fa fa-check"></i><b>1.2.1</b> Visualization</a></li>
+<li class="chapter" data-level="1.2.2" data-path="Chapter2.html"><a href="Chapter2.html#dependency"><i class="fa fa-check"></i><b>1.2.2</b> Dependency</a></li>
+<li class="chapter" data-level="1.2.3" data-path="Chapter2.html"><a href="Chapter2.html#fit-the-model"><i class="fa fa-check"></i><b>1.2.3</b> Fit the model</a></li>
+<li class="chapter" data-level="1.2.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation"><i class="fa fa-check"></i><b>1.2.4</b> Model validation</a>
+<ul>
+<li class="chapter" data-level="1.2.4.1" data-path="Chapter2.html"><a href="Chapter2.html#check-homogeinity-and-model-misfit"><i class="fa fa-check"></i><b>1.2.4.1</b> Check homogeinity and model misfit</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2.5" data-path="Chapter2.html"><a href="Chapter2.html#check-spatial-dependence"><i class="fa fa-check"></i><b>1.2.5</b> Check spatial dependence</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="Chapter2.html"><a href="Chapter2.html#s2-2"><i class="fa fa-check"></i><b>1.3</b> GAM applied to temporal data</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="Chapter2.html"><a href="Chapter2.html#subnivium-temperature-data"><i class="fa fa-check"></i><b>1.3.1</b> Subnivium temperature data</a></li>
+<li class="chapter" data-level="1.3.2" data-path="Chapter2.html"><a href="Chapter2.html#sources-of-dependency"><i class="fa fa-check"></i><b>1.3.2</b> Sources of dependency</a></li>
+<li class="chapter" data-level="1.3.3" data-path="Chapter2.html"><a href="Chapter2.html#the-model"><i class="fa fa-check"></i><b>1.3.3</b> The model</a></li>
+<li class="chapter" data-level="1.3.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation-1"><i class="fa fa-check"></i><b>1.3.4</b> Model validation</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="Chapter3.html"><a href="Chapter3.html"><i class="fa fa-check"></i><b>2</b> Time series and GLS</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="Chapter3.html"><a href="Chapter3.html#ospreys"><i class="fa fa-check"></i><b>2.1</b> Ospreys</a></li>
+<li class="chapter" data-level="2.2" data-path="Chapter3.html"><a href="Chapter3.html#covariance-and-correlation-coefficients"><i class="fa fa-check"></i><b>2.2</b> Covariance and correlation coefficients</a></li>
+<li class="chapter" data-level="2.3" data-path="Chapter3.html"><a href="Chapter3.html#linear-regression-models"><i class="fa fa-check"></i><b>2.3</b> Linear regression models</a></li>
+<li class="chapter" data-level="2.4" data-path="Chapter3.html"><a href="Chapter3.html#focusing-on-the-residual-covariance-matrix"><i class="fa fa-check"></i><b>2.4</b> Focusing on the residual covariance matrix</a></li>
+<li class="chapter" data-level="2.5" data-path="Chapter3.html"><a href="Chapter3.html#dependency-and-the-covariance-matrix"><i class="fa fa-check"></i><b>2.5</b> Dependency and the covariance matrix</a></li>
+<li class="chapter" data-level="2.6" data-path="Chapter3.html"><a href="Chapter3.html#dealing-with-temporal-dependency"><i class="fa fa-check"></i><b>2.6</b> Dealing with temporal dependency</a>
+<ul>
+<li class="chapter" data-level="2.6.1" data-path="Chapter3.html"><a href="Chapter3.html#adelie-penguins"><i class="fa fa-check"></i><b>2.6.1</b> Adelie penguins</a></li>
+<li class="chapter" data-level="2.6.2" data-path="Chapter3.html"><a href="Chapter3.html#do-we-have-dependency"><i class="fa fa-check"></i><b>2.6.2</b> Do we have dependency?</a></li>
+<li class="chapter" data-level="2.6.3" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.3</b> Formulation of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.4" data-path="Chapter3.html"><a href="Chapter3.html#application-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.4</b> Application of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.5" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-gls-model"><i class="fa fa-check"></i><b>2.6.5</b> Formulation of the GLS model</a></li>
+<li class="chapter" data-level="2.6.6" data-path="Chapter3.html"><a href="Chapter3.html#implementation-using-the-gls-function"><i class="fa fa-check"></i><b>2.6.6</b> Implementation using the gls function</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="Chapter3.html"><a href="Chapter3.html#multiple-time-series"><i class="fa fa-check"></i><b>2.7</b> Multiple time series</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="Chapter4.html"><a href="Chapter4.html"><i class="fa fa-check"></i><b>3</b> Spatial data and GLS</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="Chapter4.html"><a href="Chapter4.html#variogram-models-for-spatial-dependency"><i class="fa fa-check"></i><b>3.1</b> Variogram models for spatial dependency</a></li>
+<li class="chapter" data-level="3.2" data-path="Chapter4.html"><a href="Chapter4.html#application-on-the-irish-ph-data"><i class="fa fa-check"></i><b>3.2</b> Application on the Irish pH data</a></li>
+<li class="chapter" data-level="3.3" data-path="Chapter4.html"><a href="Chapter4.html#s4-3"><i class="fa fa-check"></i><b>3.3</b> Matern correlation function</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="Chapter5.html"><a href="Chapter5.html"><i class="fa fa-check"></i><b>4</b> Linear mixed-effects models and dependency</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="Chapter5.html"><a href="Chapter5.html#white-storks"><i class="fa fa-check"></i><b>4.1</b> White Storks</a></li>
+<li class="chapter" data-level="4.2" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-wrongly-as-one-way-nested"><i class="fa fa-check"></i><b>4.2</b> Considering the data (wrongly) as one-way nested</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="Chapter5.html"><a href="Chapter5.html#model-formulation"><i class="fa fa-check"></i><b>4.2.1</b> model formulation</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="Chapter5.html"><a href="Chapter5.html#fitting-the-one-way-nested-model-using-lmer"><i class="fa fa-check"></i><b>4.3</b> Fitting the one-way nested model using lmer</a></li>
+<li class="chapter" data-level="4.4" data-path="Chapter5.html"><a href="Chapter5.html#model-validation-2"><i class="fa fa-check"></i><b>4.4</b> Model validation</a></li>
+<li class="chapter" data-level="4.5" data-path="Chapter5.html"><a href="Chapter5.html#sketching-the-fitted-value"><i class="fa fa-check"></i><b>4.5</b> Sketching the fitted value</a></li>
+<li class="chapter" data-level="4.6" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-correctly-as-two-way-nested"><i class="fa fa-check"></i><b>4.6</b> Considering the data (correctly) as two-way nested</a></li>
+<li class="chapter" data-level="4.7" data-path="Chapter5.html"><a href="Chapter5.html#differences-with-the-ar1-process-approach"><i class="fa fa-check"></i><b>4.7</b> Differences with the AR1 process approach</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="Chapter6.html"><a href="Chapter6.html"><i class="fa fa-check"></i><b>5</b> Modelling space explicitly</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="Chapter6.html"><a href="Chapter6.html#model-formulation-1"><i class="fa fa-check"></i><b>5.1</b> Model formulation</a></li>
+<li class="chapter" data-level="5.2" data-path="Chapter6.html"><a href="Chapter6.html#s6-2"><i class="fa fa-check"></i><b>5.2</b> Covariance matrix of the spatial random effect</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study"><i class="fa fa-check"></i><b>5.2.1</b> Simulation study</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="Chapter6.html"><a href="Chapter6.html#spatial-temporal-correlation"><i class="fa fa-check"></i><b>5.3</b> Spatial-temporal correlation</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study-continued"><i class="fa fa-check"></i><b>5.3.1</b> Simulation study (continued)</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="Chapter7.html"><a href="Chapter7.html"><i class="fa fa-check"></i><b>6</b> Introduction to Bayesian statistics</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="Chapter7.html"><a href="Chapter7.html#why-go-bayesian"><i class="fa fa-check"></i><b>6.1</b> Why go Bayesian?</a></li>
+<li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#s7-2"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
+<li class="chapter" data-level="6.3" data-path="Chapter7.html"><a href="Chapter7.html#s7-3"><i class="fa fa-check"></i><b>6.3</b> The mean of a distribution</a></li>
+<li class="chapter" data-level="6.4" data-path="Chapter7.html"><a href="Chapter7.html#bayes-theorem-again"><i class="fa fa-check"></i><b>6.4</b> Bayes theorem again</a></li>
+<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#s7-5"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="Chapter7.html"><a href="Chapter7.html#likelihood-function"><i class="fa fa-check"></i><b>6.5.1</b> Likelihood function</a></li>
+<li class="chapter" data-level="6.5.2" data-path="Chapter7.html"><a href="Chapter7.html#priors"><i class="fa fa-check"></i><b>6.5.2</b> Priors</a></li>
+<li class="chapter" data-level="6.5.3" data-path="Chapter7.html"><a href="Chapter7.html#posterior-distribution"><i class="fa fa-check"></i><b>6.5.3</b> Posterior distribution</a></li>
+<li class="chapter" data-level="6.5.4" data-path="Chapter7.html"><a href="Chapter7.html#diffuse-prior"><i class="fa fa-check"></i><b>6.5.4</b> Diffuse prior</a></li>
+<li class="chapter" data-level="6.5.5" data-path="Chapter7.html"><a href="Chapter7.html#informative-prior"><i class="fa fa-check"></i><b>6.5.5</b> Informative prior</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="Chapter7.html"><a href="Chapter7.html#markov-chain-monte-carlo-simulation"><i class="fa fa-check"></i><b>6.6</b> Markov chain Monte Carlo simulation</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="Chapter7.html"><a href="Chapter7.html#underlying-idea"><i class="fa fa-check"></i><b>6.6.1</b> underlying idea</a></li>
+<li class="chapter" data-level="6.6.2" data-path="Chapter7.html"><a href="Chapter7.html#simple-example-of-mcmc-algorithm"><i class="fa fa-check"></i><b>6.6.2</b> Simple example of MCMC algorithm</a></li>
+<li class="chapter" data-level="6.6.3" data-path="Chapter7.html"><a href="Chapter7.html#methods-in-mcmc"><i class="fa fa-check"></i><b>6.6.3</b> Methods in MCMC</a></li>
+<li class="chapter" data-level="6.6.4" data-path="Chapter7.html"><a href="Chapter7.html#flowchart-for-running-a-model-in-stan"><i class="fa fa-check"></i><b>6.6.4</b> Flowchart for running a model in Stan</a>
+<ul>
+<li class="chapter" data-level="6.6.4.1" data-path="Chapter7.html"><a href="Chapter7.html#preparing-the-data-for-stan"><i class="fa fa-check"></i><b>6.6.4.1</b> Preparing the data for Stan</a></li>
+<li class="chapter" data-level="6.6.4.2" data-path="Chapter7.html"><a href="Chapter7.html#decide-model-formulation-and-priors"><i class="fa fa-check"></i><b>6.6.4.2</b> Decide model formulation and priors</a></li>
+<li class="chapter" data-level="6.6.4.3" data-path="Chapter7.html"><a href="Chapter7.html#preparing-stan-file"><i class="fa fa-check"></i><b>6.6.4.3</b> Preparing stan file</a></li>
+<li class="chapter" data-level="6.6.4.4" data-path="Chapter7.html"><a href="Chapter7.html#initial-values"><i class="fa fa-check"></i><b>6.6.4.4</b> Initial values</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6.5" data-path="Chapter7.html"><a href="Chapter7.html#running-model-in-stan"><i class="fa fa-check"></i><b>6.6.5</b> Running model in Stan</a></li>
+<li class="chapter" data-level="6.6.6" data-path="Chapter7.html"><a href="Chapter7.html#assess-mixing"><i class="fa fa-check"></i><b>6.6.6</b> Assess mixing</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="Chapter7.html"><a href="Chapter7.html#integrated-nested-laplace-approximation"><i class="fa fa-check"></i><b>6.7</b> Integrated nested Laplace approximation</a>
+<ul>
+<li class="chapter" data-level="6.7.1" data-path="Chapter7.html"><a href="Chapter7.html#joint-posterior-distribution"><i class="fa fa-check"></i><b>6.7.1</b> Joint posterior distribution</a></li>
+<li class="chapter" data-level="6.7.2" data-path="Chapter7.html"><a href="Chapter7.html#marginal-distributions"><i class="fa fa-check"></i><b>6.7.2</b> Marginal distributions</a></li>
+<li class="chapter" data-level="6.7.3" data-path="Chapter7.html"><a href="Chapter7.html#back-to-high-school"><i class="fa fa-check"></i><b>6.7.3</b> Back to high school</a></li>
+<li class="chapter" data-level="6.7.4" data-path="Chapter7.html"><a href="Chapter7.html#inla"><i class="fa fa-check"></i><b>6.7.4</b> INLA</a></li>
+</ul></li>
+<li class="chapter" data-level="6.8" data-path="Chapter7.html"><a href="Chapter7.html#examples-using-r-inla"><i class="fa fa-check"></i><b>6.8</b> Examples using R-INLA</a>
+<ul>
+<li class="chapter" data-level="6.8.1" data-path="Chapter7.html"><a href="Chapter7.html#s7-8-1"><i class="fa fa-check"></i><b>6.8.1</b> Posterior summary</a></li>
+<li class="chapter" data-level="6.8.2" data-path="Chapter7.html"><a href="Chapter7.html#posterior-marginal-distributions"><i class="fa fa-check"></i><b>6.8.2</b> Posterior marginal distributions</a></li>
+</ul></li>
+<li class="chapter" data-level="6.9" data-path="Chapter7.html"><a href="Chapter7.html#追記"><i class="fa fa-check"></i><b>6.9</b> 追記</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="Chapter8.html"><a href="Chapter8.html"><i class="fa fa-check"></i><b>7</b> Multiple linear regression in R-INLA</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="Chapter8.html"><a href="Chapter8.html#introduction"><i class="fa fa-check"></i><b>7.1</b> Introduction</a></li>
+<li class="chapter" data-level="7.2" data-path="Chapter8.html"><a href="Chapter8.html#data-exploration"><i class="fa fa-check"></i><b>7.2</b> Data exploration</a></li>
+<li class="chapter" data-level="7.3" data-path="Chapter8.html"><a href="Chapter8.html#linear-regression-result"><i class="fa fa-check"></i><b>7.3</b> Linear regression result</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="Chapter8.html"><a href="Chapter8.html#executing-the-model-in-rinla"><i class="fa fa-check"></i><b>7.3.1</b> Executing the model in R=INLA</a></li>
+<li class="chapter" data-level="7.3.2" data-path="Chapter8.html"><a href="Chapter8.html#output-for-betas"><i class="fa fa-check"></i><b>7.3.2</b> Output for betas</a>
+<ul>
+<li class="chapter" data-level="7.3.2.1" data-path="Chapter8.html"><a href="Chapter8.html#numerical-output-for-the-betas"><i class="fa fa-check"></i><b>7.3.2.1</b> Numerical output for the betas</a></li>
+<li class="chapter" data-level="7.3.2.2" data-path="Chapter8.html"><a href="Chapter8.html#graphical-output-for-the-betas"><i class="fa fa-check"></i><b>7.3.2.2</b> Graphical output for the betas</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3.3" data-path="Chapter8.html"><a href="Chapter8.html#output-for-hyperparameters"><i class="fa fa-check"></i><b>7.3.3</b> Output for hyperparameters</a>
+<ul>
+<li class="chapter" data-level="7.3.3.1" data-path="Chapter8.html"><a href="Chapter8.html#numerical-output-for-hyper-parameters"><i class="fa fa-check"></i><b>7.3.3.1</b> Numerical output for hyper parameters</a></li>
+<li class="chapter" data-level="7.3.3.2" data-path="Chapter8.html"><a href="Chapter8.html#graphical-output-for-the-hyperparameters"><i class="fa fa-check"></i><b>7.3.3.2</b> Graphical output for the hyperparameters</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3.4" data-path="Chapter8.html"><a href="Chapter8.html#fitted-model"><i class="fa fa-check"></i><b>7.3.4</b> Fitted model</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="Chapter8.html"><a href="Chapter8.html#model-validation-3"><i class="fa fa-check"></i><b>7.4</b> Model validation</a></li>
+<li class="chapter" data-level="7.5" data-path="Chapter8.html"><a href="Chapter8.html#model-selection"><i class="fa fa-check"></i><b>7.5</b> Model selection</a>
+<ul>
+<li class="chapter" data-level="7.5.1" data-path="Chapter8.html"><a href="Chapter8.html#what-should-we-do"><i class="fa fa-check"></i><b>7.5.1</b> What should we do?</a></li>
+<li class="chapter" data-level="7.5.2" data-path="Chapter8.html"><a href="Chapter8.html#usind-the-dic"><i class="fa fa-check"></i><b>7.5.2</b> Usind the DIC</a>
+<ul>
+<li class="chapter" data-level="7.5.2.1" data-path="Chapter8.html"><a href="Chapter8.html#effective-number-of-parameters"><i class="fa fa-check"></i><b>7.5.2.1</b> Effective number of parameters</a></li>
+<li class="chapter" data-level="7.5.2.2" data-path="Chapter8.html"><a href="Chapter8.html#dic-related-output"><i class="fa fa-check"></i><b>7.5.2.2</b> DIC related output</a></li>
+<li class="chapter" data-level="7.5.2.3" data-path="Chapter8.html"><a href="Chapter8.html#model-selection-using-dic"><i class="fa fa-check"></i><b>7.5.2.3</b> Model selection using DIC</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5.3" data-path="Chapter8.html"><a href="Chapter8.html#waic"><i class="fa fa-check"></i><b>7.5.3</b> WAIC</a></li>
+<li class="chapter" data-level="7.5.4" data-path="Chapter8.html"><a href="Chapter8.html#out-of-sample-prediction"><i class="fa fa-check"></i><b>7.5.4</b> Out of sample prediction</a></li>
+<li class="chapter" data-level="7.5.5" data-path="Chapter8.html"><a href="Chapter8.html#posterior-predictive-check"><i class="fa fa-check"></i><b>7.5.5</b> Posterior predictive check</a>
+<ul>
+<li class="chapter" data-level="7.5.5.1" data-path="Chapter8.html"><a href="Chapter8.html#zuur-2017の方法"><i class="fa fa-check"></i><b>7.5.5.1</b> Zuur (2017)の方法</a></li>
+<li class="chapter" data-level="7.5.5.2" data-path="Chapter8.html"><a href="Chapter8.html#s8-5-5-2"><i class="fa fa-check"></i><b>7.5.5.2</b> 正しい方法</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7.6" data-path="Chapter8.html"><a href="Chapter8.html#s8-6"><i class="fa fa-check"></i><b>7.6</b> Visualizing the model</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="Chapter9.html"><a href="Chapter9.html"><i class="fa fa-check"></i><b>8</b> Mixed effects modelling in R-INLA to analysis otolith data</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="Chapter9.html"><a href="Chapter9.html#otoliths-in-plaice"><i class="fa fa-check"></i><b>8.1</b> Otoliths in plaice</a></li>
+<li class="chapter" data-level="8.2" data-path="Chapter9.html"><a href="Chapter9.html#model-formulation-2"><i class="fa fa-check"></i><b>8.2</b> Model formulation</a></li>
+<li class="chapter" data-level="8.3" data-path="Chapter9.html"><a href="Chapter9.html#dependency-1"><i class="fa fa-check"></i><b>8.3</b> Dependency</a></li>
+<li class="chapter" data-level="8.4" data-path="Chapter9.html"><a href="Chapter9.html#data-exploration-1"><i class="fa fa-check"></i><b>8.4</b> Data exploration</a></li>
+<li class="chapter" data-level="8.5" data-path="Chapter9.html"><a href="Chapter9.html#running-the-model-in-r-inla"><i class="fa fa-check"></i><b>8.5</b> Running the model in R-INLA</a></li>
+<li class="chapter" data-level="8.6" data-path="Chapter9.html"><a href="Chapter9.html#model-validation-4"><i class="fa fa-check"></i><b>8.6</b> Model validation</a></li>
+<li class="chapter" data-level="8.7" data-path="Chapter9.html"><a href="Chapter9.html#model-selection-1"><i class="fa fa-check"></i><b>8.7</b> Model selection</a></li>
+<li class="chapter" data-level="8.8" data-path="Chapter9.html"><a href="Chapter9.html#model-interpretation"><i class="fa fa-check"></i><b>8.8</b> Model interpretation</a>
+<ul>
+<li class="chapter" data-level="8.8.1" data-path="Chapter9.html"><a href="Chapter9.html#option-1-for-prediction-adding-extra-data"><i class="fa fa-check"></i><b>8.8.1</b> Option 1 for prediction: Adding extra data</a></li>
+<li class="chapter" data-level="8.8.2" data-path="Chapter9.html"><a href="Chapter9.html#s9-8-2"><i class="fa fa-check"></i><b>8.8.2</b> Option 2 for prediction: Using the <code>inla.make.lincombs</code></a></li>
+</ul></li>
+<li class="chapter" data-level="8.9" data-path="Chapter9.html"><a href="Chapter9.html#multiple-random-effects"><i class="fa fa-check"></i><b>8.9</b> Multiple random effects</a></li>
+<li class="chapter" data-level="8.10" data-path="Chapter9.html"><a href="Chapter9.html#changin-prior-of-fixed-parameters"><i class="fa fa-check"></i><b>8.10</b> Changin prior of fixed parameters</a></li>
+<li class="chapter" data-level="8.11" data-path="Chapter9.html"><a href="Chapter9.html#changing-priors-of-hyperparameters"><i class="fa fa-check"></i><b>8.11</b> Changing priors of hyperparameters</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="Chapter10.html"><a href="Chapter10.html"><i class="fa fa-check"></i><b>9</b> Poisson, negative binomial, binomial and g amma GLMs in R-INLA</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="Chapter10.html"><a href="Chapter10.html#poisson-and-negative-binomial-glms-in-r-inla"><i class="fa fa-check"></i><b>9.1</b> Poisson and negative binomial GLMs in R-INLA</a>
+<ul>
+<li class="chapter" data-level="9.1.1" data-path="Chapter10.html"><a href="Chapter10.html#introduction-1"><i class="fa fa-check"></i><b>9.1.1</b> Introduction</a></li>
+<li class="chapter" data-level="9.1.2" data-path="Chapter10.html"><a href="Chapter10.html#data-exploration-2"><i class="fa fa-check"></i><b>9.1.2</b> Data exploration</a></li>
+<li class="chapter" data-level="9.1.3" data-path="Chapter10.html"><a href="Chapter10.html#poisson-glm-an-r-inla"><i class="fa fa-check"></i><b>9.1.3</b> Poisson GLM an R-INLA</a>
+<ul>
+<li class="chapter" data-level="9.1.3.1" data-path="Chapter10.html"><a href="Chapter10.html#checking-overdispersion"><i class="fa fa-check"></i><b>9.1.3.1</b> Checking overdispersion</a></li>
+</ul></li>
+<li class="chapter" data-level="9.1.4" data-path="Chapter10.html"><a href="Chapter10.html#negative-binomial-glm-in-r-inla"><i class="fa fa-check"></i><b>9.1.4</b> Negative binomial GLM in R-INLA</a></li>
+<li class="chapter" data-level="9.1.5" data-path="Chapter10.html"><a href="Chapter10.html#model-selection-for-the-nb-glm"><i class="fa fa-check"></i><b>9.1.5</b> Model selection for the NB GLM</a></li>
+<li class="chapter" data-level="9.1.6" data-path="Chapter10.html"><a href="Chapter10.html#visualization-of-the-nb-glm"><i class="fa fa-check"></i><b>9.1.6</b> Visualization of the NB GLM</a></li>
+</ul></li>
+<li class="chapter" data-level="9.2" data-path="Chapter10.html"><a href="Chapter10.html#bernoulli-and-binomial-glm"><i class="fa fa-check"></i><b>9.2</b> Bernoulli and binomial GLM</a>
+<ul>
+<li class="chapter" data-level="9.2.1" data-path="Chapter10.html"><a href="Chapter10.html#bernoulli-glm"><i class="fa fa-check"></i><b>9.2.1</b> Bernoulli GLM</a></li>
+<li class="chapter" data-level="9.2.2" data-path="Chapter10.html"><a href="Chapter10.html#model-selection-with-the-marginal-likelihood"><i class="fa fa-check"></i><b>9.2.2</b> 10.2.2 Model selection with the marginal likelihood</a></li>
+<li class="chapter" data-level="9.2.3" data-path="Chapter10.html"><a href="Chapter10.html#binomial-glm"><i class="fa fa-check"></i><b>9.2.3</b> Binomial GLM</a></li>
+</ul></li>
+<li class="chapter" data-level="9.3" data-path="Chapter10.html"><a href="Chapter10.html#gamma-glm"><i class="fa fa-check"></i><b>9.3</b> Gamma GLM</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="Chapter11.html"><a href="Chapter11.html"><i class="fa fa-check"></i><b>10</b> Matern correlation and SPDE</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="Chapter11.html"><a href="Chapter11.html#continuous-gaussian-field"><i class="fa fa-check"></i><b>10.1</b> Continuous Gaussian field</a></li>
+<li class="chapter" data-level="10.2" data-path="Chapter11.html"><a href="Chapter11.html#models-that-we-have-in-mind"><i class="fa fa-check"></i><b>10.2</b> Models that we have in mind</a></li>
+<li class="chapter" data-level="10.3" data-path="Chapter11.html"><a href="Chapter11.html#matern-correlation"><i class="fa fa-check"></i><b>10.3</b> Matern correlation</a></li>
+<li class="chapter" data-level="10.4" data-path="Chapter11.html"><a href="Chapter11.html#spde-approach"><i class="fa fa-check"></i><b>10.4</b> SPDE approach</a>
+<ul>
+<li class="chapter" data-level="10.4.1" data-path="Chapter11.html"><a href="Chapter11.html#mesh"><i class="fa fa-check"></i><b>10.4.1</b> Mesh</a></li>
+<li class="chapter" data-level="10.4.2" data-path="Chapter11.html"><a href="Chapter11.html#finite-element-approach"><i class="fa fa-check"></i><b>10.4.2</b> Finite element approach</a></li>
+<li class="chapter" data-level="10.4.3" data-path="Chapter11.html"><a href="Chapter11.html#simulation-study-with-five-points"><i class="fa fa-check"></i><b>10.4.3</b> Simulation study with five points</a></li>
+</ul></li>
+<li class="chapter" data-level="10.5" data-path="Chapter11.html"><a href="Chapter11.html#weighting-factors-again"><i class="fa fa-check"></i><b>10.5</b> Weighting factors … again</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="Chapter12.html"><a href="Chapter12.html"><i class="fa fa-check"></i><b>11</b> Linear regression model with spatial dependency for the Irish pH data</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="Chapter12.html"><a href="Chapter12.html#introduction-2"><i class="fa fa-check"></i><b>11.1</b> Introduction</a></li>
+<li class="chapter" data-level="11.2" data-path="Chapter12.html"><a href="Chapter12.html#model-formulation-3"><i class="fa fa-check"></i><b>11.2</b> Model formulation</a></li>
+<li class="chapter" data-level="11.3" data-path="Chapter12.html"><a href="Chapter12.html#linear-regression-results"><i class="fa fa-check"></i><b>11.3</b> Linear regression results</a></li>
+<li class="chapter" data-level="11.4" data-path="Chapter12.html"><a href="Chapter12.html#model-validation-5"><i class="fa fa-check"></i><b>11.4</b> Model validation</a></li>
+<li class="chapter" data-level="11.5" data-path="Chapter12.html"><a href="Chapter12.html#adding-spatial-correlation-to-the-model"><i class="fa fa-check"></i><b>11.5</b> Adding spatial correlation to the model</a></li>
+<li class="chapter" data-level="11.6" data-path="Chapter12.html"><a href="Chapter12.html#defining-the-mesh-for-the-irish-ph-data"><i class="fa fa-check"></i><b>11.6</b> Defining the mesh for the Irish pH data</a></li>
+<li class="chapter" data-level="11.7" data-path="Chapter12.html"><a href="Chapter12.html#define-the-weight-factor-aik"><i class="fa fa-check"></i><b>11.7</b> Define the weight factor aik</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to spatial-temporal data anlysis using R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="c11" class="section level1 hasAnchor" number="10">
+<h1><span class="header-section-number">10</span> Matern correlation and SPDE<a href="Chapter11.html#c11" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>本章では、回帰モデルに空間的相関を加える方法をシミュレーションデータを用いて学ぶ。</p>
+<div id="continuous-gaussian-field" class="section level2 hasAnchor" number="10.1">
+<h2><span class="header-section-number">10.1</span> Continuous Gaussian field<a href="Chapter11.html#continuous-gaussian-field" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>N個の空間的座標(<span class="math inline">\(s_1, s_2, \dots, s_N\)</span>)があり、それぞれの場所でデータ<span class="math inline">\(y(s_1), y(s_2), \dots, y(s_N)\)</span>が確率過程<span class="math inline">\(Y(s)\)</span>によって得られるとする。もし<span class="math inline">\(y(s_i)\)</span>が正規分布に従うとするとき、<span class="math inline">\(Y(s)\)</span>を<strong>連続ガウス場</strong>(continuous gaussian field)という。この正規分布には平均と分散共分散行列が必要である。</p>
+<p>ここでは、応答変数ではなく空間的相関を表す項<span class="math inline">\(u(s_1), u(s_2), \dots, u(s_N)\)</span>が確率過程<span class="math inline">\(U(s)\)</span>によって得られるとする(第<a href="Chapter6.html#c6">5</a>章を参照)。このとき、<span class="math inline">\(u(s_i)\)</span>が正規分布から得られると仮定するとき、<span class="math inline">\(U(s)\)</span>を<strong>連続ランダムガウス場</strong>という。</p>
+</div>
+<div id="models-that-we-have-in-mind" class="section level2 hasAnchor" number="10.2">
+<h2><span class="header-section-number">10.2</span> Models that we have in mind<a href="Chapter11.html#models-that-we-have-in-mind" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>通常の空間データに対する線形回帰モデルは以下のように書ける。<br />
+<span class="math display">\[
+\begin{aligned}
+&amp;y(s_i) \sim N(\mu(s_i), \sigma^2)\\
+&amp;\mu(s_i) = Covariates(s_i)
+\end{aligned}
+\]</span></p>
+<p>ポワソン分布のGLMなら同様に以下のように書ける。<br />
+<span class="math display">\[
+\begin{aligned}
+&amp;y(s_i) \sim Poisson(\mu(s_i))\\
+&amp;log(\mu(s_i)) = Covariates(s_i)
+\end{aligned}
+\]</span></p>
+<p>これらは空間的な相関を考慮していない。空間的な相関を考慮したモデルは以下のようになる(第<a href="Chapter6.html#c6">5</a>章を参照)。<br />
+<span class="math display" id="eq:sp-cor-normal">\[
+\begin{aligned}
+&amp;y(s_i) \sim N(\mu(s_i), \sigma^2)\\
+&amp;\mu(s_i) = Covariates(s_i) + u(s_i)
+\end{aligned}
+\tag{10.1}
+\]</span></p>
+<p>ポワソン分布のGLMなら同様に以下のように書ける。<br />
+<span class="math display" id="eq:sp-cor-pois">\[
+\begin{aligned}
+&amp;y(s_i) \sim Poisson(\mu(s_i))\\
+&amp;log(\mu(s_i)) = Covariates(s_i) + u(s_i)
+\end{aligned}
+\tag{10.2}
+\]</span></p>
+</div>
+<div id="matern-correlation" class="section level2 hasAnchor" number="10.3">
+<h2><span class="header-section-number">10.3</span> Matern correlation<a href="Chapter11.html#matern-correlation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><span class="math inline">\(u(s_i)\)</span>の分散共分散行列としては、サンプリングをした場所のユークリッド距離とMatern相関関数(第<a href="Chapter4.html#s4-3">3.3</a>参照)を用いる。Matern関数は以下のように書ける。<span class="math inline">\(K_{\nu}()\)</span>は第2種ベッセル関数である。</p>
+<p><span class="math display">\[
+cor_{Matern}(U(s_i), U(s_j)) = \frac{2^{1-\nu}}{\Gamma(\nu)} \times (\kappa \times ||s_i - s_j||)^\nu \times K_\nu(\kappa \times ||s_i - s_j||)
+\]</span></p>
+<p>この関数を説明するため、100か所(<span class="math inline">\(s_1, s_2, \dots, s_{100}\)</span>)からデータをサンプリングしたとするシミュレーションを行う。X座標とY座標を以下のようにランダムにシミュレートする。</p>
+<div class="sourceCode" id="cb304"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb304-1"><a href="Chapter11.html#cb304-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb304-2"><a href="Chapter11.html#cb304-2" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">100</span>, <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max=</span> <span class="dv">100</span>)</span>
+<span id="cb304-3"><a href="Chapter11.html#cb304-3" tabindex="-1"></a>y1 <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">100</span>, <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max=</span> <span class="dv">100</span>)</span></code></pre></div>
+<p>得られた<span class="math inline">\(s_i\)</span>をプロットすると以下のようになる。</p>
+<div class="sourceCode" id="cb305"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb305-1"><a href="Chapter11.html#cb305-1" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">x =</span> x1,</span>
+<span id="cb305-2"><a href="Chapter11.html#cb305-2" tabindex="-1"></a>           <span class="at">y =</span> y1) <span class="sc">%&gt;%</span> </span>
+<span id="cb305-3"><a href="Chapter11.html#cb305-3" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y))<span class="sc">+</span></span>
+<span id="cb305-4"><a href="Chapter11.html#cb305-4" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb305-5"><a href="Chapter11.html#cb305-5" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb305-6"><a href="Chapter11.html#cb305-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb305-7"><a href="Chapter11.html#cb305-7" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;X-coordinate&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Y-coordinate&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-223-1.png" width="672" style="display: block; margin: auto;" />
+<br/></p>
+<p>2つの場所間の距離<span class="math inline">\(||s_i - s_j||\)</span>のヒストグラムと、距離の累積割合を示したのが図<a href="Chapter11.html#fig:dist-sim">10.1</a>である。</p>
+<div class="sourceCode" id="cb306"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb306-1"><a href="Chapter11.html#cb306-1" tabindex="-1"></a>dist <span class="ot">&lt;-</span> <span class="fu">dist</span>(<span class="fu">cbind</span>(x1,y1)) <span class="sc">%&gt;%</span> <span class="fu">as.matrix</span>()</span>
+<span id="cb306-2"><a href="Chapter11.html#cb306-2" tabindex="-1"></a><span class="fu">diag</span>(dist) <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb306-3"><a href="Chapter11.html#cb306-3" tabindex="-1"></a>dist.vec <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(dist) <span class="sc">%&gt;%</span> <span class="fu">na.omit</span>()</span>
+<span id="cb306-4"><a href="Chapter11.html#cb306-4" tabindex="-1"></a></span>
+<span id="cb306-5"><a href="Chapter11.html#cb306-5" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">dist =</span> dist.vec) <span class="sc">%&gt;%</span> </span>
+<span id="cb306-6"><a href="Chapter11.html#cb306-6" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dist))<span class="sc">+</span></span>
+<span id="cb306-7"><a href="Chapter11.html#cb306-7" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">alpha =</span> <span class="dv">0</span>,</span>
+<span id="cb306-8"><a href="Chapter11.html#cb306-8" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">&quot;black&quot;</span>,</span>
+<span id="cb306-9"><a href="Chapter11.html#cb306-9" tabindex="-1"></a>                 <span class="at">binwidth =</span> <span class="dv">8</span>)<span class="sc">+</span></span>
+<span id="cb306-10"><a href="Chapter11.html#cb306-10" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb306-11"><a href="Chapter11.html#cb306-11" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb306-12"><a href="Chapter11.html#cb306-12" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;A&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Distances between sites&quot;</span>,</span>
+<span id="cb306-13"><a href="Chapter11.html#cb306-13" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Frequency&quot;</span>) <span class="ot">-&gt;</span> p1</span>
+<span id="cb306-14"><a href="Chapter11.html#cb306-14" tabindex="-1"></a></span>
+<span id="cb306-15"><a href="Chapter11.html#cb306-15" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">sort</span>(dist.vec),</span>
+<span id="cb306-16"><a href="Chapter11.html#cb306-16" tabindex="-1"></a>           <span class="at">y =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(dist.vec)<span class="sc">/</span><span class="fu">length</span>(dist.vec)) <span class="sc">%&gt;%</span> </span>
+<span id="cb306-17"><a href="Chapter11.html#cb306-17" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span>x, <span class="at">y =</span> y))<span class="sc">+</span></span>
+<span id="cb306-18"><a href="Chapter11.html#cb306-18" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb306-19"><a href="Chapter11.html#cb306-19" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb306-20"><a href="Chapter11.html#cb306-20" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb306-21"><a href="Chapter11.html#cb306-21" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;B&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Distances between sites&quot;</span>,</span>
+<span id="cb306-22"><a href="Chapter11.html#cb306-22" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;Cumlutive proportion&quot;</span>) <span class="ot">-&gt;</span> p2</span>
+<span id="cb306-23"><a href="Chapter11.html#cb306-23" tabindex="-1"></a></span>
+<span id="cb306-24"><a href="Chapter11.html#cb306-24" tabindex="-1"></a>p1 <span class="sc">+</span> p2</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:dist-sim"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/dist-sim-1.png" alt="A: Histogram of distances between sites in the simulation study. B: Cumulative proportion versus distance between sites." width="960" />
+<p class="caption">
+図10.1: A: Histogram of distances between sites in the simulation study. B: Cumulative proportion versus distance between sites.
+</p>
+</div>
+<p><br/></p>
+<p>ここで、<span class="math inline">\(\nu = 1\)</span>とするときのMatern関数は以下のようになる。これは、<code>INLA</code>のデフォルトでもある。<br />
+<span class="math display">\[
+cor_{Matern}(U(s_i), U(s_j)) =  \kappa \times ||s_i - s_j|| \times K_1(\kappa \times ||s_i - s_j||)
+\]</span></p>
+<p><span class="math inline">\(\kappa\)</span>の値を様々に変えたときのMatern関数は以下のように計算できる。</p>
+<div class="sourceCode" id="cb307"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb307-1"><a href="Chapter11.html#cb307-1" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.01</span>,<span class="fl">0.03</span>,<span class="fl">0.05</span>,<span class="fl">0.07</span>,<span class="fl">0.1</span>,<span class="fl">0.3</span>,<span class="fl">0.5</span>,<span class="dv">1</span>,<span class="dv">2</span>)</span>
+<span id="cb307-2"><a href="Chapter11.html#cb307-2" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fu">max</span>(dist.vec), <span class="at">length =</span> <span class="dv">1000</span>)</span>
+<span id="cb307-3"><a href="Chapter11.html#cb307-3" tabindex="-1"></a></span>
+<span id="cb307-4"><a href="Chapter11.html#cb307-4" tabindex="-1"></a>corMatern <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb307-5"><a href="Chapter11.html#cb307-5" tabindex="-1"></a></span>
+<span id="cb307-6"><a href="Chapter11.html#cb307-6" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(kappa)){</span>
+<span id="cb307-7"><a href="Chapter11.html#cb307-7" tabindex="-1"></a> corMatern_i <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">kappa =</span> kappa[i],</span>
+<span id="cb307-8"><a href="Chapter11.html#cb307-8" tabindex="-1"></a>                           <span class="at">dist =</span> d,</span>
+<span id="cb307-9"><a href="Chapter11.html#cb307-9" tabindex="-1"></a>                           <span class="at">cor =</span>kappa[i]<span class="sc">*</span>d<span class="sc">*</span><span class="fu">besselK</span>(kappa[i]<span class="sc">*</span>d,<span class="dv">1</span>))</span>
+<span id="cb307-10"><a href="Chapter11.html#cb307-10" tabindex="-1"></a> </span>
+<span id="cb307-11"><a href="Chapter11.html#cb307-11" tabindex="-1"></a> corMatern_i[<span class="dv">1</span>,<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb307-12"><a href="Chapter11.html#cb307-12" tabindex="-1"></a> </span>
+<span id="cb307-13"><a href="Chapter11.html#cb307-13" tabindex="-1"></a> corMatern <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(corMatern, corMatern_i)</span>
+<span id="cb307-14"><a href="Chapter11.html#cb307-14" tabindex="-1"></a>}</span></code></pre></div>
+<p>第<a href="Chapter4.html#c4">3</a>章で、自己相関がなくなるまでの距離をレンジ(range)と呼んだ。Matern関数では、レンジ<span class="math inline">\(r\)</span>は以下の式で表せる。</p>
+<p><span class="math display">\[
+r = \frac{\sqrt{8 \times \nu}}{\kappa}
+\]</span></p>
+<p>様々な<span class="math inline">\(\kappa\)</span>のMatern関数を示したのが図(<a href="Chapter11.html#fig:matern">10.2</a>)である。縦の点線でレンジを表している。また、横の点線はMatern関数の値が0.1のところを示している。<span class="math inline">\(\kappa\)</span>の値が大きいほどより近い距離で空間的な相関がなくなることがわかる。</p>
+<div class="sourceCode" id="cb308"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb308-1"><a href="Chapter11.html#cb308-1" tabindex="-1"></a>r_kappa <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">kappa =</span> <span class="fu">str_c</span>(<span class="st">&quot;kappa = &quot;</span>, kappa),</span>
+<span id="cb308-2"><a href="Chapter11.html#cb308-2" tabindex="-1"></a>                      <span class="at">r =</span> <span class="fu">sqrt</span>(<span class="dv">8</span>)<span class="sc">/</span>kappa)</span>
+<span id="cb308-3"><a href="Chapter11.html#cb308-3" tabindex="-1"></a></span>
+<span id="cb308-4"><a href="Chapter11.html#cb308-4" tabindex="-1"></a>corMatern <span class="sc">%&gt;%</span> </span>
+<span id="cb308-5"><a href="Chapter11.html#cb308-5" tabindex="-1"></a>  <span class="fu">filter</span>(cor <span class="sc">&gt;=</span> <span class="fl">0.01</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb308-6"><a href="Chapter11.html#cb308-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">kappa =</span> <span class="fu">str_c</span>(<span class="st">&quot;kappa = &quot;</span>, kappa)) <span class="sc">%&gt;%</span> </span>
+<span id="cb308-7"><a href="Chapter11.html#cb308-7" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dist, <span class="at">y =</span> cor))<span class="sc">+</span></span>
+<span id="cb308-8"><a href="Chapter11.html#cb308-8" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb308-9"><a href="Chapter11.html#cb308-9" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">data =</span> r_kappa,</span>
+<span id="cb308-10"><a href="Chapter11.html#cb308-10" tabindex="-1"></a>             <span class="fu">aes</span>(<span class="at">xintercept =</span> r),</span>
+<span id="cb308-11"><a href="Chapter11.html#cb308-11" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb308-12"><a href="Chapter11.html#cb308-12" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.1</span>,</span>
+<span id="cb308-13"><a href="Chapter11.html#cb308-13" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb308-14"><a href="Chapter11.html#cb308-14" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb308-15"><a href="Chapter11.html#cb308-15" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb308-16"><a href="Chapter11.html#cb308-16" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>kappa,</span>
+<span id="cb308-17"><a href="Chapter11.html#cb308-17" tabindex="-1"></a>                 <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb308-18"><a href="Chapter11.html#cb308-18" tabindex="-1"></a>                 <span class="at">scales =</span> <span class="st">&quot;free&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:matern"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/matern-1.png" alt="Matérn correlation plotted versus distance for the simulated data set in Figure 11.1. Each panel corresponds to a different κ value." width="672" />
+<p class="caption">
+図10.2: Matérn correlation plotted versus distance for the simulated data set in Figure 11.1. Each panel corresponds to a different κ value.
+</p>
+</div>
+<p><br/></p>
+<p>さて、第<a href="Chapter6.html#c6">5</a>章でも触れたように、空間的な相関を加えたモデル(式<a href="Chapter11.html#eq:sp-cor-normal">(10.1)</a>)では空間的相関を表す項<span class="math inline">\(u_i\)</span>の分散共分散行列<span class="math inline">\(\bf{\Sigma}\)</span>にMatern関数を用いる。</p>
+<p><span class="math display">\[
+\bf{\Sigma} = cov_{Matern}\bigl( U(s_i), U(s_j)\bigl) = \sigma_u^2 \times cor_{Matern}\bigl( U(s_i), U(s_j)\bigl)
+\]</span></p>
+<p>これを用いて、モデル式を以下のように書ける。GFはガウス場であることを表している。すなわち、私たちはガウス場の分散共分散を得るために2つのパラメータ<span class="math inline">\(\kappa, \sigma_{u}\)</span>を推定する必要がある。最尤推定によって求めることもできるが、モデルが複雑になるとそれは難しくなってくる。</p>
+<p><span class="math display" id="eq:sp-cor-normal2">\[
+\begin{aligned}
+&amp;y(s_i) \sim N(\mu(s_i), \sigma^2)\\
+&amp;\mu(s_i) = Covariates(s_i) + u(s_i)\\
+&amp;\bf{u} \sim GF(0, \bf{\Sigma})
+\end{aligned}
+\tag{10.3}
+\]</span></p>
+<p>ポワソン分布のGLMなら同様に以下のように書ける。<br />
+<span class="math display" id="eq:sp-cor-pois2">\[
+\begin{aligned}
+&amp;y(s_i) \sim Poisson(\mu(s_i))\\
+&amp;log(\mu(s_i)) = Covariates(s_i) + u(s_i)\\
+&amp;\bf{u} \sim GF(0, \bf{\Sigma})
+\end{aligned}
+\tag{10.4}
+\]</span></p>
+</div>
+<div id="spde-approach" class="section level2 hasAnchor" number="10.4">
+<h2><span class="header-section-number">10.4</span> SPDE approach<a href="Chapter11.html#spde-approach" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>通常のガウス場はサンプルサイズが大きくなると問題が生じることがある。計算をシンプルにするために用いられる方法の一つが、ガウスマルコフランダム場(Gaussian Markovian RandomField: GMRF)を用いることである。GMRFを用いれば、GFの分散共分散行列を近似することができる。</p>
+<p>さらに、GMRFについて推定する際には以下の2つのショートカットを用いることができる。まず一つ目は、確率偏微分方程式(SPDE)を用いることである(理解する必要はない)。以下の式<a href="Chapter11.html#eq:SPDE">(10.5)</a>を解くと、<strong>GMRFのハイパーパラメータが得られる</strong>とが分かっている。左辺は、<span class="math inline">\(U(s)\)</span>の要素を二次微分したものの合計を表す。右辺は、ガウス場でのホワイトノイズ過程を表す。</p>
+<p><span class="math display" id="eq:SPDE">\[
+(\kappa^2 - \Delta)^{\alpha/2} \tau U(s) = W(s) \tag{10.5}
+\]</span></p>
+<p><span class="citation">Lindgren and Rue (<a href="#ref-Lindgren2015">2015</a>)</span> はこの式を解くと以下が導かれることを示している。なお、<span class="math inline">\(d\)</span>は空間の次元を表し、2次元空間モデルなら2、時系列モデルなら1である。<code>INLA</code>のデフォルトでは<span class="math inline">\(\alpha = 2\)</span>なので、2次元空間モデルでは<span class="math inline">\(\nu = 1\)</span>となる。</p>
+<p><span class="math display">\[
+\nu = \alpha - \frac{d}{2}
+\]</span></p>
+<p>また、式<a href="Chapter11.html#eq:SPDE">(10.5)</a>を解くと<span class="math inline">\(\sigma^2_{u}\)</span>外貨のように推定できる。</p>
+<p><span class="math display">\[
+\sigma_{u}^2 = \frac{\Gamma(\nu)}{\Gamma(\alpha) \times (4 \pi)^{d/2} \times \kappa^{2\nu} \times \tau^2}
+\]</span></p>
+<p>それでは、<a href="Chapter11.html#eq:SPDE">(10.5)</a>はどのように解くことができるだろうか? <span class="citation">Lindgren et al. (<a href="#ref-Lindgren2011">2011</a>)</span> はそのための理論を構築している。</p>
+<div id="mesh" class="section level3 hasAnchor" number="10.4.1">
+<h3><span class="header-section-number">10.4.1</span> Mesh<a href="Chapter11.html#mesh" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p><span class="citation">Lindgren et al. (<a href="#ref-Lindgren2011">2011</a>)</span> では、<strong>メッシュ</strong>と呼ばれるイレギュラーなグリッドを用いる。メッシュは、調査区間をかぶらないように三角形に分ける。これらの三角形は隣接する各三角形と1つの共通の辺と2つの共通の点を有する。三角形を作成する方法としてはいろいろな方法がある。例えば、ドロネー法と呼ばれる方法では、三角形の内角の最小値を最大にするように三角形に分割する。例として、先ほどシミュレートした100個のデータについてメッシュを作成したものを図<a href="Chapter11.html#fig:mesh-example">10.3</a>に示した。</p>
+<div class="sourceCode" id="cb309"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb309-1"><a href="Chapter11.html#cb309-1" tabindex="-1"></a>loc <span class="ot">&lt;-</span> <span class="fu">cbind</span>(x1, y1)</span>
+<span id="cb309-2"><a href="Chapter11.html#cb309-2" tabindex="-1"></a></span>
+<span id="cb309-3"><a href="Chapter11.html#cb309-3" tabindex="-1"></a></span>
+<span id="cb309-4"><a href="Chapter11.html#cb309-4" tabindex="-1"></a>mesh1 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(loc, </span>
+<span id="cb309-5"><a href="Chapter11.html#cb309-5" tabindex="-1"></a>                      <span class="do">## 三角形の辺の長さの最大値</span></span>
+<span id="cb309-6"><a href="Chapter11.html#cb309-6" tabindex="-1"></a>                      <span class="at">max.edge=</span><span class="fu">c</span>(<span class="dv">10</span>), </span>
+<span id="cb309-7"><a href="Chapter11.html#cb309-7" tabindex="-1"></a>                      <span class="do">## ポイント間の最小距離</span></span>
+<span id="cb309-8"><a href="Chapter11.html#cb309-8" tabindex="-1"></a>                      <span class="at">cutoff =</span> <span class="fl">0.5</span>)</span>
+<span id="cb309-9"><a href="Chapter11.html#cb309-9" tabindex="-1"></a></span>
+<span id="cb309-10"><a href="Chapter11.html#cb309-10" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">2</span>,<span class="dv">0</span>))</span>
+<span id="cb309-11"><a href="Chapter11.html#cb309-11" tabindex="-1"></a><span class="fu">plot</span>(mesh1)</span>
+<span id="cb309-12"><a href="Chapter11.html#cb309-12" tabindex="-1"></a><span class="fu">points</span>(loc, <span class="at">col =</span> <span class="dv">1</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:mesh-example"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/mesh-example-1.png" alt="Triangularisation for simulated data. Black dots are sampling locations. Where triangles come together is called a vertex." width="672" />
+<p class="caption">
+図10.3: Triangularisation for simulated data. Black dots are sampling locations. Where triangles come together is called a vertex.
+</p>
+</div>
+</div>
+<div id="finite-element-approach" class="section level3 hasAnchor" number="10.4.2">
+<h3><span class="header-section-number">10.4.2</span> Finite element approach<a href="Chapter11.html#finite-element-approach" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>メッシュを作成したことで有限要素アプローチ(finite element approach)という以下の式が成り立つ。</p>
+<p><span class="math display" id="eq:fma">\[
+u(s_i) = \Sigma_{k=1}^G a_k(s_i) \times w_k \tag{10.6}
+\]</span></p>
+<p>これはどういうことだろうか?以下のシミュレーションで説明する。</p>
+</div>
+<div id="simulation-study-with-five-points" class="section level3 hasAnchor" number="10.4.3">
+<h3><span class="header-section-number">10.4.3</span> Simulation study with five points<a href="Chapter11.html#simulation-study-with-five-points" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>100ポイントでは説明するのにあまりに複雑なので、5ポイントのデータで説明を行う。まず、5ポイントのデータをシミュレートする。</p>
+<div class="sourceCode" id="cb310"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb310-1"><a href="Chapter11.html#cb310-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb310-2"><a href="Chapter11.html#cb310-2" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">x1 =</span> <span class="fu">runif</span>(<span class="at">n =</span> <span class="dv">5</span>),</span>
+<span id="cb310-3"><a href="Chapter11.html#cb310-3" tabindex="-1"></a>           <span class="at">y1 =</span> <span class="fu">runif</span>(<span class="at">n =</span> <span class="dv">5</span>))</span></code></pre></div>
+<p>続いて、この5ポイントについてメッシュを作成する。</p>
+<div class="sourceCode" id="cb311"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb311-1"><a href="Chapter11.html#cb311-1" tabindex="-1"></a>mesh <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(S, <span class="at">max.edge =</span> <span class="dv">1</span>)</span>
+<span id="cb311-2"><a href="Chapter11.html#cb311-2" tabindex="-1"></a><span class="fu">plot</span>(mesh)</span>
+<span id="cb311-3"><a href="Chapter11.html#cb311-3" tabindex="-1"></a><span class="fu">points</span>(S, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-226-1.png" width="768" style="display: block; margin: auto;" /></p>
+<p>さて、それでは式<a href="Chapter11.html#eq:fma">(10.6)</a>の説明に入る。<span class="math inline">\(G\)</span>はメッシュ内の頂点の数であり、Rでは以下のように求められる。</p>
+<div class="sourceCode" id="cb312"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb312-1"><a href="Chapter11.html#cb312-1" tabindex="-1"></a>mesh<span class="sc">$</span>n</span></code></pre></div>
+<pre><code>## [1] 31</code></pre>
+<p>よって、例えば1つ目のポイント<span class="math inline">\(s_1\)</span>については以下のように書ける。<br />
+<span class="math display" id="eq:fma1">\[
+u(s_1) = \Sigma_{k=1}^{31} a_k(s_1) \times w_k \tag{10.7}
+\]</span></p>
+<p><span class="math inline">\(a_k(s_1)\)</span>は単純なもので、<span class="math inline">\(k\)</span>番目の頂点が<span class="math inline">\(s_1\)</span>であるか否か(1/0)である。これは、以下のように確認できる。31列のデータが5行あり、各行は<span class="math inline">\(s_1, \dots s_5\)</span>に対応する。ドットは0を表す。すなわち、<span class="math inline">\(s_1\)</span>は9番目の頂点ということである。つまり、<span class="math inline">\(a_1(s_1) = 0, a_2(s_1) = 0, \dots, a_8(s_1) = 0, a_9(s_1) =1, a_{10}(s_1) = 0, \dots, a_{31}(s_1) = 0\)</span>である。</p>
+<div class="sourceCode" id="cb314"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb314-1"><a href="Chapter11.html#cb314-1" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">inla.spde.make.A</span>(mesh, <span class="at">loc =</span> S)</span>
+<span id="cb314-2"><a href="Chapter11.html#cb314-2" tabindex="-1"></a>A</span></code></pre></div>
+<pre><code>## 5 x 31 sparse Matrix of class &quot;dgCMatrix&quot;
+##                                                                   
+## [1,] . . . . . . . 0 1 . . . . . . . . . . . . . 0 . . . . . . . .
+## [2,] . . . . . . . . . 1 . . . 0 . . . . . . . . . . . . 0 . . . .
+## [3,] . . . . . . . . . . 1 . . . . . . . . . . 0 . . . . 0 . . . .
+## [4,] . . . . . . . . . . . 1 0 . . 0 . . . . . . . . . . . . . . .
+## [5,] . . 0 . . . . . . . . . 1 . . . . . . . . . . . 0 . . . . . .</code></pre>
+<p>全長点の座標は以下のように確認できる。<span class="math inline">\(s_1\)</span>は9行目のデータである。</p>
+<div class="sourceCode" id="cb316"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb316-1"><a href="Chapter11.html#cb316-1" tabindex="-1"></a>mesh<span class="sc">$</span>loc[,<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>] <span class="sc">%&gt;%</span> </span>
+<span id="cb316-2"><a href="Chapter11.html#cb316-2" tabindex="-1"></a>  <span class="fu">data.frame</span>()</span></code></pre></div>
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["X1"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["X2"],"name":[2],"type":["dbl"],"align":["right"]}],"data":[{"1":"0.2700384","2":"0.003213372"},{"1":"0.5469481","2":"0.003213372"},{"1":"0.9828104","2":"0.439075638"},{"1":"0.9828104","2":"0.511524232"},{"1":"0.5595725","2":"0.934762172"},{"1":"0.3914378","2":"0.934762172"},{"1":"0.2452344","2":"0.788558740"},{"1":"0.2452344","2":"0.028017402"},{"1":"0.2875775","2":"0.045556499"},{"1":"0.7883051","2":"0.528105488"},{"1":"0.4089769","2":"0.892419044"},{"1":"0.8830174","2":"0.551435014"},{"1":"0.9404673","2":"0.456614735"},{"1":"0.7711914","2":"0.723143202"},{"1":"0.8770009","2":"0.617333717"},{"1":"0.9299057","2":"0.564428974"},{"1":"0.2452344","2":"0.408288071"},{"1":"0.7648793","2":"0.221144505"},{"1":"0.2452344","2":"0.218152736"},{"1":"0.8738448","2":"0.330110071"},{"1":"0.4084933","2":"0.003213372"},{"1":"0.3183361","2":"0.861660456"},{"1":"0.2452344","2":"0.123085069"},{"1":"0.4755051","2":"0.934762172"},{"1":"0.9283276","2":"0.384592855"},{"1":"0.3392659","2":"0.003213372"},{"1":"0.4323838","2":"0.674511049"},{"1":"0.5175388","2":"0.795285048"},{"1":"0.4057727","2":"0.170618903"},{"1":"0.8382842","2":"0.436804173"},{"1":"0.6359231","2":"0.385360216"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+<p><br/></p>
+<p>最後に<span class="math inline">\(w_k\)</span>である。<code>INLA</code>では、式<a href="Chapter11.html#eq:SPDE">(10.5)</a>を少し修正したものを用いて<span class="math inline">\(w_k\)</span>とその分散共分散行列を取得する。式<a href="Chapter11.html#eq:fma">(10.6)</a>の利点は、<span class="math inline">\(w_1, w_2, \dots, w_{31}\)</span>を求めることができる点である。</p>
+</div>
+</div>
+<div id="weighting-factors-again" class="section level2 hasAnchor" number="10.5">
+<h2><span class="header-section-number">10.5</span> Weighting factors … again<a href="Chapter11.html#weighting-factors-again" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>先ほどは全てのサンプリングポイントがメッシュの三角形の頂点と一致したが、三角形の内側にサンプリングポイントを作ることも可能である。図<a href="Chapter11.html#fig:mesh">10.4</a>はその一例を示したものである。作成方法については後程説明する。</p>
+<div class="sourceCode" id="cb317"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb317-1"><a href="Chapter11.html#cb317-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1231</span>)</span>
+<span id="cb317-2"><a href="Chapter11.html#cb317-2" tabindex="-1"></a>coords <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">x1 =</span> <span class="fu">runif</span>(<span class="dv">5</span>), </span>
+<span id="cb317-3"><a href="Chapter11.html#cb317-3" tabindex="-1"></a>                <span class="at">y1 =</span> <span class="fu">runif</span>(<span class="dv">5</span>))</span>
+<span id="cb317-4"><a href="Chapter11.html#cb317-4" tabindex="-1"></a></span>
+<span id="cb317-5"><a href="Chapter11.html#cb317-5" tabindex="-1"></a>pl.dom <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">0</span>), <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb317-6"><a href="Chapter11.html#cb317-6" tabindex="-1"></a></span>
+<span id="cb317-7"><a href="Chapter11.html#cb317-7" tabindex="-1"></a>mesh2 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(pl.dom, </span>
+<span id="cb317-8"><a href="Chapter11.html#cb317-8" tabindex="-1"></a>                     <span class="at">max.edge=</span> <span class="fl">0.5</span>)</span>
+<span id="cb317-9"><a href="Chapter11.html#cb317-9" tabindex="-1"></a></span>
+<span id="cb317-10"><a href="Chapter11.html#cb317-10" tabindex="-1"></a><span class="fu">plot</span>(mesh2)</span>
+<span id="cb317-11"><a href="Chapter11.html#cb317-11" tabindex="-1"></a><span class="fu">points</span>(coords, <span class="at">pch=</span><span class="dv">16</span>, <span class="at">cex =</span> <span class="dv">2</span>) </span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:mesh"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/mesh-1.png" alt="Different mesh for the five sampling locations. In this case all sampling locations are inside triangles and not on the vertices." width="672" />
+<p class="caption">
+図10.4: Different mesh for the five sampling locations. In this case all sampling locations are inside triangles and not on the vertices.
+</p>
+</div>
+<p><br/></p>
+<p>メッシュは41ポイントを有する。<span class="math inline">\(a_k(s_i)\)</span>は以下のようになる。先ほどのように1か0ではなく、0と0から1の間の少数のいずれかであることが分かる。</p>
+<div class="sourceCode" id="cb318"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb318-1"><a href="Chapter11.html#cb318-1" tabindex="-1"></a>A <span class="ot">&lt;-</span> <span class="fu">inla.spde.make.A</span>(mesh2, <span class="at">loc =</span> S)</span>
+<span id="cb318-2"><a href="Chapter11.html#cb318-2" tabindex="-1"></a></span>
+<span id="cb318-3"><a href="Chapter11.html#cb318-3" tabindex="-1"></a>A <span class="sc">%&gt;%</span> </span>
+<span id="cb318-4"><a href="Chapter11.html#cb318-4" tabindex="-1"></a>  <span class="fu">as.matrix</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb318-5"><a href="Chapter11.html#cb318-5" tabindex="-1"></a>  <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb318-6"><a href="Chapter11.html#cb318-6" tabindex="-1"></a>  <span class="fu">datatable</span>(<span class="at">options =</span> <span class="fu">list</span>(<span class="at">scrollX =</span> <span class="dv">41</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb318-7"><a href="Chapter11.html#cb318-7" tabindex="-1"></a>  <span class="fu">formatRound</span>(<span class="at">columns =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">41</span>, <span class="at">digits =</span> <span class="dv">3</span>)</span></code></pre></div>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-bdad3c09eeedef192819" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-bdad3c09eeedef192819">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5"],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0.276262989060372,0.493532680813499],[0.337868039078704,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0.0999775392573811,0,0,0,0],[0,0,0,0.0659842079521219,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0.359693519312442,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0.0556643911021944,0,0,0.18183579839768],[0,0,0.0973199508849067,0,0],[0.562154421663915,0,0,0,0],[0,0,0,0,0],[0,0.937644518014923,0,0.657752802987506,0.32463152078882],[0,0,0.542986529802652,0,0],[0,0.00669109088288295,0,0,0],[0,0,0,0,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>V1<\/th>\n      <th>V2<\/th>\n      <th>V3<\/th>\n      <th>V4<\/th>\n      <th>V5<\/th>\n      <th>V6<\/th>\n      <th>V7<\/th>\n      <th>V8<\/th>\n      <th>V9<\/th>\n      <th>V10<\/th>\n      <th>V11<\/th>\n      <th>V12<\/th>\n      <th>V13<\/th>\n      <th>V14<\/th>\n      <th>V15<\/th>\n      <th>V16<\/th>\n      <th>V17<\/th>\n      <th>V18<\/th>\n      <th>V19<\/th>\n      <th>V20<\/th>\n      <th>V21<\/th>\n      <th>V22<\/th>\n      <th>V23<\/th>\n      <th>V24<\/th>\n      <th>V25<\/th>\n      <th>V26<\/th>\n      <th>V27<\/th>\n      <th>V28<\/th>\n      <th>V29<\/th>\n      <th>V30<\/th>\n      <th>V31<\/th>\n      <th>V32<\/th>\n      <th>V33<\/th>\n      <th>V34<\/th>\n      <th>V35<\/th>\n      <th>V36<\/th>\n      <th>V37<\/th>\n      <th>V38<\/th>\n      <th>V39<\/th>\n      <th>V40<\/th>\n      <th>V41<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":41,"columnDefs":[{"targets":1,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":2,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":3,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":4,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":5,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":6,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":7,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":8,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":9,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":10,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":11,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":12,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":13,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":14,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":15,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":16,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":17,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":18,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":19,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":20,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":21,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":22,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":23,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":24,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":25,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":26,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":27,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":28,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":29,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":30,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":31,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":32,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":33,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":34,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":35,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":36,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":37,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":38,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":39,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":40,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"targets":41,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 3, 3, \",\", \".\", null);\n  }"},{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":["options.columnDefs.0.render","options.columnDefs.1.render","options.columnDefs.2.render","options.columnDefs.3.render","options.columnDefs.4.render","options.columnDefs.5.render","options.columnDefs.6.render","options.columnDefs.7.render","options.columnDefs.8.render","options.columnDefs.9.render","options.columnDefs.10.render","options.columnDefs.11.render","options.columnDefs.12.render","options.columnDefs.13.render","options.columnDefs.14.render","options.columnDefs.15.render","options.columnDefs.16.render","options.columnDefs.17.render","options.columnDefs.18.render","options.columnDefs.19.render","options.columnDefs.20.render","options.columnDefs.21.render","options.columnDefs.22.render","options.columnDefs.23.render","options.columnDefs.24.render","options.columnDefs.25.render","options.columnDefs.26.render","options.columnDefs.27.render","options.columnDefs.28.render","options.columnDefs.29.render","options.columnDefs.30.render","options.columnDefs.31.render","options.columnDefs.32.render","options.columnDefs.33.render","options.columnDefs.34.render","options.columnDefs.35.render","options.columnDefs.36.render","options.columnDefs.37.render","options.columnDefs.38.render","options.columnDefs.39.render","options.columnDefs.40.render"],"jsHooks":[]}</script>
+<p><br/></p>
+<p>例えば、<span class="math inline">\(a_{14}(s_1) = 0.338, a_{19}(s_1) = 0.100, a_{36}(s_1) = 0.562\)</span>で、それ以外の<span class="math inline">\(a_k(s_1)\)</span>は0である。0以外の値をとる頂点は、<span class="math inline">\(s_1\)</span>が含まれる三角形の頂点であるので、<span class="math inline">\(u(s_1)\)</span>は式<a href="Chapter11.html#eq:fma1">(10.7)</a>から以下のように書ける。</p>
+<p><span class="math display">\[
+u(s_1) = 0.338 \times w_{14} + 0.100 \times w_{19} + 0.562 \times w_{36}
+\]</span></p>
+
+</div>
+</div>
+<h3>References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Lindgren2015" class="csl-entry">
+Lindgren F, Rue H (2015) Bayesian spatial modelling with <span>R-INLA</span>. J Stat Softw 63:1–25
+</div>
+<div id="ref-Lindgren2011" class="csl-entry">
+Lindgren F, Rue H, Lindström J (2011) An explicit link between gaussian fields and gaussian markov random fields: The stochastic partial differential equation approach. J R Stat Soc Series B Stat Methodol 73:423–498
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="Chapter10.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="Chapter12.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

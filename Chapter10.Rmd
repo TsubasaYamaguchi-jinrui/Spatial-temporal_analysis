@@ -758,4 +758,72 @@ data.frame(type = c("Full", "- Conc × Toxic"),
 過分散の診断を含むモデル診断も行う必要があるが、ここでは省略する。  
 
 ## Gamma GLM  
-ここでは、
+ここでは、イタリアのトスカーナ地方のアメリカザリガニについて調査した @Ligas2008 のデータを用いる。746個体について6つの形態学的特徴が記録されている。ここでは、体重(`Weight`)と性別(`Sex`)、体長(`CTL`)のみに着目する。    
+
+```{r}
+cray <- read_delim("data/Procambarus.txt") %>% 
+  mutate(fSex = as.factor(Sex))
+
+datatable(cray,
+          options = list(scrollX = 80),
+          filter = "top")
+```
+<br/>  
+
+以下のモデルを考える。回帰係数は省略している。    
+$$
+\begin{aligned}
+&Weight_i \sim Gamma(\mu_i, \phi)\\
+&E(Weight_i) = \mu_i \; and \; var(Weight_i) = \frac{\mu_i^2}{\phi}\\
+&log(\mu_i) = Length_i + Sex_i + +ength_i \times Sex_i
+\end{aligned}
+$$
+
+Rでは以下のように実行する。  
+```{r}
+m10_11 <- inla(Weight ~ CTL*fSex,
+               family = "Gamma",
+               control.compute = list(waic = TRUE,
+                                      dic = TRUE),
+               control.family = list(link = "log",
+                                     hyper = list(prec = list(
+                                       prior = "loggamma",
+                                       param = c(1,0.5)
+                                     ))),
+               data = cray)
+```
+
+ガンマ分布のパラメータ$\phi$は負の二項分布の$k$と同じように機能する[^foot9]。デフォルトの事前分布としては、$log(\phi)$に対してガンマ分布が用いられている。`INLA`では$\phi$はprecisionパラメータと呼ばれ、モデルの結果に推定値が直接示されている。      
+
+```{r}
+m10_11$summary.hyperpar
+```
+
+[^foot9]: というより、負の二項分布はポワソン分布の期待値$\lambda$がガンマ分布から得られているとする混合分布である。  
+
+モデル選択を行うため、交互作用なしのモデルとフルモデルの比較を行ったところ、交互作用のないモデルの方がDICとWAICが低い値をとることが分かった。  
+
+```{r}
+m10_11b <- inla(Weight ~ CTL + fSex,
+               family = "Gamma",
+               control.compute = list(waic = TRUE,
+                                      dic = TRUE),
+               control.family = list(link = "log",
+                                     hyper = list(prec = list(
+                                       prior = "loggamma",
+                                       param = c(1,0.5)
+                                     ))),
+               data = cray)
+
+waic.11 <- c(m10_11$waic$waic, m10_11b$waic$waic)
+  dic.11 <- c(m10_11$dic$dic, m10_11b$dic$dic)
+
+data.frame(type = c("Full", "- Conc × Toxic"),
+           WAIC = waic.11,
+           DIC = dic.11) %>% 
+  column_to_rownames(var = "type")
+
+```
+<br/>  
+
+過分散の診断を含むモデル診断も行う必要があるが、ここでは省略する。 
