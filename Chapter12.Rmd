@@ -5,7 +5,7 @@
 用いるのは第\@ref(c2)章で用いた、アイルランドの257の川において、川の`pH`が`SDI`(Sodium Dominance Index; 陽イオン中のナトリウムイオン)と関連しているかを、緯度(`Altitude`)やその場所が森林化されているか(`Forested`)も考慮したうえで調べた @Cruikshanks2006 のデータである。第\@ref(c2)章では、地理的に近いデータほど類似しており、疑似反復の問題を避けるためには空間的相関を考慮したモデルを適用する必要があることを確認した。  
 
 ## Model formulation  
-まず、空間的な相関を考慮しないモデルとして以下のモデルを考える。2-way interaction と 3-way interactionをすべて含んでいる。  
+まず、空間的な相関を考慮しないモデルとして以下のモデルを考える。2次の交互作用項と3次の交互作用項をすべて含んでいる。  
 
 $$
 \begin{aligned}
@@ -23,7 +23,8 @@ $$
 
 ```{r}
 iph %>% 
-  mutate(logAlt = log10(Altitude)) -> iph
+  mutate(logAlt = log10(Altitude)) %>% 
+  mutate(fForested = fct_relevel(fForested,"yes","no"))-> iph
 
 m12_1 <- inla(pH ~ logAlt*SDI*fForested,
               family = "gaussian",
@@ -116,8 +117,10 @@ vario_12_1 %>%
   theme_bw()+
   theme(aspect.ratio = 1)+
   facet_rep_wrap(~ dir.hor,
+                 repeat.tick.labels = TRUE,
                  labeller = as_labeller(c("0" = "North-South",
-                                          "90" = "East-West")))+
+                                          "90" = "East-West")),
+                 scales = "free")+
   labs(y = "semivariogram")
 ```
 
@@ -274,9 +277,9 @@ $$
 $a_{ik}$は重みづけ関数と呼ばれる。Rでは以下のように確認できる。例えば、$a_{1k}$は以下のようになる。
 
 ```{r}
-A <- inla.spde.make.A(mesh12_5, loc = Loc)
+A12_5 <- inla.spde.make.A(mesh12_5, loc = Loc)
 
-A[1,]
+A12_5[1,]
 ```
 
 ## Define the SPDE  
@@ -303,7 +306,7 @@ $$
 $\bf{w}$は`INLA`で推定する必要がある。これは以下のようにできる。`w.index`中の`w`は1から737の数字を含む。`w.group`と`w.repl`については時空間モデルを実行するときに解説する。    
 ```{r}
 w.index <- inla.spde.make.index(
-  name = "w",
+  name = 'w',
   n.spde = spde$n.spde,
   n.group = 1,
   n.repl = 1)
@@ -333,14 +336,16 @@ $$
 
 一つ目は共変量を含む行列$\bf{X}$で、以下のように作成する。  
 ```{r}
-Xm <- model.matrix(~ -1 + SDI*logAlt*fForested, data = iph)
-X <- data.frame(SDI = Xm[,1],
-                Alt = Xm[,2],
-                fFor = Xm[,4],
-                SDI.Alt = Xm[,5],
-                SDI.fFor = Xm[,6],
-                Alt.fFor = Xm[,7],
-                SDI.Alt.fFor = Xm[,8])
+Xm <- model.matrix(~ logAlt * SDI * fForested, 
+                   data = iph)
+
+X <- data.frame(Alt          = Xm[,2],
+                SDI          = Xm[,3],
+                fFor         = Xm[,4],
+                Alt.SDI      = Xm[,5],
+                Alt.fFor     = Xm[,6],
+                SDI.fFor     = Xm[,7],
+                Alt.SDI.fFor = Xm[,8])
 ```
 
 それでは、`inla.stack`関数で`INLA`に情報を与える。これで作られたオブジェクトは"stack"といわれる。`A`のリストはガウス場への射影行列で、`effects`の各要素に対応している。  
@@ -348,13 +353,13 @@ X <- data.frame(SDI = Xm[,1],
 N <- nrow(iph)
 
 StackFit <- inla.stack(
-  ## stackの名前
-  tag = "Fit",
-  data = list(y = iph$pH),
-  A = list(1, 1, A),
-  effects = list(Intercept = rep(1,N),
-                 X = X,
-                 w = w.index))
+             tag = "Fit",
+             data = list(y = iph$pH),  
+	           A = list(1, 1, A12_5),                  
+	           effects = list(   
+	              Intercept = rep(1, N),
+	              X = X,
+	              w = w.index))
 ```
 
 ## Define the formula for the spatial model   
@@ -362,14 +367,447 @@ StackFit <- inla.stack(
 
 ```{r}
 ## 空間相関なし
-f2a <- y ~ -1 + Intercept + SDO + Alt + fFor + SDI.Alt + SDI.fFor + Alt.fFor + SDI.Alt.fFor
+f2a <- y ~ -1 + Intercept + Alt  + SDI + fFor + 
+           Alt.SDI + Alt.fFor + SDI.fFor + 
+           Alt.SDI.fFor
 
 ## 空間相関あり
-f2b <- y ~ -1 + Intercept + SDO + Alt + fFor + SDI.Alt + SDI.fFor + Alt.fFor + SDI.Alt.fFor + f(w, model = spde)
+f2b <- y ~ -1 + Intercept + Alt  + SDI + fFor + 
+           Alt.SDI + Alt.fFor + SDI.fFor + 
+           Alt.SDI.fFor + f(w, model = spde)
 ```
 
 ## Execute the spatial model in R  
-```{r}
+それでは、モデルを実行する。  
 
+```{r}
+m12_2a <- inla(f2a,
+               family = "gaussian",
+               data = inla.stack.data(StackFit),
+               control.compute = list(dic = TRUE,
+                                      waic = TRUE),
+               control.predictor = list(A = inla.stack.A(StackFit)))
+
+m12_2b <- inla(f2b,
+               family = "gaussian",
+               data = inla.stack.data(StackFit),
+               control.compute = list(dic = TRUE,
+                                      waic = TRUE),
+               control.predictor = list(A = inla.stack.A(StackFit)))
 ```
+
+DICとWAICを用いてモデル比較を行うと、空間相関を考慮した方がはるかにいいことが分かる。    
+```{r}
+waic12_2 <- c(m12_2a$waic$waic, m12_2b$waic$waic)
+dic12_2 <- c(m12_2a$dic$dic, m12_2b$dic$dic)
+modelcomp12_2 <- cbind(waic12_2, dic12_2)
+rownames(modelcomp12_2) <- c("Gaussian lm", "Gaussian lm + SPDE")
+
+modelcomp12_2
+```
+
+## Results  
+ハイパーパラメータ以外の結果は以下の通り。  
+```{r}
+m12_2a$summary.fixed[,c("mean","sd","0.025quant","0.975quant")] %>% 
+  mutate_if(is.numeric, ~round(.,3)) %>% 
+  bind_cols(m12_2b$summary.fixed[,c("mean","sd","0.025quant","0.975quant")] %>% 
+              mutate_if(is.numeric, ~round(.,3)) %>% 
+              rename(" mean" = 1, " sd" = 2, " 0.025quant" = 3, " 0.975quanr" = 4)) %>% 
+  kbl(align = "lcccccccc") %>% 
+  add_header_above(c("", "空間相関なし" = 4, "空間相関有り" = 4)) 
+```
+<br/>  
+
+事後平均と95%確信区間を図示すると以下のようになる。そこまで大きい違いはないので、空間的相関を表すランダム効果の効果はそこまで大きくないのかもしれない。    
+```{r}
+m12_2a$summary.fixed[,c("mean","0.025quant","0.975quant")] %>% 
+  mutate(model = "m12_2a") %>% 
+  rownames_as_column(var = "parameter") %>% 
+  bind_rows(m12_2b$summary.fixed[,c("mean","0.025quant","0.975quant")] %>% 
+              mutate(model = "m12_2b") %>% 
+              rownames_as_column(var = "parameter")) %>% 
+  ggplot(aes(x = model, y = mean))+
+  geom_errorbar(aes(ymin = `0.025quant`, ymax = `0.975quant`),
+                width = 0.2)+
+  geom_point()+
+  geom_hline(yintercept= 0,
+             linetype = "dashed")+
+  facet_rep_wrap(~parameter, repeat.tick.labels = TRUE,
+                 scales = "free")
+```
+<br/>  
+
+続いて、ハイパーパラメータの結果を見ていく。推定の結果、$\kappa$と$\sigma_u$の事後平均はそれぞれ0.0319と0.2804であることが分かった。レンジの事後平均は105.61である。
+```{r}
+SpFi.w <- inla.spde2.result(inla = m12_2b,
+                          name = "w",
+                          spde = spde,
+                          do.transfer = TRUE)
+
+## Kappa
+kappa <- inla.emarginal(function(x) x, SpFi.w$marginals.kappa[[1]])
+kappa
+
+##sigma
+sigma <- inla.emarginal(function(x) sqrt(x), SpFi.w$marginals.variance.nominal[[1]])  
+sigma
+
+## range  
+range = inla.emarginal(function(x) x, SpFi.w$marginals.range.nominal[[1]])
+range
+```
+
+$\kappa$が分かればMatern関数を描写することができる。  
+```{r}
+D <- as.vector(dist(mesh12_5$loc[,1:2]))
+d.vec <- seq(0, max(D), length = 100)
+corM <- (kappa*d.vec)*besselK(kappa*d.vec,1)
+corM[1] <- 1
+
+data.frame(Distance = d.vec,
+           Correlation = corM) %>% 
+  ggplot(aes(x = Distance, y = Correlation))+
+  geom_line()+
+  geom_vline(xintercept = range,
+             linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)
+```
+<br/>  
+
+$w_k$の事後平均は以下のように求めることができる。  
+```{r}
+w.pm <- m12_2b$summary.random$w$mean
+```
+
+この$w_k$の事後平均をランダムガウス場に図示することができる。
+```{r}
+w.proj <- inla.mesh.projector(mesh12_5)
+
+w.pm100_100 <-inla.mesh.project(w.proj, w.pm)
+
+expand.grid(x = w.proj$x,
+           y = w.proj$y) %>% 
+  mutate(z = as.vector(w.pm100_100)) -> grid
+
+ggplot(grid,
+       aes(x = x, y = y))+
+  geom_raster(aes(fill = z))+
+  scale_fill_gradient2(high = muted("lightblue"), low = muted("pink"), mid = "white",
+                       midpoint = -0.1)+
+  geom_point(aes(x = Easting.km, y = Northing.km),
+             data = iph,
+             shape = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "Easting(km)", y = "Northing(km)")
+```
+
+## Model selection  
+WAICとDICを用いて、モデルに改善が見られなくなるまで1つずつ説明変数/交互作用項を除いていくという作業(`step`関数と同じ作業)を行っていく。まず、3次の交互作用項と2次の交互作用項を一つずつ除いたものを比較する。  
+```{r}
+## 3-way interractionなし  
+f2c <- y ~ -1 + Intercept + Alt  + SDI + fFor + 
+           Alt.SDI + Alt.fFor + SDI.fFor + f(w, model = spde)
+
+Xc <- data.frame(Alt          = Xm[,2],
+                SDI          = Xm[,3],
+                fFor         = Xm[,4],
+                Alt.SDI      = Xm[,5],
+                Alt.fFor     = Xm[,6],
+                SDI.fFor     = Xm[,7])
+
+StackFitc <- inla.stack(
+             tag = "Fit",
+             data = list(y = iph$pH),  
+	           A = list(1, 1, A12_5),                  
+	           effects = list(   
+	              Intercept = rep(1, N),
+	              X = Xc,
+	              w = w.index))
+
+m12_2c <- inla(f2c,
+               family = "gaussian",
+               data = inla.stack.data(StackFitc),
+               control.compute = list(dic = TRUE,
+                                      waic = TRUE),
+               control.predictor = list(A = inla.stack.A(StackFitc)))
+
+## SDI.fForなし  
+f2d <- y ~ -1 + Intercept + Alt  + SDI + fFor + 
+           Alt.SDI + Alt.fFor + f(w, model = spde)
+
+Xd <- data.frame(Alt          = Xm[,2],
+                SDI          = Xm[,3],
+                fFor         = Xm[,4],
+                Alt.SDI      = Xm[,5],
+                Alt.fFor     = Xm[,6])
+
+StackFitd <- inla.stack(
+             tag = "Fit",
+             data = list(y = iph$pH),  
+	           A = list(1, 1, A12_5),                  
+	           effects = list(   
+	              Intercept = rep(1, N),
+	              X = Xd,
+	              w = w.index))
+
+m12_2d <- inla(f2d,
+               family = "gaussian",
+               data = inla.stack.data(StackFitd),
+               control.compute = list(dic = TRUE,
+                                      waic = TRUE),
+               control.predictor = list(A = inla.stack.A(StackFitd)))
+
+## Alt.fForなし
+f2e <- y ~ -1 + Intercept + Alt  + SDI + fFor + 
+           Alt.SDI +  SDI.fFor + f(w, model = spde)
+
+Xe <- data.frame(Alt          = Xm[,2],
+                SDI          = Xm[,3],
+                fFor         = Xm[,4],
+                Alt.SDI      = Xm[,5],
+                SDI.fFor     = Xm[,7])
+
+StackFite <- inla.stack(
+             tag = "Fit",
+             data = list(y = iph$pH),  
+	           A = list(1, 1, A12_5),                  
+	           effects = list(   
+	              Intercept = rep(1, N),
+	              X = Xe,
+	              w = w.index))
+
+m12_2e <- inla(f2e,
+               family = "gaussian",
+               data = inla.stack.data(StackFite),
+               control.compute = list(dic = TRUE,
+                                      waic = TRUE),
+               control.predictor = list(A = inla.stack.A(StackFite)))
+
+## Alt.SDIなし
+f2f <- y ~ -1 + Intercept + Alt  + SDI + fFor + 
+           Alt.fFor + SDI.fFor + f(w, model = spde)
+
+Xf <- data.frame(Alt          = Xm[,2],
+                SDI          = Xm[,3],
+                fFor         = Xm[,4],
+                Alt.fFor     = Xm[,6],
+                SDI.fFor     = Xm[,7])
+
+StackFitf <- inla.stack(
+             tag = "Fit",
+             data = list(y = iph$pH),  
+	           A = list(1, 1, A12_5),                  
+	           effects = list(   
+	              Intercept = rep(1, N),
+	              X = Xf,
+	              w = w.index))
+
+m12_2f <- inla(f2f,
+               family = "gaussian",
+               data = inla.stack.data(StackFitf),
+               control.compute = list(dic = TRUE,
+                                      waic = TRUE),
+               control.predictor = list(A = inla.stack.A(StackFitf)))
+```
+
+その結果、3次の交互作用項と2次の交互作用項`Alt.SDI`を含まないモデルが最もWAICが低いことが分かった。一方で、DICは3次の交互作用のみを含まないモデルが最も低い。ここでは、`m12_2f`を採用することにする。      
+```{r}
+## モデル比較  
+waic12_2 <- c(m12_2b$waic$waic, m12_2c$waic$waic, m12_2d$waic$waic, m12_2e$waic$waic, m12_2f$waic$waic)
+dic12_2 <- c(m12_2b$dic$dic, m12_2c$dic$dic, m12_2d$dic$dic, m12_2e$dic$dic, m12_2f$dic$dic)
+modelcomp12_2 <- cbind(waic12_2, dic12_2)
+rownames(modelcomp12_2) <- c("Full","-Alt.SDI.fFor ", "-SDI.fFor", "-Alt.fFor","-Alt.SDI")
+
+modelcomp12_2
+```
+<br/>  
+
+続いて、残った2次の交互作用項を1つずつ除いたものと、交互作用項を含まないモデルとの比較を行う。  
+```{r}
+## Alt.fForなし
+f2g <- y ~ -1 + Intercept + Alt  + SDI + fFor + 
+            SDI.fFor + f(w, model = spde)
+
+Xg <- data.frame(Alt          = Xm[,2],
+                SDI          = Xm[,3],
+                fFor         = Xm[,4],
+                SDI.fFor     = Xm[,7])
+
+StackFitg <- inla.stack(
+             tag = "Fit",
+             data = list(y = iph$pH),  
+	           A = list(1, 1, A12_5),                  
+	           effects = list(   
+	              Intercept = rep(1, N),
+	              X = Xg,
+	              w = w.index))
+
+m12_2g <- inla(f2g,
+               family = "gaussian",
+               data = inla.stack.data(StackFitg),
+               control.compute = list(dic = TRUE,
+                                      waic = TRUE),
+               control.predictor = list(A = inla.stack.A(StackFitg)))
+
+## SDI.fForなし
+f2h <- y ~ -1 + Intercept + Alt  + SDI + fFor + 
+           Alt.fFor  + f(w, model = spde)
+
+Xh <- data.frame(Alt          = Xm[,2],
+                SDI          = Xm[,3],
+                fFor         = Xm[,4],
+                Alt.fFor     = Xm[,6])
+
+StackFith <- inla.stack(
+             tag = "Fit",
+             data = list(y = iph$pH),  
+	           A = list(1, 1, A12_5),                  
+	           effects = list(   
+	              Intercept = rep(1, N),
+	              X = Xh,
+	              w = w.index))
+
+m12_2h <- inla(f2h,
+               family = "gaussian",
+               data = inla.stack.data(StackFith),
+               control.compute = list(dic = TRUE,
+                                      waic = TRUE),
+               control.predictor = list(A = inla.stack.A(StackFith)))
+
+## 交互作用なし
+f2i <- y ~ -1 + Intercept + Alt  + SDI + fFor + f(w, model = spde)
+
+Xi <- data.frame(Alt          = Xm[,2],
+                SDI          = Xm[,3],
+                fFor         = Xm[,4])
+
+StackFiti <- inla.stack(
+             tag = "Fit",
+             data = list(y = iph$pH),  
+	           A = list(1, 1, A12_5),                  
+	           effects = list(   
+	              Intercept = rep(1, N),
+	              X = Xi,
+	              w = w.index))
+
+
+m12_2i <- inla(f2i,
+               family = "gaussian",
+               data = inla.stack.data(StackFiti),
+               control.compute = list(dic = TRUE,
+                                      waic = TRUE),
+               control.predictor = list(A = inla.stack.A(StackFiti)))
+```
+
+その結果、わずかながら2次の交互作用項を2つ含むモデル(`m12_2f`)が最もWAICとDICが低いことが分かった。  
+```{r}
+## モデル比較  
+waic12_2 <- c(m12_2f$waic$waic, m12_2g$waic$waic, m12_2h$waic$waic, m12_2i$waic$waic)
+dic12_2 <- c(m12_2f$dic$dic, m12_2g$dic$dic, m12_2h$dic$dic, m12_2i$dic$dic)
+modelcomp12_2 <- cbind(waic12_2, dic12_2)
+rownames(modelcomp12_2) <- c("Full","-Alt.fFor ", "-SDI.fFor", "no interaction")
+
+modelcomp12_2
+```
+<br/>  
+
+## Model validation  
+続いて、モデル診断を行う。  
+
+まず、残差と予測値を計算する。`m12_2f$summary.fitted.values`はデータ数210ではなく合計632行のデータを返すが、最初の210個が予測値である。残りの432個が何を示しているのかは後程触れる。  
+```{r}
+fitted <- m12_2f$summary.fitted.values$mean[1:210]
+resid <- iph$pH - fitted
+```
+
+残差と予測値、残差と共変量の関係を見ると、1つだけ外れ値があるものの、全体的なパターンはないように見える。  
+```{r}
+data.frame(fitted = fitted,
+           resid = resid) %>% 
+  ggplot(aes(x= fitted, y = resid))+
+  geom_point(shape = 1)+
+  geom_hline(yintercept = 0, linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x= "Fitted values", y = "Residuals") -> p1
+
+data.frame(SDI = iph$SDI,
+           resid = resid) %>% 
+  ggplot(aes(x= SDI, y = resid))+
+  geom_point(shape = 1)+
+  geom_hline(yintercept = 0, linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x= "SDI", y = "Residuals") -> p2
+
+data.frame(SDI = iph$logAlt,
+           resid = resid) %>% 
+  ggplot(aes(x= SDI, y = resid))+
+  geom_point(shape = 1)+
+  geom_hline(yintercept = 0, linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x= "Log(Altitude)", y = "Residuals") -> p3
+
+data.frame(forested = iph$fForested,
+           resid = resid) %>% 
+  ggplot(aes(x= forested, y = resid))+
+  geom_boxplot()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x= "Forested", y = "Residuals") -> p4
+
+(p1 + p2)/(p3+p4)
+```
+<br/>  
+
+続いて、バリオグラムを確認する。空間的相関を考慮しなかった場合に比べると水平に近づいており、だいぶん改善しているように見える。  
+```{r, fig.dim = c(10,4.5)}
+vario_12_2f <- data.frame(resid = resid,
+                          Easting.km = iph$Easting/1000,
+                          Northing.km = iph$Northing/1000)
+
+sp::coordinates(vario_12_2f) <- c("Easting.km", "Northing.km")
+
+vario_12_2f %>% 
+  variogram(resid ~ Easting.km + Northing.km, data = .,
+            ## 0が南北方向、90が東西方向
+            alpha = c(0, 90),
+            cressie = TRUE,
+            cutoff = 150,
+            width = 10) %>% 
+  ggplot(aes(x = dist, y = gamma))+
+  geom_point(aes(size = np))+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  facet_rep_wrap(~ dir.hor,
+                 labeller = as_labeller(c("0" = "North-South",
+                                          "90" = "East-West")),
+                 repeat.tick.labels = TRUE)+
+  labs(y = "semivariogram")
+```
+
+## Model interpretation  
+選ばれたモデルの結果は以下のとおりである。  
+
+```{r}
+m12_2f$summary.fixe %>% 
+  print(digits = 2)
+```
+<br/>  
+
+```{r}
+inla.emarginal(function(x) 1/sqrt(x), m12_2f$marginals.hyperpar$`Precision for the Gaussian observations`)
+```
+
+
+モデル式に当てはめると以下のようになる。  
+$$
+\begin{aligned}
+
+\end{aligned}
+$$
 

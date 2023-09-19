@@ -23,7 +23,7 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-18" />
+<meta name="date" content="2023-09-20" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -396,6 +396,15 @@ div.csl-indent {
 <li class="chapter" data-level="11.5" data-path="Chapter12.html"><a href="Chapter12.html#adding-spatial-correlation-to-the-model"><i class="fa fa-check"></i><b>11.5</b> Adding spatial correlation to the model</a></li>
 <li class="chapter" data-level="11.6" data-path="Chapter12.html"><a href="Chapter12.html#defining-the-mesh-for-the-irish-ph-data"><i class="fa fa-check"></i><b>11.6</b> Defining the mesh for the Irish pH data</a></li>
 <li class="chapter" data-level="11.7" data-path="Chapter12.html"><a href="Chapter12.html#define-the-weight-factor-aik"><i class="fa fa-check"></i><b>11.7</b> Define the weight factor aik</a></li>
+<li class="chapter" data-level="11.8" data-path="Chapter12.html"><a href="Chapter12.html#define-the-spde"><i class="fa fa-check"></i><b>11.8</b> Define the SPDE</a></li>
+<li class="chapter" data-level="11.9" data-path="Chapter12.html"><a href="Chapter12.html#define-the-spatial-field"><i class="fa fa-check"></i><b>11.9</b> Define the spatial field</a></li>
+<li class="chapter" data-level="11.10" data-path="Chapter12.html"><a href="Chapter12.html#define-the-stack"><i class="fa fa-check"></i><b>11.10</b> Define the stack</a></li>
+<li class="chapter" data-level="11.11" data-path="Chapter12.html"><a href="Chapter12.html#define-the-formula-for-the-spatial-model"><i class="fa fa-check"></i><b>11.11</b> Define the formula for the spatial model</a></li>
+<li class="chapter" data-level="11.12" data-path="Chapter12.html"><a href="Chapter12.html#execute-the-spatial-model-in-r"><i class="fa fa-check"></i><b>11.12</b> Execute the spatial model in R</a></li>
+<li class="chapter" data-level="11.13" data-path="Chapter12.html"><a href="Chapter12.html#results"><i class="fa fa-check"></i><b>11.13</b> Results</a></li>
+<li class="chapter" data-level="11.14" data-path="Chapter12.html"><a href="Chapter12.html#model-selection-2"><i class="fa fa-check"></i><b>11.14</b> Model selection</a></li>
+<li class="chapter" data-level="11.15" data-path="Chapter12.html"><a href="Chapter12.html#model-validation-6"><i class="fa fa-check"></i><b>11.15</b> Model validation</a></li>
+<li class="chapter" data-level="11.16" data-path="Chapter12.html"><a href="Chapter12.html#model-interpretation-1"><i class="fa fa-check"></i><b>11.16</b> Model interpretation</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -424,7 +433,7 @@ div.csl-indent {
 </div>
 <div id="model-formulation-3" class="section level2 hasAnchor" number="11.2">
 <h2><span class="header-section-number">11.2</span> Model formulation<a href="Chapter12.html#model-formulation-3" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>まず、空間的な相関を考慮しないモデルとして以下のモデルを考える。2-way interaction と 3-way interactionをすべて含んでいる。</p>
+<p>まず、空間的な相関を考慮しないモデルとして以下のモデルを考える。2次の交互作用項と3次の交互作用項をすべて含んでいる。</p>
 <p><span class="math display">\[
 \begin{aligned}
 &amp;pH_i \sim N(\mu_i, \sigma^2)\\
@@ -440,12 +449,13 @@ div.csl-indent {
 <h2><span class="header-section-number">11.3</span> Linear regression results<a href="Chapter12.html#linear-regression-results" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>それでは、<code>INLA</code>で上記のモデルを実行する。</p>
 <div class="sourceCode" id="cb319"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb319-1"><a href="Chapter12.html#cb319-1" tabindex="-1"></a>iph <span class="sc">%&gt;%</span> </span>
-<span id="cb319-2"><a href="Chapter12.html#cb319-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logAlt =</span> <span class="fu">log10</span>(Altitude)) <span class="ot">-&gt;</span> iph</span>
-<span id="cb319-3"><a href="Chapter12.html#cb319-3" tabindex="-1"></a></span>
-<span id="cb319-4"><a href="Chapter12.html#cb319-4" tabindex="-1"></a>m12_1 <span class="ot">&lt;-</span> <span class="fu">inla</span>(pH <span class="sc">~</span> logAlt<span class="sc">*</span>SDI<span class="sc">*</span>fForested,</span>
-<span id="cb319-5"><a href="Chapter12.html#cb319-5" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
-<span id="cb319-6"><a href="Chapter12.html#cb319-6" tabindex="-1"></a>              <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">compute =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb319-7"><a href="Chapter12.html#cb319-7" tabindex="-1"></a>              <span class="at">data =</span> iph)</span></code></pre></div>
+<span id="cb319-2"><a href="Chapter12.html#cb319-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">logAlt =</span> <span class="fu">log10</span>(Altitude)) <span class="sc">%&gt;%</span> </span>
+<span id="cb319-3"><a href="Chapter12.html#cb319-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">fForested =</span> <span class="fu">fct_relevel</span>(fForested,<span class="st">&quot;yes&quot;</span>,<span class="st">&quot;no&quot;</span>))<span class="ot">-&gt;</span> iph</span>
+<span id="cb319-4"><a href="Chapter12.html#cb319-4" tabindex="-1"></a></span>
+<span id="cb319-5"><a href="Chapter12.html#cb319-5" tabindex="-1"></a>m12_1 <span class="ot">&lt;-</span> <span class="fu">inla</span>(pH <span class="sc">~</span> logAlt<span class="sc">*</span>SDI<span class="sc">*</span>fForested,</span>
+<span id="cb319-6"><a href="Chapter12.html#cb319-6" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb319-7"><a href="Chapter12.html#cb319-7" tabindex="-1"></a>              <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">compute =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb319-8"><a href="Chapter12.html#cb319-8" tabindex="-1"></a>              <span class="at">data =</span> iph)</span></code></pre></div>
 <p>結果は以下の通り。3-way interactionは95%確信区間に0を含んでおり、</p>
 <div class="sourceCode" id="cb320"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb320-1"><a href="Chapter12.html#cb320-1" tabindex="-1"></a>m12_1<span class="sc">$</span>summary.fixed <span class="sc">%&gt;%</span> </span>
 <span id="cb320-2"><a href="Chapter12.html#cb320-2" tabindex="-1"></a>  <span class="fu">select</span>(mean, sd, <span class="st">&quot;0.025quant&quot;</span>, <span class="st">&quot;0.975quant&quot;</span>)</span></code></pre></div>
@@ -530,10 +540,12 @@ div.csl-indent {
 <span id="cb324-16"><a href="Chapter12.html#cb324-16" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
 <span id="cb324-17"><a href="Chapter12.html#cb324-17" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
 <span id="cb324-18"><a href="Chapter12.html#cb324-18" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span> dir.hor,</span>
-<span id="cb324-19"><a href="Chapter12.html#cb324-19" tabindex="-1"></a>                 <span class="at">labeller =</span> <span class="fu">as_labeller</span>(<span class="fu">c</span>(<span class="st">&quot;0&quot;</span> <span class="ot">=</span> <span class="st">&quot;North-South&quot;</span>,</span>
-<span id="cb324-20"><a href="Chapter12.html#cb324-20" tabindex="-1"></a>                                          <span class="st">&quot;90&quot;</span> <span class="ot">=</span> <span class="st">&quot;East-West&quot;</span>)))<span class="sc">+</span></span>
-<span id="cb324-21"><a href="Chapter12.html#cb324-21" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;semivariogram&quot;</span>)</span></code></pre></div>
-<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-235-1.png" width="672" style="display: block; margin: auto;" /></p>
+<span id="cb324-19"><a href="Chapter12.html#cb324-19" tabindex="-1"></a>                 <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb324-20"><a href="Chapter12.html#cb324-20" tabindex="-1"></a>                 <span class="at">labeller =</span> <span class="fu">as_labeller</span>(<span class="fu">c</span>(<span class="st">&quot;0&quot;</span> <span class="ot">=</span> <span class="st">&quot;North-South&quot;</span>,</span>
+<span id="cb324-21"><a href="Chapter12.html#cb324-21" tabindex="-1"></a>                                          <span class="st">&quot;90&quot;</span> <span class="ot">=</span> <span class="st">&quot;East-West&quot;</span>)),</span>
+<span id="cb324-22"><a href="Chapter12.html#cb324-22" tabindex="-1"></a>                 <span class="at">scales =</span> <span class="st">&quot;free&quot;</span>)<span class="sc">+</span></span>
+<span id="cb324-23"><a href="Chapter12.html#cb324-23" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;semivariogram&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-235-1.png" width="960" style="display: block; margin: auto;" /></p>
 </div>
 <div id="adding-spatial-correlation-to-the-model" class="section level2 hasAnchor" number="11.5">
 <h2><span class="header-section-number">11.5</span> Adding spatial correlation to the model<a href="Chapter12.html#adding-spatial-correlation-to-the-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -674,11 +686,812 @@ div.csl-indent {
 </div>
 <div id="define-the-weight-factor-aik" class="section level2 hasAnchor" number="11.7">
 <h2><span class="header-section-number">11.7</span> Define the weight factor aik<a href="Chapter12.html#define-the-weight-factor-aik" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>メッシュ<code>mesh12_5</code>は737個の頂点があるので、分析の結果737個の<span class="math inline">\(w_k\)</span>(<span class="math inline">\(w_1,w_2,\dots, w_{731}\)</span>)の事後分布を得る。また、データは210個あるので、<span class="math inline">\(u_i\)</span>(<span class="math inline">\(u_1, u_2, \dots. u_{210}\)</span>)も201個ある。メッシュの種類によって各サンプリングポイントはメッシュの三角形内か頂点に配置されるが、今回選択したメッシュ(<code>mesh12_5</code>)では頂点にある。つまり今回の場合は<span class="math inline">\(s_i\)</span>がk番目の頂点にあるとき、<span class="math inline">\(u_i\)</span>は<span class="math inline">\(w_k\)</span>と一致する。一方で、もし<span class="math inline">\(s_i\)</span>が三角形内にあるのであれば、<span class="math inline">\(u_i\)</span>はその三角形の頂点<span class="math inline">\(w_k\)</span>の重みづけ平均になる(第<a href="Chapter11.html#c11">10</a>章、式<a href="Chapter11.html#eq:fma">(10.6)</a>参照)。</p>
-<p><span class="math display">\[
-u_i = \Sigma_{k=1}^{731} a_{ik} \times w_k
+<p>メッシュ<code>mesh12_5</code>は737個の頂点があるので、分析の結果737個の<span class="math inline">\(w_k\)</span>(<span class="math inline">\(w_1,w_2,\dots, w_{731}\)</span>)の事後分布を得る。また、データは210個あるので、<span class="math inline">\(u_i\)</span>(<span class="math inline">\(u_1, u_2, \dots. u_{210}\)</span>)も201個ある。メッシュの種類によって各サンプリングポイントはメッシュの三角形内か頂点に配置されるが、今回選択したメッシュ(<code>mesh12_5</code>)では頂点にある。つまり今回の場合は<span class="math inline">\(s_i\)</span>がk番目の頂点にあるとき、<span class="math inline">\(u_i\)</span>は<span class="math inline">\(w_k\)</span>と一致する。一方で、もし<span class="math inline">\(s_i\)</span>が三角形内にあるのであれば、<span class="math inline">\(u_i\)</span>はその三角形の頂点<span class="math inline">\(w_k\)</span>の重みづけ平均になる(第<a href="Chapter11.html#c11">10</a>章、式<a href="Chapter11.html#eq:fma">(10.7)</a>参照)。</p>
+<p><span class="math display" id="eq:fma3">\[
+u_i = \Sigma_{k=1}^{731} a_{ik} \times w_k \tag{11.1}
 \]</span></p>
-<p><span class="math inline">\(a_{ik}\)</span>は重みづけ関数と呼ばれる。Rでは以下のようにかくにんできる</p>
+<p><span class="math inline">\(a_{ik}\)</span>は重みづけ関数と呼ばれる。Rでは以下のように確認できる。例えば、<span class="math inline">\(a_{1k}\)</span>は以下のようになる。</p>
+<div class="sourceCode" id="cb333"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb333-1"><a href="Chapter12.html#cb333-1" tabindex="-1"></a>A12_5 <span class="ot">&lt;-</span> <span class="fu">inla.spde.make.A</span>(mesh12_5, <span class="at">loc =</span> Loc)</span>
+<span id="cb333-2"><a href="Chapter12.html#cb333-2" tabindex="-1"></a></span>
+<span id="cb333-3"><a href="Chapter12.html#cb333-3" tabindex="-1"></a>A12_5[<span class="dv">1</span>,]</span></code></pre></div>
+<pre><code>##   [1] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+##  [38] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
+##  [75] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [112] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [149] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [186] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [223] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [260] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [297] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [334] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [371] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [408] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [445] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [482] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [519] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [556] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [593] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [630] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [667] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+## [704] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</code></pre>
+</div>
+<div id="define-the-spde" class="section level2 hasAnchor" number="11.8">
+<h2><span class="header-section-number">11.8</span> Define the SPDE<a href="Chapter12.html#define-the-spde" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>空間相関を持つランダム切片<span class="math inline">\(u_i\)</span>で、その分散共分散行列がMatern関数で表現されるとき、SPDEは以下のように定義できる。<code>alpha = 2</code>はMatern関数のパラメータ<span class="math inline">\(\nu\)</span>が1であることを示す(式<a href="Chapter11.html#eq:SPDE2">(10.6)</a>を参照)。</p>
+<div class="sourceCode" id="cb335"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb335-1"><a href="Chapter12.html#cb335-1" tabindex="-1"></a>spde <span class="ot">&lt;-</span> <span class="fu">inla.spde2.matern</span>(mesh12_5, <span class="at">alpha =</span> <span class="dv">2</span>)</span></code></pre></div>
+</div>
+<div id="define-the-spatial-field" class="section level2 hasAnchor" number="11.9">
+<h2><span class="header-section-number">11.9</span> Define the spatial field<a href="Chapter12.html#define-the-spatial-field" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>続いて、ランダム切片の行列<span class="math inline">\(\bf{u}\)</span>を求めるためのリストを作成する。<span class="math inline">\(\bf{u}\)</span>は<span class="math inline">\(\bf{A}\)</span>と<span class="math inline">\(\bf{w}\)</span>を以下のように定義するとき、<span class="math inline">\(\bf{u} = \bf{A} \times \bf{w}\)</span>と書ける。<span class="math inline">\(\bf{w}\)</span>は<code>INLA</code>で推定する必要がある。</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\bf{A} =
+\begin{pmatrix}
+a_{1,1} &amp; a_{1,2} &amp; \cdots &amp; a_{1,737} \\
+\vdots &amp; \ddots &amp; &amp; \vdots \\
+a_{210,1} &amp; a_{210,2} &amp; \cdots &amp; a_{210,737}
+\end{pmatrix} \\
+&amp;\bf{w} = (w_1, w_2, \dots, w_{737})
+\end{aligned}
+\]</span></p>
+<p><span class="math inline">\(\bf{w}\)</span>は<code>INLA</code>で推定する必要がある。これは以下のようにできる。<code>w.index</code>中の<code>w</code>は1から737の数字を含む。<code>w.group</code>と<code>w.repl</code>については時空間モデルを実行するときに解説する。</p>
+<div class="sourceCode" id="cb336"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb336-1"><a href="Chapter12.html#cb336-1" tabindex="-1"></a>w.index <span class="ot">&lt;-</span> <span class="fu">inla.spde.make.index</span>(</span>
+<span id="cb336-2"><a href="Chapter12.html#cb336-2" tabindex="-1"></a>  <span class="at">name =</span> <span class="st">&#39;w&#39;</span>,</span>
+<span id="cb336-3"><a href="Chapter12.html#cb336-3" tabindex="-1"></a>  <span class="at">n.spde =</span> spde<span class="sc">$</span>n.spde,</span>
+<span id="cb336-4"><a href="Chapter12.html#cb336-4" tabindex="-1"></a>  <span class="at">n.group =</span> <span class="dv">1</span>,</span>
+<span id="cb336-5"><a href="Chapter12.html#cb336-5" tabindex="-1"></a>  <span class="at">n.repl =</span> <span class="dv">1</span>)</span>
+<span id="cb336-6"><a href="Chapter12.html#cb336-6" tabindex="-1"></a></span>
+<span id="cb336-7"><a href="Chapter12.html#cb336-7" tabindex="-1"></a><span class="fu">str</span>(w.index)</span></code></pre></div>
+<pre><code>## List of 3
+##  $ w      : int [1:737] 1 2 3 4 5 6 7 8 9 10 ...
+##  $ w.group: int [1:737] 1 1 1 1 1 1 1 1 1 1 ...
+##  $ w.repl : int [1:737] 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
+</div>
+<div id="define-the-stack" class="section level2 hasAnchor" number="11.10">
+<h2><span class="header-section-number">11.10</span> Define the stack<a href="Chapter12.html#define-the-stack" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>続いて、メッシュのどの点で応答変数と共変量を得たかを<code>INLA</code>に伝える必要がある。Rでは、<code>inla.stack</code>関数を用いてこれを行う。これについて理解するため、まずモデルをマトリックス形式で書く。</p>
+<p><span class="math display">\[
+\mu_i = \alpha + \Sigma_{j = 1}^7 \beta_j X_{ij} + u_i
+\]</span></p>
+<p><span class="math inline">\(X_{ij}\)</span>は交互作用項を含む説明変数(<span class="math inline">\(SDI_i,LogAltitude_i, \dots, SDI_i \times LogAltitude_i \times Forested_i\)</span>)を含む。また、式<a href="Chapter12.html#eq:fma3">(11.1)</a>よりこの式は以下のように変形できる。</p>
+<p><span class="math display">\[
+\mu_i = \alpha + \Sigma_{j = 1}^7 \beta_j X_{ij} + \Sigma_{k=1}^{731} a_{ik} \times w_k
+\]</span></p>
+<p>行列式で書くと以下のように書ける。<br />
+<span class="math display" id="eq:m12-2">\[
+\bf{X} = 1 \times \alpha + \bf{X \times \beta} + \bf{A \times w} \tag{11.2}
+\]</span></p>
+<p>ハイパーパラメータは<code>pH</code>が得られる正規分布の標準偏差<span class="math inline">\(\sigma\)</span>、Matern関数の<span class="math inline">\(\kappa\)</span>と<span class="math inline">\(u_i\)</span>の分散共分散行列の<span class="math inline">\(\sigma_u\)</span>、そして<span class="math inline">\(\bf{w}\)</span>である。式<a href="Chapter12.html#eq:m12-2">(11.2)</a>を実行するためには、<code>INLA</code>に<code>inla.stack</code>関数で3つの要素を与える必要がある。</p>
+<p>一つ目は共変量を含む行列<span class="math inline">\(\bf{X}\)</span>で、以下のように作成する。</p>
+<div class="sourceCode" id="cb338"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb338-1"><a href="Chapter12.html#cb338-1" tabindex="-1"></a>Xm <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> logAlt <span class="sc">*</span> SDI <span class="sc">*</span> fForested, </span>
+<span id="cb338-2"><a href="Chapter12.html#cb338-2" tabindex="-1"></a>                   <span class="at">data =</span> iph)</span>
+<span id="cb338-3"><a href="Chapter12.html#cb338-3" tabindex="-1"></a></span>
+<span id="cb338-4"><a href="Chapter12.html#cb338-4" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Alt          =</span> Xm[,<span class="dv">2</span>],</span>
+<span id="cb338-5"><a href="Chapter12.html#cb338-5" tabindex="-1"></a>                <span class="at">SDI          =</span> Xm[,<span class="dv">3</span>],</span>
+<span id="cb338-6"><a href="Chapter12.html#cb338-6" tabindex="-1"></a>                <span class="at">fFor         =</span> Xm[,<span class="dv">4</span>],</span>
+<span id="cb338-7"><a href="Chapter12.html#cb338-7" tabindex="-1"></a>                <span class="at">Alt.SDI      =</span> Xm[,<span class="dv">5</span>],</span>
+<span id="cb338-8"><a href="Chapter12.html#cb338-8" tabindex="-1"></a>                <span class="at">Alt.fFor     =</span> Xm[,<span class="dv">6</span>],</span>
+<span id="cb338-9"><a href="Chapter12.html#cb338-9" tabindex="-1"></a>                <span class="at">SDI.fFor     =</span> Xm[,<span class="dv">7</span>],</span>
+<span id="cb338-10"><a href="Chapter12.html#cb338-10" tabindex="-1"></a>                <span class="at">Alt.SDI.fFor =</span> Xm[,<span class="dv">8</span>])</span></code></pre></div>
+<p>それでは、<code>inla.stack</code>関数で<code>INLA</code>に情報を与える。これで作られたオブジェクトは”stack”といわれる。<code>A</code>のリストはガウス場への射影行列で、<code>effects</code>の各要素に対応している。</p>
+<div class="sourceCode" id="cb339"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb339-1"><a href="Chapter12.html#cb339-1" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">nrow</span>(iph)</span>
+<span id="cb339-2"><a href="Chapter12.html#cb339-2" tabindex="-1"></a></span>
+<span id="cb339-3"><a href="Chapter12.html#cb339-3" tabindex="-1"></a>StackFit <span class="ot">&lt;-</span> <span class="fu">inla.stack</span>(</span>
+<span id="cb339-4"><a href="Chapter12.html#cb339-4" tabindex="-1"></a>             <span class="at">tag =</span> <span class="st">&quot;Fit&quot;</span>,</span>
+<span id="cb339-5"><a href="Chapter12.html#cb339-5" tabindex="-1"></a>             <span class="at">data =</span> <span class="fu">list</span>(<span class="at">y =</span> iph<span class="sc">$</span>pH),  </span>
+<span id="cb339-6"><a href="Chapter12.html#cb339-6" tabindex="-1"></a>               <span class="at">A =</span> <span class="fu">list</span>(<span class="dv">1</span>, <span class="dv">1</span>, A12_5),                  </span>
+<span id="cb339-7"><a href="Chapter12.html#cb339-7" tabindex="-1"></a>               <span class="at">effects =</span> <span class="fu">list</span>(   </span>
+<span id="cb339-8"><a href="Chapter12.html#cb339-8" tabindex="-1"></a>                  <span class="at">Intercept =</span> <span class="fu">rep</span>(<span class="dv">1</span>, N),</span>
+<span id="cb339-9"><a href="Chapter12.html#cb339-9" tabindex="-1"></a>                  <span class="at">X =</span> X,</span>
+<span id="cb339-10"><a href="Chapter12.html#cb339-10" tabindex="-1"></a>                  <span class="at">w =</span> w.index))</span></code></pre></div>
+</div>
+<div id="define-the-formula-for-the-spatial-model" class="section level2 hasAnchor" number="11.11">
+<h2><span class="header-section-number">11.11</span> Define the formula for the spatial model<a href="Chapter12.html#define-the-formula-for-the-spatial-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>それでは、以下で空間相関のあるモデルとないモデルをフィットする。煩雑になるので、モデル式はあらかじめ作っておく。</p>
+<div class="sourceCode" id="cb340"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb340-1"><a href="Chapter12.html#cb340-1" tabindex="-1"></a><span class="do">## 空間相関なし</span></span>
+<span id="cb340-2"><a href="Chapter12.html#cb340-2" tabindex="-1"></a>f2a <span class="ot">&lt;-</span> y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Intercept <span class="sc">+</span> Alt  <span class="sc">+</span> SDI <span class="sc">+</span> fFor <span class="sc">+</span> </span>
+<span id="cb340-3"><a href="Chapter12.html#cb340-3" tabindex="-1"></a>           Alt.SDI <span class="sc">+</span> Alt.fFor <span class="sc">+</span> SDI.fFor <span class="sc">+</span> </span>
+<span id="cb340-4"><a href="Chapter12.html#cb340-4" tabindex="-1"></a>           Alt.SDI.fFor</span>
+<span id="cb340-5"><a href="Chapter12.html#cb340-5" tabindex="-1"></a></span>
+<span id="cb340-6"><a href="Chapter12.html#cb340-6" tabindex="-1"></a><span class="do">## 空間相関あり</span></span>
+<span id="cb340-7"><a href="Chapter12.html#cb340-7" tabindex="-1"></a>f2b <span class="ot">&lt;-</span> y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Intercept <span class="sc">+</span> Alt  <span class="sc">+</span> SDI <span class="sc">+</span> fFor <span class="sc">+</span> </span>
+<span id="cb340-8"><a href="Chapter12.html#cb340-8" tabindex="-1"></a>           Alt.SDI <span class="sc">+</span> Alt.fFor <span class="sc">+</span> SDI.fFor <span class="sc">+</span> </span>
+<span id="cb340-9"><a href="Chapter12.html#cb340-9" tabindex="-1"></a>           Alt.SDI.fFor <span class="sc">+</span> <span class="fu">f</span>(w, <span class="at">model =</span> spde)</span></code></pre></div>
+</div>
+<div id="execute-the-spatial-model-in-r" class="section level2 hasAnchor" number="11.12">
+<h2><span class="header-section-number">11.12</span> Execute the spatial model in R<a href="Chapter12.html#execute-the-spatial-model-in-r" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>それでは、モデルを実行する。</p>
+<div class="sourceCode" id="cb341"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb341-1"><a href="Chapter12.html#cb341-1" tabindex="-1"></a>m12_2a <span class="ot">&lt;-</span> <span class="fu">inla</span>(f2a,</span>
+<span id="cb341-2"><a href="Chapter12.html#cb341-2" tabindex="-1"></a>               <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb341-3"><a href="Chapter12.html#cb341-3" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">inla.stack.data</span>(StackFit),</span>
+<span id="cb341-4"><a href="Chapter12.html#cb341-4" tabindex="-1"></a>               <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb341-5"><a href="Chapter12.html#cb341-5" tabindex="-1"></a>                                      <span class="at">waic =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb341-6"><a href="Chapter12.html#cb341-6" tabindex="-1"></a>               <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">inla.stack.A</span>(StackFit)))</span>
+<span id="cb341-7"><a href="Chapter12.html#cb341-7" tabindex="-1"></a></span>
+<span id="cb341-8"><a href="Chapter12.html#cb341-8" tabindex="-1"></a>m12_2b <span class="ot">&lt;-</span> <span class="fu">inla</span>(f2b,</span>
+<span id="cb341-9"><a href="Chapter12.html#cb341-9" tabindex="-1"></a>               <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb341-10"><a href="Chapter12.html#cb341-10" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">inla.stack.data</span>(StackFit),</span>
+<span id="cb341-11"><a href="Chapter12.html#cb341-11" tabindex="-1"></a>               <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb341-12"><a href="Chapter12.html#cb341-12" tabindex="-1"></a>                                      <span class="at">waic =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb341-13"><a href="Chapter12.html#cb341-13" tabindex="-1"></a>               <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">inla.stack.A</span>(StackFit)))</span></code></pre></div>
+<p>DICとWAICを用いてモデル比較を行うと、空間相関を考慮した方がはるかにいいことが分かる。</p>
+<div class="sourceCode" id="cb342"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb342-1"><a href="Chapter12.html#cb342-1" tabindex="-1"></a>waic12_2 <span class="ot">&lt;-</span> <span class="fu">c</span>(m12_2a<span class="sc">$</span>waic<span class="sc">$</span>waic, m12_2b<span class="sc">$</span>waic<span class="sc">$</span>waic)</span>
+<span id="cb342-2"><a href="Chapter12.html#cb342-2" tabindex="-1"></a>dic12_2 <span class="ot">&lt;-</span> <span class="fu">c</span>(m12_2a<span class="sc">$</span>dic<span class="sc">$</span>dic, m12_2b<span class="sc">$</span>dic<span class="sc">$</span>dic)</span>
+<span id="cb342-3"><a href="Chapter12.html#cb342-3" tabindex="-1"></a>modelcomp12_2 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(waic12_2, dic12_2)</span>
+<span id="cb342-4"><a href="Chapter12.html#cb342-4" tabindex="-1"></a><span class="fu">rownames</span>(modelcomp12_2) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Gaussian lm&quot;</span>, <span class="st">&quot;Gaussian lm + SPDE&quot;</span>)</span>
+<span id="cb342-5"><a href="Chapter12.html#cb342-5" tabindex="-1"></a></span>
+<span id="cb342-6"><a href="Chapter12.html#cb342-6" tabindex="-1"></a>modelcomp12_2</span></code></pre></div>
+<pre><code>##                    waic12_2  dic12_2
+## Gaussian lm        196.9916 194.5744
+## Gaussian lm + SPDE 127.7375 124.2912</code></pre>
+</div>
+<div id="results" class="section level2 hasAnchor" number="11.13">
+<h2><span class="header-section-number">11.13</span> Results<a href="Chapter12.html#results" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>ハイパーパラメータ以外の結果は以下の通り。</p>
+<div class="sourceCode" id="cb344"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb344-1"><a href="Chapter12.html#cb344-1" tabindex="-1"></a>m12_2a<span class="sc">$</span>summary.fixed[,<span class="fu">c</span>(<span class="st">&quot;mean&quot;</span>,<span class="st">&quot;sd&quot;</span>,<span class="st">&quot;0.025quant&quot;</span>,<span class="st">&quot;0.975quant&quot;</span>)] <span class="sc">%&gt;%</span> </span>
+<span id="cb344-2"><a href="Chapter12.html#cb344-2" tabindex="-1"></a>  <span class="fu">mutate_if</span>(is.numeric, <span class="sc">~</span><span class="fu">round</span>(.,<span class="dv">3</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb344-3"><a href="Chapter12.html#cb344-3" tabindex="-1"></a>  <span class="fu">bind_cols</span>(m12_2b<span class="sc">$</span>summary.fixed[,<span class="fu">c</span>(<span class="st">&quot;mean&quot;</span>,<span class="st">&quot;sd&quot;</span>,<span class="st">&quot;0.025quant&quot;</span>,<span class="st">&quot;0.975quant&quot;</span>)] <span class="sc">%&gt;%</span> </span>
+<span id="cb344-4"><a href="Chapter12.html#cb344-4" tabindex="-1"></a>              <span class="fu">mutate_if</span>(is.numeric, <span class="sc">~</span><span class="fu">round</span>(.,<span class="dv">3</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb344-5"><a href="Chapter12.html#cb344-5" tabindex="-1"></a>              <span class="fu">rename</span>(<span class="st">&quot; mean&quot;</span> <span class="ot">=</span> <span class="dv">1</span>, <span class="st">&quot; sd&quot;</span> <span class="ot">=</span> <span class="dv">2</span>, <span class="st">&quot; 0.025quant&quot;</span> <span class="ot">=</span> <span class="dv">3</span>, <span class="st">&quot; 0.975quanr&quot;</span> <span class="ot">=</span> <span class="dv">4</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb344-6"><a href="Chapter12.html#cb344-6" tabindex="-1"></a>  <span class="fu">kbl</span>(<span class="at">align =</span> <span class="st">&quot;lcccccccc&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb344-7"><a href="Chapter12.html#cb344-7" tabindex="-1"></a>  <span class="fu">add_header_above</span>(<span class="fu">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;空間相関なし&quot;</span> <span class="ot">=</span> <span class="dv">4</span>, <span class="st">&quot;空間相関有り&quot;</span> <span class="ot">=</span> <span class="dv">4</span>)) </span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="empty-cells: hide;border-bottom:hidden;" colspan="1">
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="4">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+空間相関なし
+</div>
+</th>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="4">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+空間相関有り
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+mean
+</th>
+<th style="text-align:center;">
+sd
+</th>
+<th style="text-align:center;">
+0.025quant
+</th>
+<th style="text-align:center;">
+0.975quant
+</th>
+<th style="text-align:center;">
+mean
+</th>
+<th style="text-align:center;">
+sd
+</th>
+<th style="text-align:center;">
+0.025quant
+</th>
+<th style="text-align:center;">
+0.975quanr
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Intercept
+</td>
+<td style="text-align:left;">
+8.247
+</td>
+<td style="text-align:center;">
+0.764
+</td>
+<td style="text-align:center;">
+6.747
+</td>
+<td style="text-align:center;">
+9.748
+</td>
+<td style="text-align:center;">
+8.928
+</td>
+<td style="text-align:center;">
+0.706
+</td>
+<td style="text-align:center;">
+7.541
+</td>
+<td style="text-align:center;">
+10.312
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alt
+</td>
+<td style="text-align:left;">
+0.108
+</td>
+<td style="text-align:center;">
+0.390
+</td>
+<td style="text-align:center;">
+-0.658
+</td>
+<td style="text-align:center;">
+0.873
+</td>
+<td style="text-align:center;">
+-0.245
+</td>
+<td style="text-align:center;">
+0.350
+</td>
+<td style="text-align:center;">
+-0.932
+</td>
+<td style="text-align:center;">
+0.443
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SDI
+</td>
+<td style="text-align:left;">
+-0.028
+</td>
+<td style="text-align:center;">
+0.017
+</td>
+<td style="text-align:center;">
+-0.062
+</td>
+<td style="text-align:center;">
+0.006
+</td>
+<td style="text-align:center;">
+-0.044
+</td>
+<td style="text-align:center;">
+0.016
+</td>
+<td style="text-align:center;">
+-0.076
+</td>
+<td style="text-align:center;">
+-0.012
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fFor
+</td>
+<td style="text-align:left;">
+1.790
+</td>
+<td style="text-align:center;">
+2.062
+</td>
+<td style="text-align:center;">
+-2.259
+</td>
+<td style="text-align:center;">
+5.839
+</td>
+<td style="text-align:center;">
+0.852
+</td>
+<td style="text-align:center;">
+1.775
+</td>
+<td style="text-align:center;">
+-2.633
+</td>
+<td style="text-align:center;">
+4.336
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alt.SDI
+</td>
+<td style="text-align:left;">
+0.002
+</td>
+<td style="text-align:center;">
+0.009
+</td>
+<td style="text-align:center;">
+-0.015
+</td>
+<td style="text-align:center;">
+0.019
+</td>
+<td style="text-align:center;">
+0.010
+</td>
+<td style="text-align:center;">
+0.008
+</td>
+<td style="text-align:center;">
+-0.005
+</td>
+<td style="text-align:center;">
+0.026
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alt.fFor
+</td>
+<td style="text-align:left;">
+-0.883
+</td>
+<td style="text-align:center;">
+1.008
+</td>
+<td style="text-align:center;">
+-2.862
+</td>
+<td style="text-align:center;">
+1.096
+</td>
+<td style="text-align:center;">
+-0.335
+</td>
+<td style="text-align:center;">
+0.873
+</td>
+<td style="text-align:center;">
+-2.048
+</td>
+<td style="text-align:center;">
+1.379
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SDI.fFor
+</td>
+<td style="text-align:left;">
+-0.008
+</td>
+<td style="text-align:center;">
+0.037
+</td>
+<td style="text-align:center;">
+-0.081
+</td>
+<td style="text-align:center;">
+0.064
+</td>
+<td style="text-align:center;">
+0.006
+</td>
+<td style="text-align:center;">
+0.032
+</td>
+<td style="text-align:center;">
+-0.057
+</td>
+<td style="text-align:center;">
+0.068
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alt.SDI.fFor
+</td>
+<td style="text-align:left;">
+0.004
+</td>
+<td style="text-align:center;">
+0.018
+</td>
+<td style="text-align:center;">
+-0.032
+</td>
+<td style="text-align:center;">
+0.039
+</td>
+<td style="text-align:center;">
+-0.005
+</td>
+<td style="text-align:center;">
+0.015
+</td>
+<td style="text-align:center;">
+-0.035
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+</tr>
+</tbody>
+</table>
+<p><br/></p>
+<p>事後平均と95%確信区間を図示すると以下のようになる。そこまで大きい違いはないので、空間的相関を表すランダム効果の効果はそこまで大きくないのかもしれない。</p>
+<div class="sourceCode" id="cb345"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb345-1"><a href="Chapter12.html#cb345-1" tabindex="-1"></a>m12_2a<span class="sc">$</span>summary.fixed[,<span class="fu">c</span>(<span class="st">&quot;mean&quot;</span>,<span class="st">&quot;0.025quant&quot;</span>,<span class="st">&quot;0.975quant&quot;</span>)] <span class="sc">%&gt;%</span> </span>
+<span id="cb345-2"><a href="Chapter12.html#cb345-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">&quot;m12_2a&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb345-3"><a href="Chapter12.html#cb345-3" tabindex="-1"></a>  <span class="fu">rownames_as_column</span>(<span class="at">var =</span> <span class="st">&quot;parameter&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb345-4"><a href="Chapter12.html#cb345-4" tabindex="-1"></a>  <span class="fu">bind_rows</span>(m12_2b<span class="sc">$</span>summary.fixed[,<span class="fu">c</span>(<span class="st">&quot;mean&quot;</span>,<span class="st">&quot;0.025quant&quot;</span>,<span class="st">&quot;0.975quant&quot;</span>)] <span class="sc">%&gt;%</span> </span>
+<span id="cb345-5"><a href="Chapter12.html#cb345-5" tabindex="-1"></a>              <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">&quot;m12_2b&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb345-6"><a href="Chapter12.html#cb345-6" tabindex="-1"></a>              <span class="fu">rownames_as_column</span>(<span class="at">var =</span> <span class="st">&quot;parameter&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb345-7"><a href="Chapter12.html#cb345-7" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> model, <span class="at">y =</span> mean))<span class="sc">+</span></span>
+<span id="cb345-8"><a href="Chapter12.html#cb345-8" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> <span class="st">`</span><span class="at">0.025quant</span><span class="st">`</span>, <span class="at">ymax =</span> <span class="st">`</span><span class="at">0.975quant</span><span class="st">`</span>),</span>
+<span id="cb345-9"><a href="Chapter12.html#cb345-9" tabindex="-1"></a>                <span class="at">width =</span> <span class="fl">0.2</span>)<span class="sc">+</span></span>
+<span id="cb345-10"><a href="Chapter12.html#cb345-10" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb345-11"><a href="Chapter12.html#cb345-11" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept=</span> <span class="dv">0</span>,</span>
+<span id="cb345-12"><a href="Chapter12.html#cb345-12" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb345-13"><a href="Chapter12.html#cb345-13" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>parameter, <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb345-14"><a href="Chapter12.html#cb345-14" tabindex="-1"></a>                 <span class="at">scales =</span> <span class="st">&quot;free&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-250-1.png" width="672" style="display: block; margin: auto;" />
+<br/></p>
+<p>続いて、ハイパーパラメータの結果を見ていく。推定の結果、<span class="math inline">\(\kappa\)</span>と<span class="math inline">\(\sigma_u\)</span>の事後平均はそれぞれ0.0319と0.2804であることが分かった。レンジの事後平均は105.61である。</p>
+<div class="sourceCode" id="cb346"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb346-1"><a href="Chapter12.html#cb346-1" tabindex="-1"></a>SpFi.w <span class="ot">&lt;-</span> <span class="fu">inla.spde2.result</span>(<span class="at">inla =</span> m12_2b,</span>
+<span id="cb346-2"><a href="Chapter12.html#cb346-2" tabindex="-1"></a>                          <span class="at">name =</span> <span class="st">&quot;w&quot;</span>,</span>
+<span id="cb346-3"><a href="Chapter12.html#cb346-3" tabindex="-1"></a>                          <span class="at">spde =</span> spde,</span>
+<span id="cb346-4"><a href="Chapter12.html#cb346-4" tabindex="-1"></a>                          <span class="at">do.transfer =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb346-5"><a href="Chapter12.html#cb346-5" tabindex="-1"></a></span>
+<span id="cb346-6"><a href="Chapter12.html#cb346-6" tabindex="-1"></a><span class="do">## Kappa</span></span>
+<span id="cb346-7"><a href="Chapter12.html#cb346-7" tabindex="-1"></a>kappa <span class="ot">&lt;-</span> <span class="fu">inla.emarginal</span>(<span class="cf">function</span>(x) x, SpFi.w<span class="sc">$</span>marginals.kappa[[<span class="dv">1</span>]])</span>
+<span id="cb346-8"><a href="Chapter12.html#cb346-8" tabindex="-1"></a>kappa</span></code></pre></div>
+<pre><code>## [1] 0.03180548</code></pre>
+<div class="sourceCode" id="cb348"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb348-1"><a href="Chapter12.html#cb348-1" tabindex="-1"></a><span class="do">##sigma</span></span>
+<span id="cb348-2"><a href="Chapter12.html#cb348-2" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="fu">inla.emarginal</span>(<span class="cf">function</span>(x) <span class="fu">sqrt</span>(x), SpFi.w<span class="sc">$</span>marginals.variance.nominal[[<span class="dv">1</span>]])  </span>
+<span id="cb348-3"><a href="Chapter12.html#cb348-3" tabindex="-1"></a>sigma</span></code></pre></div>
+<pre><code>## [1] 0.2804851</code></pre>
+<div class="sourceCode" id="cb350"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb350-1"><a href="Chapter12.html#cb350-1" tabindex="-1"></a><span class="do">## range  </span></span>
+<span id="cb350-2"><a href="Chapter12.html#cb350-2" tabindex="-1"></a>range <span class="ot">=</span> <span class="fu">inla.emarginal</span>(<span class="cf">function</span>(x) x, SpFi.w<span class="sc">$</span>marginals.range.nominal[[<span class="dv">1</span>]])</span>
+<span id="cb350-3"><a href="Chapter12.html#cb350-3" tabindex="-1"></a>range</span></code></pre></div>
+<pre><code>## [1] 105.7647</code></pre>
+<p><span class="math inline">\(\kappa\)</span>が分かればMatern関数を描写することができる。</p>
+<div class="sourceCode" id="cb352"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb352-1"><a href="Chapter12.html#cb352-1" tabindex="-1"></a>D <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">dist</span>(mesh12_5<span class="sc">$</span>loc[,<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]))</span>
+<span id="cb352-2"><a href="Chapter12.html#cb352-2" tabindex="-1"></a>d.vec <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fu">max</span>(D), <span class="at">length =</span> <span class="dv">100</span>)</span>
+<span id="cb352-3"><a href="Chapter12.html#cb352-3" tabindex="-1"></a>corM <span class="ot">&lt;-</span> (kappa<span class="sc">*</span>d.vec)<span class="sc">*</span><span class="fu">besselK</span>(kappa<span class="sc">*</span>d.vec,<span class="dv">1</span>)</span>
+<span id="cb352-4"><a href="Chapter12.html#cb352-4" tabindex="-1"></a>corM[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb352-5"><a href="Chapter12.html#cb352-5" tabindex="-1"></a></span>
+<span id="cb352-6"><a href="Chapter12.html#cb352-6" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">Distance =</span> d.vec,</span>
+<span id="cb352-7"><a href="Chapter12.html#cb352-7" tabindex="-1"></a>           <span class="at">Correlation =</span> corM) <span class="sc">%&gt;%</span> </span>
+<span id="cb352-8"><a href="Chapter12.html#cb352-8" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Distance, <span class="at">y =</span> Correlation))<span class="sc">+</span></span>
+<span id="cb352-9"><a href="Chapter12.html#cb352-9" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb352-10"><a href="Chapter12.html#cb352-10" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> range,</span>
+<span id="cb352-11"><a href="Chapter12.html#cb352-11" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb352-12"><a href="Chapter12.html#cb352-12" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb352-13"><a href="Chapter12.html#cb352-13" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-252-1.png" width="672" style="display: block; margin: auto;" />
+<br/></p>
+<p><span class="math inline">\(w_k\)</span>の事後平均は以下のように求めることができる。</p>
+<div class="sourceCode" id="cb353"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb353-1"><a href="Chapter12.html#cb353-1" tabindex="-1"></a>w.pm <span class="ot">&lt;-</span> m12_2b<span class="sc">$</span>summary.random<span class="sc">$</span>w<span class="sc">$</span>mean</span></code></pre></div>
+<p>この<span class="math inline">\(w_k\)</span>の事後平均をランダムガウス場に図示することができる。</p>
+<div class="sourceCode" id="cb354"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb354-1"><a href="Chapter12.html#cb354-1" tabindex="-1"></a>w.proj <span class="ot">&lt;-</span> <span class="fu">inla.mesh.projector</span>(mesh12_5)</span>
+<span id="cb354-2"><a href="Chapter12.html#cb354-2" tabindex="-1"></a></span>
+<span id="cb354-3"><a href="Chapter12.html#cb354-3" tabindex="-1"></a>w.pm100_100 <span class="ot">&lt;-</span><span class="fu">inla.mesh.project</span>(w.proj, w.pm)</span>
+<span id="cb354-4"><a href="Chapter12.html#cb354-4" tabindex="-1"></a></span>
+<span id="cb354-5"><a href="Chapter12.html#cb354-5" tabindex="-1"></a><span class="fu">expand.grid</span>(<span class="at">x =</span> w.proj<span class="sc">$</span>x,</span>
+<span id="cb354-6"><a href="Chapter12.html#cb354-6" tabindex="-1"></a>           <span class="at">y =</span> w.proj<span class="sc">$</span>y) <span class="sc">%&gt;%</span> </span>
+<span id="cb354-7"><a href="Chapter12.html#cb354-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">z =</span> <span class="fu">as.vector</span>(w.pm100_100)) <span class="ot">-&gt;</span> grid</span>
+<span id="cb354-8"><a href="Chapter12.html#cb354-8" tabindex="-1"></a></span>
+<span id="cb354-9"><a href="Chapter12.html#cb354-9" tabindex="-1"></a><span class="fu">ggplot</span>(grid,</span>
+<span id="cb354-10"><a href="Chapter12.html#cb354-10" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> y))<span class="sc">+</span></span>
+<span id="cb354-11"><a href="Chapter12.html#cb354-11" tabindex="-1"></a>  <span class="fu">geom_raster</span>(<span class="fu">aes</span>(<span class="at">fill =</span> z))<span class="sc">+</span></span>
+<span id="cb354-12"><a href="Chapter12.html#cb354-12" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">high =</span> <span class="fu">muted</span>(<span class="st">&quot;lightblue&quot;</span>), <span class="at">low =</span> <span class="fu">muted</span>(<span class="st">&quot;pink&quot;</span>), <span class="at">mid =</span> <span class="st">&quot;white&quot;</span>,</span>
+<span id="cb354-13"><a href="Chapter12.html#cb354-13" tabindex="-1"></a>                       <span class="at">midpoint =</span> <span class="sc">-</span><span class="fl">0.1</span>)<span class="sc">+</span></span>
+<span id="cb354-14"><a href="Chapter12.html#cb354-14" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> Easting.km, <span class="at">y =</span> Northing.km),</span>
+<span id="cb354-15"><a href="Chapter12.html#cb354-15" tabindex="-1"></a>             <span class="at">data =</span> iph,</span>
+<span id="cb354-16"><a href="Chapter12.html#cb354-16" tabindex="-1"></a>             <span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb354-17"><a href="Chapter12.html#cb354-17" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb354-18"><a href="Chapter12.html#cb354-18" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb354-19"><a href="Chapter12.html#cb354-19" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Easting(km)&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Northing(km)&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-254-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="model-selection-2" class="section level2 hasAnchor" number="11.14">
+<h2><span class="header-section-number">11.14</span> Model selection<a href="Chapter12.html#model-selection-2" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>WAICとDICを用いて、モデルに改善が見られなくなるまで1つずつ説明変数/交互作用項を除いていくという作業(<code>step</code>関数と同じ作業)を行っていく。まず、3次の交互作用項と2次の交互作用項を一つずつ除いたものを比較する。</p>
+<div class="sourceCode" id="cb355"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb355-1"><a href="Chapter12.html#cb355-1" tabindex="-1"></a><span class="do">## 3-way interractionなし  </span></span>
+<span id="cb355-2"><a href="Chapter12.html#cb355-2" tabindex="-1"></a>f2c <span class="ot">&lt;-</span> y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Intercept <span class="sc">+</span> Alt  <span class="sc">+</span> SDI <span class="sc">+</span> fFor <span class="sc">+</span> </span>
+<span id="cb355-3"><a href="Chapter12.html#cb355-3" tabindex="-1"></a>           Alt.SDI <span class="sc">+</span> Alt.fFor <span class="sc">+</span> SDI.fFor <span class="sc">+</span> <span class="fu">f</span>(w, <span class="at">model =</span> spde)</span>
+<span id="cb355-4"><a href="Chapter12.html#cb355-4" tabindex="-1"></a></span>
+<span id="cb355-5"><a href="Chapter12.html#cb355-5" tabindex="-1"></a>Xc <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Alt          =</span> Xm[,<span class="dv">2</span>],</span>
+<span id="cb355-6"><a href="Chapter12.html#cb355-6" tabindex="-1"></a>                <span class="at">SDI          =</span> Xm[,<span class="dv">3</span>],</span>
+<span id="cb355-7"><a href="Chapter12.html#cb355-7" tabindex="-1"></a>                <span class="at">fFor         =</span> Xm[,<span class="dv">4</span>],</span>
+<span id="cb355-8"><a href="Chapter12.html#cb355-8" tabindex="-1"></a>                <span class="at">Alt.SDI      =</span> Xm[,<span class="dv">5</span>],</span>
+<span id="cb355-9"><a href="Chapter12.html#cb355-9" tabindex="-1"></a>                <span class="at">Alt.fFor     =</span> Xm[,<span class="dv">6</span>],</span>
+<span id="cb355-10"><a href="Chapter12.html#cb355-10" tabindex="-1"></a>                <span class="at">SDI.fFor     =</span> Xm[,<span class="dv">7</span>])</span>
+<span id="cb355-11"><a href="Chapter12.html#cb355-11" tabindex="-1"></a></span>
+<span id="cb355-12"><a href="Chapter12.html#cb355-12" tabindex="-1"></a>StackFitc <span class="ot">&lt;-</span> <span class="fu">inla.stack</span>(</span>
+<span id="cb355-13"><a href="Chapter12.html#cb355-13" tabindex="-1"></a>             <span class="at">tag =</span> <span class="st">&quot;Fit&quot;</span>,</span>
+<span id="cb355-14"><a href="Chapter12.html#cb355-14" tabindex="-1"></a>             <span class="at">data =</span> <span class="fu">list</span>(<span class="at">y =</span> iph<span class="sc">$</span>pH),  </span>
+<span id="cb355-15"><a href="Chapter12.html#cb355-15" tabindex="-1"></a>               <span class="at">A =</span> <span class="fu">list</span>(<span class="dv">1</span>, <span class="dv">1</span>, A12_5),                  </span>
+<span id="cb355-16"><a href="Chapter12.html#cb355-16" tabindex="-1"></a>               <span class="at">effects =</span> <span class="fu">list</span>(   </span>
+<span id="cb355-17"><a href="Chapter12.html#cb355-17" tabindex="-1"></a>                  <span class="at">Intercept =</span> <span class="fu">rep</span>(<span class="dv">1</span>, N),</span>
+<span id="cb355-18"><a href="Chapter12.html#cb355-18" tabindex="-1"></a>                  <span class="at">X =</span> Xc,</span>
+<span id="cb355-19"><a href="Chapter12.html#cb355-19" tabindex="-1"></a>                  <span class="at">w =</span> w.index))</span>
+<span id="cb355-20"><a href="Chapter12.html#cb355-20" tabindex="-1"></a></span>
+<span id="cb355-21"><a href="Chapter12.html#cb355-21" tabindex="-1"></a>m12_2c <span class="ot">&lt;-</span> <span class="fu">inla</span>(f2c,</span>
+<span id="cb355-22"><a href="Chapter12.html#cb355-22" tabindex="-1"></a>               <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb355-23"><a href="Chapter12.html#cb355-23" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">inla.stack.data</span>(StackFitc),</span>
+<span id="cb355-24"><a href="Chapter12.html#cb355-24" tabindex="-1"></a>               <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb355-25"><a href="Chapter12.html#cb355-25" tabindex="-1"></a>                                      <span class="at">waic =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb355-26"><a href="Chapter12.html#cb355-26" tabindex="-1"></a>               <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">inla.stack.A</span>(StackFitc)))</span>
+<span id="cb355-27"><a href="Chapter12.html#cb355-27" tabindex="-1"></a></span>
+<span id="cb355-28"><a href="Chapter12.html#cb355-28" tabindex="-1"></a><span class="do">## SDI.fForなし  </span></span>
+<span id="cb355-29"><a href="Chapter12.html#cb355-29" tabindex="-1"></a>f2d <span class="ot">&lt;-</span> y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Intercept <span class="sc">+</span> Alt  <span class="sc">+</span> SDI <span class="sc">+</span> fFor <span class="sc">+</span> </span>
+<span id="cb355-30"><a href="Chapter12.html#cb355-30" tabindex="-1"></a>           Alt.SDI <span class="sc">+</span> Alt.fFor <span class="sc">+</span> <span class="fu">f</span>(w, <span class="at">model =</span> spde)</span>
+<span id="cb355-31"><a href="Chapter12.html#cb355-31" tabindex="-1"></a></span>
+<span id="cb355-32"><a href="Chapter12.html#cb355-32" tabindex="-1"></a>Xd <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Alt          =</span> Xm[,<span class="dv">2</span>],</span>
+<span id="cb355-33"><a href="Chapter12.html#cb355-33" tabindex="-1"></a>                <span class="at">SDI          =</span> Xm[,<span class="dv">3</span>],</span>
+<span id="cb355-34"><a href="Chapter12.html#cb355-34" tabindex="-1"></a>                <span class="at">fFor         =</span> Xm[,<span class="dv">4</span>],</span>
+<span id="cb355-35"><a href="Chapter12.html#cb355-35" tabindex="-1"></a>                <span class="at">Alt.SDI      =</span> Xm[,<span class="dv">5</span>],</span>
+<span id="cb355-36"><a href="Chapter12.html#cb355-36" tabindex="-1"></a>                <span class="at">Alt.fFor     =</span> Xm[,<span class="dv">6</span>])</span>
+<span id="cb355-37"><a href="Chapter12.html#cb355-37" tabindex="-1"></a></span>
+<span id="cb355-38"><a href="Chapter12.html#cb355-38" tabindex="-1"></a>StackFitd <span class="ot">&lt;-</span> <span class="fu">inla.stack</span>(</span>
+<span id="cb355-39"><a href="Chapter12.html#cb355-39" tabindex="-1"></a>             <span class="at">tag =</span> <span class="st">&quot;Fit&quot;</span>,</span>
+<span id="cb355-40"><a href="Chapter12.html#cb355-40" tabindex="-1"></a>             <span class="at">data =</span> <span class="fu">list</span>(<span class="at">y =</span> iph<span class="sc">$</span>pH),  </span>
+<span id="cb355-41"><a href="Chapter12.html#cb355-41" tabindex="-1"></a>               <span class="at">A =</span> <span class="fu">list</span>(<span class="dv">1</span>, <span class="dv">1</span>, A12_5),                  </span>
+<span id="cb355-42"><a href="Chapter12.html#cb355-42" tabindex="-1"></a>               <span class="at">effects =</span> <span class="fu">list</span>(   </span>
+<span id="cb355-43"><a href="Chapter12.html#cb355-43" tabindex="-1"></a>                  <span class="at">Intercept =</span> <span class="fu">rep</span>(<span class="dv">1</span>, N),</span>
+<span id="cb355-44"><a href="Chapter12.html#cb355-44" tabindex="-1"></a>                  <span class="at">X =</span> Xd,</span>
+<span id="cb355-45"><a href="Chapter12.html#cb355-45" tabindex="-1"></a>                  <span class="at">w =</span> w.index))</span>
+<span id="cb355-46"><a href="Chapter12.html#cb355-46" tabindex="-1"></a></span>
+<span id="cb355-47"><a href="Chapter12.html#cb355-47" tabindex="-1"></a>m12_2d <span class="ot">&lt;-</span> <span class="fu">inla</span>(f2d,</span>
+<span id="cb355-48"><a href="Chapter12.html#cb355-48" tabindex="-1"></a>               <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb355-49"><a href="Chapter12.html#cb355-49" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">inla.stack.data</span>(StackFitd),</span>
+<span id="cb355-50"><a href="Chapter12.html#cb355-50" tabindex="-1"></a>               <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb355-51"><a href="Chapter12.html#cb355-51" tabindex="-1"></a>                                      <span class="at">waic =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb355-52"><a href="Chapter12.html#cb355-52" tabindex="-1"></a>               <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">inla.stack.A</span>(StackFitd)))</span>
+<span id="cb355-53"><a href="Chapter12.html#cb355-53" tabindex="-1"></a></span>
+<span id="cb355-54"><a href="Chapter12.html#cb355-54" tabindex="-1"></a><span class="do">## Alt.fForなし</span></span>
+<span id="cb355-55"><a href="Chapter12.html#cb355-55" tabindex="-1"></a>f2e <span class="ot">&lt;-</span> y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Intercept <span class="sc">+</span> Alt  <span class="sc">+</span> SDI <span class="sc">+</span> fFor <span class="sc">+</span> </span>
+<span id="cb355-56"><a href="Chapter12.html#cb355-56" tabindex="-1"></a>           Alt.SDI <span class="sc">+</span>  SDI.fFor <span class="sc">+</span> <span class="fu">f</span>(w, <span class="at">model =</span> spde)</span>
+<span id="cb355-57"><a href="Chapter12.html#cb355-57" tabindex="-1"></a></span>
+<span id="cb355-58"><a href="Chapter12.html#cb355-58" tabindex="-1"></a>Xe <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Alt          =</span> Xm[,<span class="dv">2</span>],</span>
+<span id="cb355-59"><a href="Chapter12.html#cb355-59" tabindex="-1"></a>                <span class="at">SDI          =</span> Xm[,<span class="dv">3</span>],</span>
+<span id="cb355-60"><a href="Chapter12.html#cb355-60" tabindex="-1"></a>                <span class="at">fFor         =</span> Xm[,<span class="dv">4</span>],</span>
+<span id="cb355-61"><a href="Chapter12.html#cb355-61" tabindex="-1"></a>                <span class="at">Alt.SDI      =</span> Xm[,<span class="dv">5</span>],</span>
+<span id="cb355-62"><a href="Chapter12.html#cb355-62" tabindex="-1"></a>                <span class="at">SDI.fFor     =</span> Xm[,<span class="dv">7</span>])</span>
+<span id="cb355-63"><a href="Chapter12.html#cb355-63" tabindex="-1"></a></span>
+<span id="cb355-64"><a href="Chapter12.html#cb355-64" tabindex="-1"></a>StackFite <span class="ot">&lt;-</span> <span class="fu">inla.stack</span>(</span>
+<span id="cb355-65"><a href="Chapter12.html#cb355-65" tabindex="-1"></a>             <span class="at">tag =</span> <span class="st">&quot;Fit&quot;</span>,</span>
+<span id="cb355-66"><a href="Chapter12.html#cb355-66" tabindex="-1"></a>             <span class="at">data =</span> <span class="fu">list</span>(<span class="at">y =</span> iph<span class="sc">$</span>pH),  </span>
+<span id="cb355-67"><a href="Chapter12.html#cb355-67" tabindex="-1"></a>               <span class="at">A =</span> <span class="fu">list</span>(<span class="dv">1</span>, <span class="dv">1</span>, A12_5),                  </span>
+<span id="cb355-68"><a href="Chapter12.html#cb355-68" tabindex="-1"></a>               <span class="at">effects =</span> <span class="fu">list</span>(   </span>
+<span id="cb355-69"><a href="Chapter12.html#cb355-69" tabindex="-1"></a>                  <span class="at">Intercept =</span> <span class="fu">rep</span>(<span class="dv">1</span>, N),</span>
+<span id="cb355-70"><a href="Chapter12.html#cb355-70" tabindex="-1"></a>                  <span class="at">X =</span> Xe,</span>
+<span id="cb355-71"><a href="Chapter12.html#cb355-71" tabindex="-1"></a>                  <span class="at">w =</span> w.index))</span>
+<span id="cb355-72"><a href="Chapter12.html#cb355-72" tabindex="-1"></a></span>
+<span id="cb355-73"><a href="Chapter12.html#cb355-73" tabindex="-1"></a>m12_2e <span class="ot">&lt;-</span> <span class="fu">inla</span>(f2e,</span>
+<span id="cb355-74"><a href="Chapter12.html#cb355-74" tabindex="-1"></a>               <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb355-75"><a href="Chapter12.html#cb355-75" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">inla.stack.data</span>(StackFite),</span>
+<span id="cb355-76"><a href="Chapter12.html#cb355-76" tabindex="-1"></a>               <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb355-77"><a href="Chapter12.html#cb355-77" tabindex="-1"></a>                                      <span class="at">waic =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb355-78"><a href="Chapter12.html#cb355-78" tabindex="-1"></a>               <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">inla.stack.A</span>(StackFite)))</span>
+<span id="cb355-79"><a href="Chapter12.html#cb355-79" tabindex="-1"></a></span>
+<span id="cb355-80"><a href="Chapter12.html#cb355-80" tabindex="-1"></a><span class="do">## Alt.SDIなし</span></span>
+<span id="cb355-81"><a href="Chapter12.html#cb355-81" tabindex="-1"></a>f2f <span class="ot">&lt;-</span> y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Intercept <span class="sc">+</span> Alt  <span class="sc">+</span> SDI <span class="sc">+</span> fFor <span class="sc">+</span> </span>
+<span id="cb355-82"><a href="Chapter12.html#cb355-82" tabindex="-1"></a>           Alt.fFor <span class="sc">+</span> SDI.fFor <span class="sc">+</span> <span class="fu">f</span>(w, <span class="at">model =</span> spde)</span>
+<span id="cb355-83"><a href="Chapter12.html#cb355-83" tabindex="-1"></a></span>
+<span id="cb355-84"><a href="Chapter12.html#cb355-84" tabindex="-1"></a>Xf <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Alt          =</span> Xm[,<span class="dv">2</span>],</span>
+<span id="cb355-85"><a href="Chapter12.html#cb355-85" tabindex="-1"></a>                <span class="at">SDI          =</span> Xm[,<span class="dv">3</span>],</span>
+<span id="cb355-86"><a href="Chapter12.html#cb355-86" tabindex="-1"></a>                <span class="at">fFor         =</span> Xm[,<span class="dv">4</span>],</span>
+<span id="cb355-87"><a href="Chapter12.html#cb355-87" tabindex="-1"></a>                <span class="at">Alt.fFor     =</span> Xm[,<span class="dv">6</span>],</span>
+<span id="cb355-88"><a href="Chapter12.html#cb355-88" tabindex="-1"></a>                <span class="at">SDI.fFor     =</span> Xm[,<span class="dv">7</span>])</span>
+<span id="cb355-89"><a href="Chapter12.html#cb355-89" tabindex="-1"></a></span>
+<span id="cb355-90"><a href="Chapter12.html#cb355-90" tabindex="-1"></a>StackFitf <span class="ot">&lt;-</span> <span class="fu">inla.stack</span>(</span>
+<span id="cb355-91"><a href="Chapter12.html#cb355-91" tabindex="-1"></a>             <span class="at">tag =</span> <span class="st">&quot;Fit&quot;</span>,</span>
+<span id="cb355-92"><a href="Chapter12.html#cb355-92" tabindex="-1"></a>             <span class="at">data =</span> <span class="fu">list</span>(<span class="at">y =</span> iph<span class="sc">$</span>pH),  </span>
+<span id="cb355-93"><a href="Chapter12.html#cb355-93" tabindex="-1"></a>               <span class="at">A =</span> <span class="fu">list</span>(<span class="dv">1</span>, <span class="dv">1</span>, A12_5),                  </span>
+<span id="cb355-94"><a href="Chapter12.html#cb355-94" tabindex="-1"></a>               <span class="at">effects =</span> <span class="fu">list</span>(   </span>
+<span id="cb355-95"><a href="Chapter12.html#cb355-95" tabindex="-1"></a>                  <span class="at">Intercept =</span> <span class="fu">rep</span>(<span class="dv">1</span>, N),</span>
+<span id="cb355-96"><a href="Chapter12.html#cb355-96" tabindex="-1"></a>                  <span class="at">X =</span> Xf,</span>
+<span id="cb355-97"><a href="Chapter12.html#cb355-97" tabindex="-1"></a>                  <span class="at">w =</span> w.index))</span>
+<span id="cb355-98"><a href="Chapter12.html#cb355-98" tabindex="-1"></a></span>
+<span id="cb355-99"><a href="Chapter12.html#cb355-99" tabindex="-1"></a>m12_2f <span class="ot">&lt;-</span> <span class="fu">inla</span>(f2f,</span>
+<span id="cb355-100"><a href="Chapter12.html#cb355-100" tabindex="-1"></a>               <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb355-101"><a href="Chapter12.html#cb355-101" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">inla.stack.data</span>(StackFitf),</span>
+<span id="cb355-102"><a href="Chapter12.html#cb355-102" tabindex="-1"></a>               <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb355-103"><a href="Chapter12.html#cb355-103" tabindex="-1"></a>                                      <span class="at">waic =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb355-104"><a href="Chapter12.html#cb355-104" tabindex="-1"></a>               <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">inla.stack.A</span>(StackFitf)))</span></code></pre></div>
+<p>その結果、3次の交互作用項と2次の交互作用項<code>Alt.SDI</code>を含まないモデルが最もWAICが低いことが分かった。一方で、DICは3次の交互作用のみを含まないモデルが最も低い。ここでは、<code>m12_2f</code>を採用することにする。</p>
+<div class="sourceCode" id="cb356"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb356-1"><a href="Chapter12.html#cb356-1" tabindex="-1"></a><span class="do">## モデル比較  </span></span>
+<span id="cb356-2"><a href="Chapter12.html#cb356-2" tabindex="-1"></a>waic12_2 <span class="ot">&lt;-</span> <span class="fu">c</span>(m12_2b<span class="sc">$</span>waic<span class="sc">$</span>waic, m12_2c<span class="sc">$</span>waic<span class="sc">$</span>waic, m12_2d<span class="sc">$</span>waic<span class="sc">$</span>waic, m12_2e<span class="sc">$</span>waic<span class="sc">$</span>waic, m12_2f<span class="sc">$</span>waic<span class="sc">$</span>waic)</span>
+<span id="cb356-3"><a href="Chapter12.html#cb356-3" tabindex="-1"></a>dic12_2 <span class="ot">&lt;-</span> <span class="fu">c</span>(m12_2b<span class="sc">$</span>dic<span class="sc">$</span>dic, m12_2c<span class="sc">$</span>dic<span class="sc">$</span>dic, m12_2d<span class="sc">$</span>dic<span class="sc">$</span>dic, m12_2e<span class="sc">$</span>dic<span class="sc">$</span>dic, m12_2f<span class="sc">$</span>dic<span class="sc">$</span>dic)</span>
+<span id="cb356-4"><a href="Chapter12.html#cb356-4" tabindex="-1"></a>modelcomp12_2 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(waic12_2, dic12_2)</span>
+<span id="cb356-5"><a href="Chapter12.html#cb356-5" tabindex="-1"></a><span class="fu">rownames</span>(modelcomp12_2) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Full&quot;</span>,<span class="st">&quot;-Alt.SDI.fFor &quot;</span>, <span class="st">&quot;-SDI.fFor&quot;</span>, <span class="st">&quot;-Alt.fFor&quot;</span>,<span class="st">&quot;-Alt.SDI&quot;</span>)</span>
+<span id="cb356-6"><a href="Chapter12.html#cb356-6" tabindex="-1"></a></span>
+<span id="cb356-7"><a href="Chapter12.html#cb356-7" tabindex="-1"></a>modelcomp12_2</span></code></pre></div>
+<pre><code>##                waic12_2  dic12_2
+## Full           127.7375 124.2912
+## -Alt.SDI.fFor  126.5898 122.6982
+## -SDI.fFor      127.6033 123.5803
+## -Alt.fFor      133.1570 130.0797
+## -Alt.SDI       126.5112 123.0979</code></pre>
+<p><br/></p>
+<p>続いて、残った2次の交互作用項を1つずつ除いたものと、交互作用項を含まないモデルとの比較を行う。</p>
+<div class="sourceCode" id="cb358"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb358-1"><a href="Chapter12.html#cb358-1" tabindex="-1"></a><span class="do">## Alt.fForなし</span></span>
+<span id="cb358-2"><a href="Chapter12.html#cb358-2" tabindex="-1"></a>f2g <span class="ot">&lt;-</span> y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Intercept <span class="sc">+</span> Alt  <span class="sc">+</span> SDI <span class="sc">+</span> fFor <span class="sc">+</span> </span>
+<span id="cb358-3"><a href="Chapter12.html#cb358-3" tabindex="-1"></a>            SDI.fFor <span class="sc">+</span> <span class="fu">f</span>(w, <span class="at">model =</span> spde)</span>
+<span id="cb358-4"><a href="Chapter12.html#cb358-4" tabindex="-1"></a></span>
+<span id="cb358-5"><a href="Chapter12.html#cb358-5" tabindex="-1"></a>Xg <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Alt          =</span> Xm[,<span class="dv">2</span>],</span>
+<span id="cb358-6"><a href="Chapter12.html#cb358-6" tabindex="-1"></a>                <span class="at">SDI          =</span> Xm[,<span class="dv">3</span>],</span>
+<span id="cb358-7"><a href="Chapter12.html#cb358-7" tabindex="-1"></a>                <span class="at">fFor         =</span> Xm[,<span class="dv">4</span>],</span>
+<span id="cb358-8"><a href="Chapter12.html#cb358-8" tabindex="-1"></a>                <span class="at">SDI.fFor     =</span> Xm[,<span class="dv">7</span>])</span>
+<span id="cb358-9"><a href="Chapter12.html#cb358-9" tabindex="-1"></a></span>
+<span id="cb358-10"><a href="Chapter12.html#cb358-10" tabindex="-1"></a>StackFitg <span class="ot">&lt;-</span> <span class="fu">inla.stack</span>(</span>
+<span id="cb358-11"><a href="Chapter12.html#cb358-11" tabindex="-1"></a>             <span class="at">tag =</span> <span class="st">&quot;Fit&quot;</span>,</span>
+<span id="cb358-12"><a href="Chapter12.html#cb358-12" tabindex="-1"></a>             <span class="at">data =</span> <span class="fu">list</span>(<span class="at">y =</span> iph<span class="sc">$</span>pH),  </span>
+<span id="cb358-13"><a href="Chapter12.html#cb358-13" tabindex="-1"></a>               <span class="at">A =</span> <span class="fu">list</span>(<span class="dv">1</span>, <span class="dv">1</span>, A12_5),                  </span>
+<span id="cb358-14"><a href="Chapter12.html#cb358-14" tabindex="-1"></a>               <span class="at">effects =</span> <span class="fu">list</span>(   </span>
+<span id="cb358-15"><a href="Chapter12.html#cb358-15" tabindex="-1"></a>                  <span class="at">Intercept =</span> <span class="fu">rep</span>(<span class="dv">1</span>, N),</span>
+<span id="cb358-16"><a href="Chapter12.html#cb358-16" tabindex="-1"></a>                  <span class="at">X =</span> Xg,</span>
+<span id="cb358-17"><a href="Chapter12.html#cb358-17" tabindex="-1"></a>                  <span class="at">w =</span> w.index))</span>
+<span id="cb358-18"><a href="Chapter12.html#cb358-18" tabindex="-1"></a></span>
+<span id="cb358-19"><a href="Chapter12.html#cb358-19" tabindex="-1"></a>m12_2g <span class="ot">&lt;-</span> <span class="fu">inla</span>(f2g,</span>
+<span id="cb358-20"><a href="Chapter12.html#cb358-20" tabindex="-1"></a>               <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb358-21"><a href="Chapter12.html#cb358-21" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">inla.stack.data</span>(StackFitg),</span>
+<span id="cb358-22"><a href="Chapter12.html#cb358-22" tabindex="-1"></a>               <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb358-23"><a href="Chapter12.html#cb358-23" tabindex="-1"></a>                                      <span class="at">waic =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb358-24"><a href="Chapter12.html#cb358-24" tabindex="-1"></a>               <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">inla.stack.A</span>(StackFitg)))</span>
+<span id="cb358-25"><a href="Chapter12.html#cb358-25" tabindex="-1"></a></span>
+<span id="cb358-26"><a href="Chapter12.html#cb358-26" tabindex="-1"></a><span class="do">## SDI.fForなし</span></span>
+<span id="cb358-27"><a href="Chapter12.html#cb358-27" tabindex="-1"></a>f2h <span class="ot">&lt;-</span> y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Intercept <span class="sc">+</span> Alt  <span class="sc">+</span> SDI <span class="sc">+</span> fFor <span class="sc">+</span> </span>
+<span id="cb358-28"><a href="Chapter12.html#cb358-28" tabindex="-1"></a>           Alt.fFor  <span class="sc">+</span> <span class="fu">f</span>(w, <span class="at">model =</span> spde)</span>
+<span id="cb358-29"><a href="Chapter12.html#cb358-29" tabindex="-1"></a></span>
+<span id="cb358-30"><a href="Chapter12.html#cb358-30" tabindex="-1"></a>Xh <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Alt          =</span> Xm[,<span class="dv">2</span>],</span>
+<span id="cb358-31"><a href="Chapter12.html#cb358-31" tabindex="-1"></a>                <span class="at">SDI          =</span> Xm[,<span class="dv">3</span>],</span>
+<span id="cb358-32"><a href="Chapter12.html#cb358-32" tabindex="-1"></a>                <span class="at">fFor         =</span> Xm[,<span class="dv">4</span>],</span>
+<span id="cb358-33"><a href="Chapter12.html#cb358-33" tabindex="-1"></a>                <span class="at">Alt.fFor     =</span> Xm[,<span class="dv">6</span>])</span>
+<span id="cb358-34"><a href="Chapter12.html#cb358-34" tabindex="-1"></a></span>
+<span id="cb358-35"><a href="Chapter12.html#cb358-35" tabindex="-1"></a>StackFith <span class="ot">&lt;-</span> <span class="fu">inla.stack</span>(</span>
+<span id="cb358-36"><a href="Chapter12.html#cb358-36" tabindex="-1"></a>             <span class="at">tag =</span> <span class="st">&quot;Fit&quot;</span>,</span>
+<span id="cb358-37"><a href="Chapter12.html#cb358-37" tabindex="-1"></a>             <span class="at">data =</span> <span class="fu">list</span>(<span class="at">y =</span> iph<span class="sc">$</span>pH),  </span>
+<span id="cb358-38"><a href="Chapter12.html#cb358-38" tabindex="-1"></a>               <span class="at">A =</span> <span class="fu">list</span>(<span class="dv">1</span>, <span class="dv">1</span>, A12_5),                  </span>
+<span id="cb358-39"><a href="Chapter12.html#cb358-39" tabindex="-1"></a>               <span class="at">effects =</span> <span class="fu">list</span>(   </span>
+<span id="cb358-40"><a href="Chapter12.html#cb358-40" tabindex="-1"></a>                  <span class="at">Intercept =</span> <span class="fu">rep</span>(<span class="dv">1</span>, N),</span>
+<span id="cb358-41"><a href="Chapter12.html#cb358-41" tabindex="-1"></a>                  <span class="at">X =</span> Xh,</span>
+<span id="cb358-42"><a href="Chapter12.html#cb358-42" tabindex="-1"></a>                  <span class="at">w =</span> w.index))</span>
+<span id="cb358-43"><a href="Chapter12.html#cb358-43" tabindex="-1"></a></span>
+<span id="cb358-44"><a href="Chapter12.html#cb358-44" tabindex="-1"></a>m12_2h <span class="ot">&lt;-</span> <span class="fu">inla</span>(f2h,</span>
+<span id="cb358-45"><a href="Chapter12.html#cb358-45" tabindex="-1"></a>               <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb358-46"><a href="Chapter12.html#cb358-46" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">inla.stack.data</span>(StackFith),</span>
+<span id="cb358-47"><a href="Chapter12.html#cb358-47" tabindex="-1"></a>               <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb358-48"><a href="Chapter12.html#cb358-48" tabindex="-1"></a>                                      <span class="at">waic =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb358-49"><a href="Chapter12.html#cb358-49" tabindex="-1"></a>               <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">inla.stack.A</span>(StackFith)))</span>
+<span id="cb358-50"><a href="Chapter12.html#cb358-50" tabindex="-1"></a></span>
+<span id="cb358-51"><a href="Chapter12.html#cb358-51" tabindex="-1"></a><span class="do">## 交互作用なし</span></span>
+<span id="cb358-52"><a href="Chapter12.html#cb358-52" tabindex="-1"></a>f2i <span class="ot">&lt;-</span> y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Intercept <span class="sc">+</span> Alt  <span class="sc">+</span> SDI <span class="sc">+</span> fFor <span class="sc">+</span> <span class="fu">f</span>(w, <span class="at">model =</span> spde)</span>
+<span id="cb358-53"><a href="Chapter12.html#cb358-53" tabindex="-1"></a></span>
+<span id="cb358-54"><a href="Chapter12.html#cb358-54" tabindex="-1"></a>Xi <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Alt          =</span> Xm[,<span class="dv">2</span>],</span>
+<span id="cb358-55"><a href="Chapter12.html#cb358-55" tabindex="-1"></a>                <span class="at">SDI          =</span> Xm[,<span class="dv">3</span>],</span>
+<span id="cb358-56"><a href="Chapter12.html#cb358-56" tabindex="-1"></a>                <span class="at">fFor         =</span> Xm[,<span class="dv">4</span>])</span>
+<span id="cb358-57"><a href="Chapter12.html#cb358-57" tabindex="-1"></a></span>
+<span id="cb358-58"><a href="Chapter12.html#cb358-58" tabindex="-1"></a>StackFiti <span class="ot">&lt;-</span> <span class="fu">inla.stack</span>(</span>
+<span id="cb358-59"><a href="Chapter12.html#cb358-59" tabindex="-1"></a>             <span class="at">tag =</span> <span class="st">&quot;Fit&quot;</span>,</span>
+<span id="cb358-60"><a href="Chapter12.html#cb358-60" tabindex="-1"></a>             <span class="at">data =</span> <span class="fu">list</span>(<span class="at">y =</span> iph<span class="sc">$</span>pH),  </span>
+<span id="cb358-61"><a href="Chapter12.html#cb358-61" tabindex="-1"></a>               <span class="at">A =</span> <span class="fu">list</span>(<span class="dv">1</span>, <span class="dv">1</span>, A12_5),                  </span>
+<span id="cb358-62"><a href="Chapter12.html#cb358-62" tabindex="-1"></a>               <span class="at">effects =</span> <span class="fu">list</span>(   </span>
+<span id="cb358-63"><a href="Chapter12.html#cb358-63" tabindex="-1"></a>                  <span class="at">Intercept =</span> <span class="fu">rep</span>(<span class="dv">1</span>, N),</span>
+<span id="cb358-64"><a href="Chapter12.html#cb358-64" tabindex="-1"></a>                  <span class="at">X =</span> Xi,</span>
+<span id="cb358-65"><a href="Chapter12.html#cb358-65" tabindex="-1"></a>                  <span class="at">w =</span> w.index))</span>
+<span id="cb358-66"><a href="Chapter12.html#cb358-66" tabindex="-1"></a></span>
+<span id="cb358-67"><a href="Chapter12.html#cb358-67" tabindex="-1"></a></span>
+<span id="cb358-68"><a href="Chapter12.html#cb358-68" tabindex="-1"></a>m12_2i <span class="ot">&lt;-</span> <span class="fu">inla</span>(f2i,</span>
+<span id="cb358-69"><a href="Chapter12.html#cb358-69" tabindex="-1"></a>               <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb358-70"><a href="Chapter12.html#cb358-70" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">inla.stack.data</span>(StackFiti),</span>
+<span id="cb358-71"><a href="Chapter12.html#cb358-71" tabindex="-1"></a>               <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb358-72"><a href="Chapter12.html#cb358-72" tabindex="-1"></a>                                      <span class="at">waic =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb358-73"><a href="Chapter12.html#cb358-73" tabindex="-1"></a>               <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">inla.stack.A</span>(StackFiti)))</span></code></pre></div>
+<p>その結果、わずかながら2次の交互作用項を2つ含むモデル(<code>m12_2f</code>)が最もWAICとDICが低いことが分かった。</p>
+<div class="sourceCode" id="cb359"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb359-1"><a href="Chapter12.html#cb359-1" tabindex="-1"></a><span class="do">## モデル比較  </span></span>
+<span id="cb359-2"><a href="Chapter12.html#cb359-2" tabindex="-1"></a>waic12_2 <span class="ot">&lt;-</span> <span class="fu">c</span>(m12_2f<span class="sc">$</span>waic<span class="sc">$</span>waic, m12_2g<span class="sc">$</span>waic<span class="sc">$</span>waic, m12_2h<span class="sc">$</span>waic<span class="sc">$</span>waic, m12_2i<span class="sc">$</span>waic<span class="sc">$</span>waic)</span>
+<span id="cb359-3"><a href="Chapter12.html#cb359-3" tabindex="-1"></a>dic12_2 <span class="ot">&lt;-</span> <span class="fu">c</span>(m12_2f<span class="sc">$</span>dic<span class="sc">$</span>dic, m12_2g<span class="sc">$</span>dic<span class="sc">$</span>dic, m12_2h<span class="sc">$</span>dic<span class="sc">$</span>dic, m12_2i<span class="sc">$</span>dic<span class="sc">$</span>dic)</span>
+<span id="cb359-4"><a href="Chapter12.html#cb359-4" tabindex="-1"></a>modelcomp12_2 <span class="ot">&lt;-</span> <span class="fu">cbind</span>(waic12_2, dic12_2)</span>
+<span id="cb359-5"><a href="Chapter12.html#cb359-5" tabindex="-1"></a><span class="fu">rownames</span>(modelcomp12_2) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Full&quot;</span>,<span class="st">&quot;-Alt.fFor &quot;</span>, <span class="st">&quot;-SDI.fFor&quot;</span>, <span class="st">&quot;no interaction&quot;</span>)</span>
+<span id="cb359-6"><a href="Chapter12.html#cb359-6" tabindex="-1"></a></span>
+<span id="cb359-7"><a href="Chapter12.html#cb359-7" tabindex="-1"></a>modelcomp12_2</span></code></pre></div>
+<pre><code>##                waic12_2  dic12_2
+## Full           126.5112 123.0979
+## -Alt.fFor      130.7929 128.1620
+## -SDI.fFor      126.8899 123.4883
+## no interaction 133.8153 131.2625</code></pre>
+<p><br/></p>
+</div>
+<div id="model-validation-6" class="section level2 hasAnchor" number="11.15">
+<h2><span class="header-section-number">11.15</span> Model validation<a href="Chapter12.html#model-validation-6" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>続いて、モデル診断を行う。</p>
+<p>まず、残差と予測値を計算する。<code>m12_2f$summary.fitted.values</code>はデータ数210ではなく合計632行のデータを返すが、最初の210個が予測値である。残りの432個が何を示しているのかは後程触れる。</p>
+<div class="sourceCode" id="cb361"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb361-1"><a href="Chapter12.html#cb361-1" tabindex="-1"></a>fitted <span class="ot">&lt;-</span> m12_2f<span class="sc">$</span>summary.fitted.values<span class="sc">$</span>mean[<span class="dv">1</span><span class="sc">:</span><span class="dv">210</span>]</span>
+<span id="cb361-2"><a href="Chapter12.html#cb361-2" tabindex="-1"></a>resid <span class="ot">&lt;-</span> iph<span class="sc">$</span>pH <span class="sc">-</span> fitted</span></code></pre></div>
+<p>残差と予測値、残差と共変量の関係を見ると、1つだけ外れ値があるものの、全体的なパターンはないように見える。</p>
+<div class="sourceCode" id="cb362"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb362-1"><a href="Chapter12.html#cb362-1" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">fitted =</span> fitted,</span>
+<span id="cb362-2"><a href="Chapter12.html#cb362-2" tabindex="-1"></a>           <span class="at">resid =</span> resid) <span class="sc">%&gt;%</span> </span>
+<span id="cb362-3"><a href="Chapter12.html#cb362-3" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> fitted, <span class="at">y =</span> resid))<span class="sc">+</span></span>
+<span id="cb362-4"><a href="Chapter12.html#cb362-4" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb362-5"><a href="Chapter12.html#cb362-5" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb362-6"><a href="Chapter12.html#cb362-6" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb362-7"><a href="Chapter12.html#cb362-7" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb362-8"><a href="Chapter12.html#cb362-8" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">&quot;Fitted values&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Residuals&quot;</span>) <span class="ot">-&gt;</span> p1</span>
+<span id="cb362-9"><a href="Chapter12.html#cb362-9" tabindex="-1"></a></span>
+<span id="cb362-10"><a href="Chapter12.html#cb362-10" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">SDI =</span> iph<span class="sc">$</span>SDI,</span>
+<span id="cb362-11"><a href="Chapter12.html#cb362-11" tabindex="-1"></a>           <span class="at">resid =</span> resid) <span class="sc">%&gt;%</span> </span>
+<span id="cb362-12"><a href="Chapter12.html#cb362-12" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> SDI, <span class="at">y =</span> resid))<span class="sc">+</span></span>
+<span id="cb362-13"><a href="Chapter12.html#cb362-13" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb362-14"><a href="Chapter12.html#cb362-14" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb362-15"><a href="Chapter12.html#cb362-15" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb362-16"><a href="Chapter12.html#cb362-16" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb362-17"><a href="Chapter12.html#cb362-17" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">&quot;SDI&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Residuals&quot;</span>) <span class="ot">-&gt;</span> p2</span>
+<span id="cb362-18"><a href="Chapter12.html#cb362-18" tabindex="-1"></a></span>
+<span id="cb362-19"><a href="Chapter12.html#cb362-19" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">SDI =</span> iph<span class="sc">$</span>logAlt,</span>
+<span id="cb362-20"><a href="Chapter12.html#cb362-20" tabindex="-1"></a>           <span class="at">resid =</span> resid) <span class="sc">%&gt;%</span> </span>
+<span id="cb362-21"><a href="Chapter12.html#cb362-21" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> SDI, <span class="at">y =</span> resid))<span class="sc">+</span></span>
+<span id="cb362-22"><a href="Chapter12.html#cb362-22" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb362-23"><a href="Chapter12.html#cb362-23" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb362-24"><a href="Chapter12.html#cb362-24" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb362-25"><a href="Chapter12.html#cb362-25" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb362-26"><a href="Chapter12.html#cb362-26" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">&quot;Log(Altitude)&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Residuals&quot;</span>) <span class="ot">-&gt;</span> p3</span>
+<span id="cb362-27"><a href="Chapter12.html#cb362-27" tabindex="-1"></a></span>
+<span id="cb362-28"><a href="Chapter12.html#cb362-28" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">forested =</span> iph<span class="sc">$</span>fForested,</span>
+<span id="cb362-29"><a href="Chapter12.html#cb362-29" tabindex="-1"></a>           <span class="at">resid =</span> resid) <span class="sc">%&gt;%</span> </span>
+<span id="cb362-30"><a href="Chapter12.html#cb362-30" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> forested, <span class="at">y =</span> resid))<span class="sc">+</span></span>
+<span id="cb362-31"><a href="Chapter12.html#cb362-31" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>()<span class="sc">+</span></span>
+<span id="cb362-32"><a href="Chapter12.html#cb362-32" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb362-33"><a href="Chapter12.html#cb362-33" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb362-34"><a href="Chapter12.html#cb362-34" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x=</span> <span class="st">&quot;Forested&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Residuals&quot;</span>) <span class="ot">-&gt;</span> p4</span>
+<span id="cb362-35"><a href="Chapter12.html#cb362-35" tabindex="-1"></a></span>
+<span id="cb362-36"><a href="Chapter12.html#cb362-36" tabindex="-1"></a>(p1 <span class="sc">+</span> p2)<span class="sc">/</span>(p3<span class="sc">+</span>p4)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-260-1.png" width="672" style="display: block; margin: auto;" />
+<br/></p>
+<p>続いて、バリオグラムを確認する。空間的相関を考慮しなかった場合に比べると水平に近づいており、だいぶん改善しているように見える。</p>
+<div class="sourceCode" id="cb363"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb363-1"><a href="Chapter12.html#cb363-1" tabindex="-1"></a>vario_12_2f <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">resid =</span> resid,</span>
+<span id="cb363-2"><a href="Chapter12.html#cb363-2" tabindex="-1"></a>                          <span class="at">Easting.km =</span> iph<span class="sc">$</span>Easting<span class="sc">/</span><span class="dv">1000</span>,</span>
+<span id="cb363-3"><a href="Chapter12.html#cb363-3" tabindex="-1"></a>                          <span class="at">Northing.km =</span> iph<span class="sc">$</span>Northing<span class="sc">/</span><span class="dv">1000</span>)</span>
+<span id="cb363-4"><a href="Chapter12.html#cb363-4" tabindex="-1"></a></span>
+<span id="cb363-5"><a href="Chapter12.html#cb363-5" tabindex="-1"></a>sp<span class="sc">::</span><span class="fu">coordinates</span>(vario_12_2f) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Easting.km&quot;</span>, <span class="st">&quot;Northing.km&quot;</span>)</span>
+<span id="cb363-6"><a href="Chapter12.html#cb363-6" tabindex="-1"></a></span>
+<span id="cb363-7"><a href="Chapter12.html#cb363-7" tabindex="-1"></a>vario_12_2f <span class="sc">%&gt;%</span> </span>
+<span id="cb363-8"><a href="Chapter12.html#cb363-8" tabindex="-1"></a>  <span class="fu">variogram</span>(resid <span class="sc">~</span> Easting.km <span class="sc">+</span> Northing.km, <span class="at">data =</span> .,</span>
+<span id="cb363-9"><a href="Chapter12.html#cb363-9" tabindex="-1"></a>            <span class="do">## 0が南北方向、90が東西方向</span></span>
+<span id="cb363-10"><a href="Chapter12.html#cb363-10" tabindex="-1"></a>            <span class="at">alpha =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">90</span>),</span>
+<span id="cb363-11"><a href="Chapter12.html#cb363-11" tabindex="-1"></a>            <span class="at">cressie =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb363-12"><a href="Chapter12.html#cb363-12" tabindex="-1"></a>            <span class="at">cutoff =</span> <span class="dv">150</span>,</span>
+<span id="cb363-13"><a href="Chapter12.html#cb363-13" tabindex="-1"></a>            <span class="at">width =</span> <span class="dv">10</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb363-14"><a href="Chapter12.html#cb363-14" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dist, <span class="at">y =</span> gamma))<span class="sc">+</span></span>
+<span id="cb363-15"><a href="Chapter12.html#cb363-15" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">size =</span> np))<span class="sc">+</span></span>
+<span id="cb363-16"><a href="Chapter12.html#cb363-16" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb363-17"><a href="Chapter12.html#cb363-17" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb363-18"><a href="Chapter12.html#cb363-18" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span> dir.hor,</span>
+<span id="cb363-19"><a href="Chapter12.html#cb363-19" tabindex="-1"></a>                 <span class="at">labeller =</span> <span class="fu">as_labeller</span>(<span class="fu">c</span>(<span class="st">&quot;0&quot;</span> <span class="ot">=</span> <span class="st">&quot;North-South&quot;</span>,</span>
+<span id="cb363-20"><a href="Chapter12.html#cb363-20" tabindex="-1"></a>                                          <span class="st">&quot;90&quot;</span> <span class="ot">=</span> <span class="st">&quot;East-West&quot;</span>)))<span class="sc">+</span></span>
+<span id="cb363-21"><a href="Chapter12.html#cb363-21" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;semivariogram&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-261-1.png" width="960" style="display: block; margin: auto;" /></p>
+</div>
+<div id="model-interpretation-1" class="section level2 hasAnchor" number="11.16">
+<h2><span class="header-section-number">11.16</span> Model interpretation<a href="Chapter12.html#model-interpretation-1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>選ばれたモデルの結果は以下のとおりである。</p>
+<div class="sourceCode" id="cb364"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb364-1"><a href="Chapter12.html#cb364-1" tabindex="-1"></a>m12_2f<span class="sc">$</span>summary.fixe <span class="sc">%&gt;%</span> </span>
+<span id="cb364-2"><a href="Chapter12.html#cb364-2" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">digits =</span> <span class="dv">2</span>)</span></code></pre></div>
+<pre><code>##             mean     sd 0.025quant 0.5quant 0.975quant   mode     kld
+## Intercept  8.114 0.2996      7.522    8.115      8.700  8.117 5.6e-09
+## Alt        0.162 0.1432     -0.119    0.163      0.443  0.163 6.5e-10
+## SDI       -0.023 0.0022     -0.028   -0.023     -0.019 -0.023 2.5e-09
+## fFor       1.117 0.3971      0.336    1.117      1.895  1.118 6.2e-10
+## Alt.fFor  -0.484 0.1912     -0.859   -0.484     -0.109 -0.484 6.7e-10
+## SDI.fFor  -0.004 0.0041     -0.012   -0.004      0.004 -0.004 5.4e-10</code></pre>
+<p><br/></p>
+<div class="sourceCode" id="cb366"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb366-1"><a href="Chapter12.html#cb366-1" tabindex="-1"></a><span class="fu">inla.emarginal</span>(<span class="cf">function</span>(x) <span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(x), m12_2f<span class="sc">$</span>marginals.hyperpar<span class="sc">$</span><span class="st">`</span><span class="at">Precision for the Gaussian observations</span><span class="st">`</span>)</span></code></pre></div>
+<pre><code>## [1] 0.2900052</code></pre>
+モデル式に当てはめると以下のようになる。<br />
+$$
+<span class="math display">\[\begin{aligned}
+
+\end{aligned}\]</span>
+<p>$$</p>
 
 </div>
 </div>
