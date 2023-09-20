@@ -68,6 +68,10 @@
 <script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
 <script src="libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<script src="libs/plotly-binding-4.10.1/plotly.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
 
 
 <style type="text/css">
@@ -404,7 +408,14 @@ div.csl-indent {
 <li class="chapter" data-level="11.13" data-path="Chapter12.html"><a href="Chapter12.html#results"><i class="fa fa-check"></i><b>11.13</b> Results</a></li>
 <li class="chapter" data-level="11.14" data-path="Chapter12.html"><a href="Chapter12.html#model-selection-2"><i class="fa fa-check"></i><b>11.14</b> Model selection</a></li>
 <li class="chapter" data-level="11.15" data-path="Chapter12.html"><a href="Chapter12.html#model-validation-6"><i class="fa fa-check"></i><b>11.15</b> Model validation</a></li>
-<li class="chapter" data-level="11.16" data-path="Chapter12.html"><a href="Chapter12.html#model-interpretation-1"><i class="fa fa-check"></i><b>11.16</b> Model interpretation</a></li>
+<li class="chapter" data-level="11.16" data-path="Chapter12.html"><a href="Chapter12.html#s12-16"><i class="fa fa-check"></i><b>11.16</b> Model interpretation</a></li>
+<li class="chapter" data-level="11.17" data-path="Chapter12.html"><a href="Chapter12.html#detailed-information-about-the-stack"><i class="fa fa-check"></i><b>11.17</b> Detailed information about the stack</a>
+<ul>
+<li class="chapter" data-level="11.17.1" data-path="Chapter12.html"><a href="Chapter12.html#stack-for-the-fitted-model-again"><i class="fa fa-check"></i><b>11.17.1</b> Stack for the fitted model again</a></li>
+<li class="chapter" data-level="11.17.2" data-path="Chapter12.html"><a href="Chapter12.html#stack-for-the-new-covariate-values"><i class="fa fa-check"></i><b>11.17.2</b> Stack for the new covariate values</a></li>
+<li class="chapter" data-level="11.17.3" data-path="Chapter12.html"><a href="Chapter12.html#combine-the-two-stacks"><i class="fa fa-check"></i><b>11.17.3</b> Combine the two stacks</a></li>
+<li class="chapter" data-level="11.17.4" data-path="Chapter12.html"><a href="Chapter12.html#run-the-model"><i class="fa fa-check"></i><b>11.17.4</b> Run the model</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -451,29 +462,31 @@ div.csl-indent {
 <span id="cb1-14"><a href="Chapter0.html#cb1-14" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
 <span id="cb1-15"><a href="Chapter0.html#cb1-15" tabindex="-1"></a><span class="fu">library</span>(fields)</span>
 <span id="cb1-16"><a href="Chapter0.html#cb1-16" tabindex="-1"></a><span class="fu">library</span>(NipponMap)</span>
-<span id="cb1-17"><a href="Chapter0.html#cb1-17" tabindex="-1"></a><span class="do">## モデリング  </span></span>
-<span id="cb1-18"><a href="Chapter0.html#cb1-18" tabindex="-1"></a><span class="fu">library</span>(INLA)</span>
-<span id="cb1-19"><a href="Chapter0.html#cb1-19" tabindex="-1"></a><span class="fu">library</span>(mgcv)</span>
-<span id="cb1-20"><a href="Chapter0.html#cb1-20" tabindex="-1"></a><span class="fu">library</span>(gamm4)</span>
-<span id="cb1-21"><a href="Chapter0.html#cb1-21" tabindex="-1"></a><span class="fu">library</span>(nlme)</span>
-<span id="cb1-22"><a href="Chapter0.html#cb1-22" tabindex="-1"></a><span class="fu">library</span>(gstat)</span>
-<span id="cb1-23"><a href="Chapter0.html#cb1-23" tabindex="-1"></a><span class="fu">library</span>(brms)</span>
-<span id="cb1-24"><a href="Chapter0.html#cb1-24" tabindex="-1"></a><span class="fu">library</span>(rstan)</span>
-<span id="cb1-25"><a href="Chapter0.html#cb1-25" tabindex="-1"></a><span class="fu">library</span>(cmdstanr)</span>
-<span id="cb1-26"><a href="Chapter0.html#cb1-26" tabindex="-1"></a><span class="fu">library</span>(ggeffects)</span>
-<span id="cb1-27"><a href="Chapter0.html#cb1-27" tabindex="-1"></a><span class="do">## グラフや表関連</span></span>
-<span id="cb1-28"><a href="Chapter0.html#cb1-28" tabindex="-1"></a><span class="fu">library</span>(bayesplot)</span>
-<span id="cb1-29"><a href="Chapter0.html#cb1-29" tabindex="-1"></a><span class="fu">library</span>(viridis)</span>
-<span id="cb1-30"><a href="Chapter0.html#cb1-30" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
-<span id="cb1-31"><a href="Chapter0.html#cb1-31" tabindex="-1"></a><span class="fu">library</span>(geoR)</span>
-<span id="cb1-32"><a href="Chapter0.html#cb1-32" tabindex="-1"></a><span class="fu">library</span>(ggnewscale)</span>
-<span id="cb1-33"><a href="Chapter0.html#cb1-33" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
-<span id="cb1-34"><a href="Chapter0.html#cb1-34" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
-<span id="cb1-35"><a href="Chapter0.html#cb1-35" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb1-36"><a href="Chapter0.html#cb1-36" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
-<span id="cb1-37"><a href="Chapter0.html#cb1-37" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
-<span id="cb1-38"><a href="Chapter0.html#cb1-38" tabindex="-1"></a><span class="fu">library</span>(ggsci)</span>
-<span id="cb1-39"><a href="Chapter0.html#cb1-39" tabindex="-1"></a><span class="fu">library</span>(lemon)</span></code></pre></div>
+<span id="cb1-17"><a href="Chapter0.html#cb1-17" tabindex="-1"></a><span class="fu">library</span>(ggmap)</span>
+<span id="cb1-18"><a href="Chapter0.html#cb1-18" tabindex="-1"></a><span class="do">## モデリング  </span></span>
+<span id="cb1-19"><a href="Chapter0.html#cb1-19" tabindex="-1"></a><span class="fu">library</span>(INLA)</span>
+<span id="cb1-20"><a href="Chapter0.html#cb1-20" tabindex="-1"></a><span class="fu">library</span>(mgcv)</span>
+<span id="cb1-21"><a href="Chapter0.html#cb1-21" tabindex="-1"></a><span class="fu">library</span>(gamm4)</span>
+<span id="cb1-22"><a href="Chapter0.html#cb1-22" tabindex="-1"></a><span class="fu">library</span>(nlme)</span>
+<span id="cb1-23"><a href="Chapter0.html#cb1-23" tabindex="-1"></a><span class="fu">library</span>(gstat)</span>
+<span id="cb1-24"><a href="Chapter0.html#cb1-24" tabindex="-1"></a><span class="fu">library</span>(brms)</span>
+<span id="cb1-25"><a href="Chapter0.html#cb1-25" tabindex="-1"></a><span class="fu">library</span>(rstan)</span>
+<span id="cb1-26"><a href="Chapter0.html#cb1-26" tabindex="-1"></a><span class="fu">library</span>(cmdstanr)</span>
+<span id="cb1-27"><a href="Chapter0.html#cb1-27" tabindex="-1"></a><span class="fu">library</span>(ggeffects)</span>
+<span id="cb1-28"><a href="Chapter0.html#cb1-28" tabindex="-1"></a><span class="do">## グラフや表関連</span></span>
+<span id="cb1-29"><a href="Chapter0.html#cb1-29" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb1-30"><a href="Chapter0.html#cb1-30" tabindex="-1"></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb1-31"><a href="Chapter0.html#cb1-31" tabindex="-1"></a><span class="fu">library</span>(viridis)</span>
+<span id="cb1-32"><a href="Chapter0.html#cb1-32" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb1-33"><a href="Chapter0.html#cb1-33" tabindex="-1"></a><span class="fu">library</span>(geoR)</span>
+<span id="cb1-34"><a href="Chapter0.html#cb1-34" tabindex="-1"></a><span class="fu">library</span>(ggnewscale)</span>
+<span id="cb1-35"><a href="Chapter0.html#cb1-35" tabindex="-1"></a><span class="fu">library</span>(GGally)</span>
+<span id="cb1-36"><a href="Chapter0.html#cb1-36" tabindex="-1"></a><span class="fu">library</span>(ggrepel)</span>
+<span id="cb1-37"><a href="Chapter0.html#cb1-37" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-38"><a href="Chapter0.html#cb1-38" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
+<span id="cb1-39"><a href="Chapter0.html#cb1-39" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-40"><a href="Chapter0.html#cb1-40" tabindex="-1"></a><span class="fu">library</span>(ggsci)</span>
+<span id="cb1-41"><a href="Chapter0.html#cb1-41" tabindex="-1"></a><span class="fu">library</span>(lemon)</span></code></pre></div>
 
 </div>
 <h3>References</h3>

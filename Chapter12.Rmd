@@ -268,10 +268,10 @@ points(Loc, pch = 16, cex = 1)
 
 
 ## Define the weight factor aik  
-メッシュ`mesh12_5`は737個の頂点があるので、分析の結果737個の$w_k$($w_1,w_2,\dots, w_{731}$)の事後分布を得る。また、データは210個あるので、$u_i$($u_1, u_2, \dots. u_{210}$)も201個ある。メッシュの種類によって各サンプリングポイントはメッシュの三角形内か頂点に配置されるが、今回選択したメッシュ(`mesh12_5`)では頂点にある。つまり今回の場合は$s_i$がk番目の頂点にあるとき、$u_i$は$w_k$と一致する。一方で、もし$s_i$が三角形内にあるのであれば、$u_i$はその三角形の頂点$w_k$の重みづけ平均になる(第\@ref(c11)章、式\@ref(eq:fma)参照)。  
+メッシュ`mesh12_5`は737個の頂点があるので、分析の結果737個の$w_k$($w_1,w_2,\dots, w_{737}$)の事後分布を得る。また、データは210個あるので、$u_i$($u_1, u_2, \dots. u_{210}$)も210個ある。メッシュの種類によって各サンプリングポイントはメッシュの三角形内か頂点に配置されるが、今回選択したメッシュ(`mesh12_5`)では頂点にある。つまり今回の場合は$s_i$がk番目の頂点にあるとき、$u_i$は$w_k$と一致する。一方で、もし$s_i$が三角形内にあるのであれば、$u_i$はその三角形の頂点$w_k$の重みづけ平均になる(第\@ref(c11)章、式\@ref(eq:fma)参照)。  
 
 $$
-u_i = \Sigma_{k=1}^{731} a_{ik} \times w_k (\#eq:fma3)
+u_i = \Sigma_{k=1}^{737} a_{ik} \times w_k (\#eq:fma3)
 $$
 
 $a_{ik}$は重みづけ関数と呼ばれる。Rでは以下のように確認できる。例えば、$a_{1k}$は以下のようになる。
@@ -301,6 +301,7 @@ a_{210,1} & a_{210,2} & \cdots & a_{210,737}
 \end{pmatrix} \\
 &\bf{w} = (w_1, w_2, \dots, w_{737}) 
 \end{aligned}
+(\#eq:A)
 $$
 
 $\bf{w}$は`INLA`で推定する必要がある。これは以下のようにできる。`w.index`中の`w`は1から737の数字を含む。`w.group`と`w.repl`については時空間モデルを実行するときに解説する。    
@@ -481,27 +482,36 @@ $w_k$の事後平均は以下のように求めることができる。
 w.pm <- m12_2b$summary.random$w$mean
 ```
 
-この$w_k$の事後平均をランダムガウス場に図示することができる。
+この$w_k$の事後平均をランダムガウス場に図示することができる。`inla.mesh.projector`関数はメッシュを用いて特定の範囲に格子を作成してくれる。通常はメッシュの最大最小の範囲に格子が作られる。    
 ```{r}
 w.proj <- inla.mesh.projector(mesh12_5)
+```
 
+続いて、`inla.mesh.projector`関数で格子上に`w.pm`の事後平均を投影する。通常は、100×100の格子が用いられる。  
+```{r}
 w.pm100_100 <-inla.mesh.project(w.proj, w.pm)
+```
 
+最後に、格子状に$w_k$を図示する。  
+```{r}
 expand.grid(x = w.proj$x,
-           y = w.proj$y) %>% 
+            y = w.proj$y) %>% 
   mutate(z = as.vector(w.pm100_100)) -> grid
 
-ggplot(grid,
+ggplot(grid %>% drop_na(),
        aes(x = x, y = y))+
-  geom_raster(aes(fill = z))+
+  geom_tile(aes(fill = z))+
   scale_fill_gradient2(high = muted("lightblue"), low = muted("pink"), mid = "white",
                        midpoint = -0.1)+
   geom_point(aes(x = Easting.km, y = Northing.km),
              data = iph,
              shape = 1)+
+  stat_contour(aes(z = z, 
+                   color = ..level..))+
   theme_bw()+
   theme(aspect.ratio = 1)+
-  labs(x = "Easting(km)", y = "Northing(km)")
+  labs(x = "Easting(km)", y = "Northing(km)")+
+  guides(color = "none")
 ```
 
 ## Model selection  
@@ -717,7 +727,7 @@ modelcomp12_2
 ## Model validation  
 続いて、モデル診断を行う。  
 
-まず、残差と予測値を計算する。`m12_2f$summary.fitted.values`はデータ数210ではなく合計632行のデータを返すが、最初の210個が予測値である。残りの432個が何を示しているのかは後程触れる。  
+まず、残差と予測値を計算する。`m12_2f$summary.fitted.values`はデータ数210ではなく合計632行のデータを返すが、最初の210個が予測値である。残りの432個が何を示しているのかは後ほど触れる。  
 ```{r}
 fitted <- m12_2f$summary.fitted.values$mean[1:210]
 resid <- iph$pH - fitted
@@ -764,7 +774,7 @@ data.frame(forested = iph$fForested,
 ```
 <br/>  
 
-続いて、バリオグラムを確認する。空間的相関を考慮しなかった場合に比べると水平に近づいており、だいぶん改善しているように見える。  
+続いて、バリオグラムを確認する。空間的相関を考慮しなかった場合に比べると水平に近づいており、改善しているように見える。  
 ```{r, fig.dim = c(10,4.5)}
 vario_12_2f <- data.frame(resid = resid,
                           Easting.km = iph$Easting/1000,
@@ -790,11 +800,11 @@ vario_12_2f %>%
   labs(y = "semivariogram")
 ```
 
-## Model interpretation  
+## Model interpretation {#s12-16}  
 選ばれたモデルの結果は以下のとおりである。  
 
 ```{r}
-m12_2f$summary.fixe %>% 
+m12_2f$summary.fixed %>% 
   print(digits = 2)
 ```
 <br/>  
@@ -803,11 +813,321 @@ m12_2f$summary.fixe %>%
 inla.emarginal(function(x) 1/sqrt(x), m12_2f$marginals.hyperpar$`Precision for the Gaussian observations`)
 ```
 
-
 モデル式に当てはめると以下のようになる。  
 $$
 \begin{aligned}
-
+&pH_i \sim N(\mu_i, 0.29^2)\\
+&E(pH_i) = \mu_i \; and \; var(pH_i) = 0.29^2\\
+&\mu_i =
+\begin{cases}
+9.23  -0.027 \times SDI_i + -0.321 \times logAltitude_i + u_i & \rm{if \; not \; forested} \\
+8.12 -0.023 \times SDI_i + 0.162 \times logAltitude_i  + u_i & \rm{if \; forested}\\
+\end{cases}
 \end{aligned}
 $$
+
+`INLA`で時空間モデルの予測値とその95%確信区間を得るには、前章までとは少し違う工夫が必要がある。予測値が欲しい範囲の変数と応答変数が`NA`であるデータフレームを作るのは同様だが、それを"stack"オブジェクトにする必要がある。  
+
+```{r}
+newdata <- crossing(logAlt = seq(min(iph$logAlt), max(iph$logAlt), length = 100),
+                    SDI = seq(min(iph$SDI), max(iph$SDI), length = 100),
+                    fForested = iph$fForested)
+
+Xmm <- model.matrix(~ logAlt*fForested + SDI * fForested, 
+                   data = newdata)
+
+Xp <- data.frame(Alt = Xmm[,2],
+                 SDI = Xmm[,4],
+                 fFor = Xmm[,3],
+                 Alt.fFor = Xmm[,5],
+                 SDI.fFor = Xmm[,6])
+
+StackCov <- inla.stack(
+  tag = "Covariates",
+  data = list(y = NA),
+  A = list(1,1),
+  effects = list(
+    Intercept = rep(1, nrow(newdata)),
+    Xp = Xp))
+```
+
+作成した"stack"オブジェクトはもともとのオブジェクトに結合する。  
+```{r}
+All.stack <- inla.stack(StackFitf, StackCov)
+```
+
+その後、結合したものでモデルを実行する。その後は基本的に空間的相関を考慮しない場合と同じである。結果を図示したのが以下の図である。 
+```{r}
+f2fit <- y ~ -1 + Intercept + Alt  + SDI + fFor + 
+           Alt.fFor + SDI.fFor + f(w, model = spde)
+
+m12_2fit <- inla(f2fit,
+                 family = "gaussian",
+                 data = inla.stack.data(All.stack),
+                 control.compute = list(dic = TRUE,
+                                      waic = TRUE),
+                 control.predictor = list(A = inla.stack.A(All.stack)))
+
+## 何番目から何番目の値がnewdataの予測値か
+index.cov <- inla.stack.index(All.stack,
+                              tag = "Covariates")$data
+
+
+## 予測値と95%確信区間  
+fit12_2 <- bind_cols(newdata,
+                     m12_2fit$summary.fitted.values[index.cov, c(1,3,5)])
+
+## 図示  
+plot_ly(fit12_2 %>% group_by(fForested),
+        x = ~logAlt,
+        y = ~SDI,
+        z = ~mean,
+        size = 2,
+        type = "surface",
+        colors = c("black","grey"),
+        alpha = 0.2) %>% 
+  add_markers(color = ~fForested)
+```
+<br/>  
+
+続いて、地図上にランダム切片$u_i$を図示する。まずは、$u_i$を算出する。これは、式\@ref(eq:A)より$\bf{u} = \bf{A} \times \bf{w}$であることを利用して簡単に求められる。  
+```{r}
+## uの算出
+w.pm <- m12_2f$summary.random$w$mean
+u <- as.matrix(A12_5) %*% as.matrix(w.pm,ncol = 1)
+
+## 格子上にwkの値を投影  
+w.proj <- inla.mesh.projector(mesh12_5)
+w.pm100_100 <-inla.mesh.project(w.proj, w.pm)
+```
+
+続いて、求めた値を地図上に図示したものが図\@ref(fig:u-map)である。  
+```{r u-map, fig.cap = "Map of Ireland with estimated us.", fig.dim = c(6,8)}
+## EastingとNorthingを緯度と経度に変換
+sp_u <- SpatialPointsDataFrame(coords = cbind(iph$Easting, iph$Northing),
+                               data = data.frame(u = u,
+                                                 ID = iph$ID,
+                                                 pH = iph$pH),
+                                proj4string = CRS("+init=epsg:29902"))
+
+sp_u_data <- spTransform(sp_u, CRS("+init=epsg:4322"))
+
+## アイルランドの地図をダウンロード
+Ireland <- st_read("shpfile/IRL_adm0.shp")
+Ireland.sf <- st_transform(Ireland, crs = 4322)
+
+
+## 図示
+st_as_sf(sp_u_data) %>% 
+  ggplot()+
+  geom_sf(data = Ireland.sf,
+          fill = "darkgreen")+
+  geom_sf(aes(size = abs(u),
+              color = u <= 0,
+              shape = u <= 0),
+          alpha = 0.7)+
+  scale_size(range = c(0.01,4))+
+  scale_shape_manual(values = c(17,16))+
+  scale_color_manual(values = c("yellow1","red3"))+
+  theme_bw()+
+  labs(color = "u > 0",
+       shape = "u > 0",
+       size = "abs(u)")
+```
+<br/>  
+
+ランダムガウス場上に推定された$u_i$をプロットすると以下のようになる。    
+```{r}
+grid_w <- expand.grid(x = w.proj$x,
+                      y = w.proj$y) %>% 
+  mutate(w = as.vector(w.pm100_100))
+
+df_u <- data.frame(x = iph$Easting.km,
+                   y = iph$Northing.km,
+                   u = u)
+
+ggplot(grid_w %>% drop_na(),
+        aes(x = x, y = y))+
+  stat_contour(aes(z = w, 
+                   color = ..level..),
+               linewidth = 1)+
+  scale_color_gradient2(high = muted("green2"), low = muted("red"), mid = "yellow",
+                        midpoint = 0)+
+  geom_point(data = df_u,
+             aes(size = abs(u),
+                 shape = u > 0),
+             alpha = 0.7)+
+  scale_size(range = c(0.01,4))+
+  scale_shape_manual(values = c(17,16))+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "Easting(km)", y = "Northing(km)")
+```
+
+## Detailed information about the stack   
+以下では、どのように予測値を得ていたのかを解説する。  
+
+### Stack for the fitted model again   
+メッシュ(`mesh12_5`)は737個の頂点を持つので、`A12_5`は、$a_{ik}$を含む行列$\bf{A}$である(式\@ref(eq:A)参照)。  
+
+```{r}
+dim(A12_5)
+```
+
+各行は各データに対応する。すなわち、`A12_5[1,]`は$a_{1k}$に対応する。前章(\@ref(c11))で見たように、もしデータのサンプリングポイント$i$($s_i$)が頂点$k$上にあれば$a_{ik} = 1$、なければ$a_{ik} = 0$である。また、もし$s_i$が三角形内にある場合はその三角形の頂点の$a_{ik}$には0から1の間の小数値が合計1になるように割り振られる。よって、$\bf{A}$(`A12_5`)の各行の合計は1になる。  
+
+空間的相関を考慮したモデルの式は以下のように書ける。  
+$$
+\begin{aligned}
+\bf{\mu} &= \rm{Intercept} + \rm{Covariates} + \rm{Spatial \;random \;effects}\\
+         &= \bf{A_1} \times \rm{Intercept} + \bf{A_2} \times \rm{Covariates} + \bf{A_3} \times \rm{Spatial \;field} (\bf{w})\\
+         &= \begin{pmatrix}
+            \bf{A_1} & \bf{A_2} & \bf{A_3}
+            \end{pmatrix} \times
+            \begin{pmatrix}
+            \rm{Intercept}\\
+            \rm{Covariates}\\
+            \rm{Spatial field} (\bf{w})
+            \end{pmatrix} \\
+         &= \bf{A} \times \bf{Z} 
+\end{aligned}
+$$
+
+ここで、$\bf{A_1,A_2,A_3}$はそれぞれモデルを回すときに`inla.stack`関数の`A =`で指定したものである(今回はそれぞれ1, 1, `A12_5`)。$\bf{A_1}$は全てが1の210行×1列の行列、$\bf{A_2}$は210行×210列の単位行列である。行列$$\bf{A} = \begin{pmatrix} \bf{A_1} & \bf{A_2} & \bf{A_3} \end{pmatrix}$$は、以下のように求められる。    
+
+```{r}
+A <- inla.stack.A(StackFitf)
+
+dim(A)
+```
+
+ここには列数が$1 + 210 + 737 = 948$ではなく422列しかない。これは、`INLA`が$\bf{A_3}$のうち合計が0である列を計算しないからである。以下で計算しているように列の合計が0より大きいものは211列なので、$1 + 210 + 211 = 422$列になるのである。  
+
+```{r}
+table(colSums(A12_5) > 0)
+```
+
+### Stack for the new covariate values  
+新しい共変量の値に対してモデルの予測値を得る場合には、前節(\@ref(s12-16))でやったように予測をしたい範囲の共変量を含むデータフレームを作成し、"stack"オブジェクトを作成する必要がある。このとき、応答変数は`NA`にする。ここで、`A = list(1,1)`とするのはモデルの予測には空間的相関を考慮する項$u_i$を含まないため、$\bf{A_3}$が必要ないからである。    
+
+```{r}
+Xmm <- model.matrix(~ logAlt*fForested + SDI * fForested, 
+                   data = newdata)
+
+Xp <- data.frame(Alt = Xmm[,2],
+                 SDI = Xmm[,4],
+                 fFor = Xmm[,3],
+                 Alt.fFor = Xmm[,5],
+                 SDI.fFor = Xmm[,6])
+
+StackPred <- inla.stack(
+    tag = "Predict",
+    data = list(y = NA),
+    A = list(1,1),
+    effects = list(
+    Intercept = rep(1, nrow(newdata)),
+    Xp = Xp))
+```
+
+ここで、もともとモデルを実行するときに用いていた$\bf{A}$を$$\bf{A^1} = \begin{pmatrix} \bf{A^1_1} & \bf{A^1_2} & \bf{A^1_3} \end{pmatrix}$$、予測に用いる$\bf{A}$を$$\bf{A^2} = \begin{pmatrix} \bf{A^2_1} & \bf{A^2_2} \end{pmatrix}$$とする。このとき、モデルフィットのためのモデル式は以下のように書ける。  
+
+$$
+\begin{aligned}
+\bf{\mu^1} &= \begin{pmatrix}
+            \bf{A^1_1} & \bf{A^1_2} & \bf{A^1_3}
+            \end{pmatrix} \times
+            \begin{pmatrix}
+            \rm{Intercept}\\
+            \rm{Covariates}\\
+            \rm{Spatial field} (\bf{w})
+            \end{pmatrix} \\
+         &= \bf{A^1} \times \bf{Z^1}
+\end{aligned}
+(\#eq:stack1)
+$$
+
+一方、予測値を得るためのモデル式は以下のように書ける。  
+$$
+\begin{aligned}
+\bf{\mu^2} &= \begin{pmatrix}
+            \bf{A^2_1} & \bf{A^2_2} 
+            \end{pmatrix} \times
+            \begin{pmatrix}
+            \rm{Intercept}\\
+            \rm{Covariates}\\
+            \end{pmatrix} \\
+         &= \bf{A^2} \times \bf{Z^2}
+\end{aligned}
+(\#eq:stack2)
+$$
+
+`newdata`は20000行なので、$\bf{A^2_1}$は20000行×1列、$\bf{A^2_2}$は20000行×20000列である。よって、$\bf{A^2}$は20000行×20001列になる。  
+```{r}
+dim(inla.stack.A(StackPred))
+```
+
+### Combine the two stacks  
+続いて、モデルフィットのための"stack"(`StackFitf`)と予測のための"stack"(`StackPred`)を結合する。  
+```{r}
+All.stack <- inla.stack(StackFitf, StackPred)
+```
+
+このとき、式\@ref(eq:stack1)と式\@ref(eq:stack2)が結合され以下のように書ける。  
+$$
+\begin{aligned}
+\begin{pmatrix}
+\mu^1 \\
+\mu^2
+\end{pmatrix} &= 
+\begin{pmatrix}
+\bf{A^1} & 0 \\
+0 & \bf{A^2}
+\end{pmatrix} \times
+\begin{pmatrix}
+\bf{Z^1} \\
+\bf{Z^2}
+\end{pmatrix} \\
+&= \bf{A} \times \bf{Z}
+\end{aligned}
+$$
+
+よって、`All.stack`の行数は`StackFitf`と`StackPred`の行数を足し合わせたものになる。列数については、列数の合計から1を引いた値になっている(重複している`Intercept`を除いている)。    
+```{r}
+dim(inla.stack.A(All.stack))
+```
+
+### Run the model  
+最後に、結合した"stack"を用いてモデルを実行する。  
+```{r}
+f2fit <- y ~ -1 + Intercept + Alt  + SDI + fFor + 
+           Alt.fFor + SDI.fFor + f(w, model = spde)
+
+m12_2fit <- inla(f2fit,
+                 family = "gaussian",
+                 data = inla.stack.data(All.stack),
+                 control.compute = list(dic = TRUE,
+                                      waic = TRUE),
+                 control.predictor = list(A = inla.stack.A(All.stack)))
+```
+
+モデルの予測値は40632行ある。これは、`summary.fitted.values`が"stack"オブジェクト(`All.stack`)の全ての要素について予測値を算出するからである。40632は`All.stack`の行数と列数を足したものである。    
+```{r}
+dim(m12_2fit$summary.fitted.values)
+```
+
+`inla.stack.index`関数を用いれば、何行目に目当ての予測値があるかを容易に知ることができる。実データについての予測値は以下のように抽出できる。  
+```{r}
+index.fit <- inla.stack.index(All.stack,
+                              tag = "Fit")$data
+
+fit12_2_raw <- m12_2fit$summary.fitted.values[index.fit, c(1,3,5)]
+```
+
+新しい共変量の値に対してモデルの予測値を得る場合は以下のように抽出できる。  
+```{r}
+index.predict <- inla.stack.index(All.stack,
+                                  tag = "Predict")$data
+
+fit12_2_predict <- m12_2fit$summary.fitted.values[index.predict, c(1,3,5)]
+```
 

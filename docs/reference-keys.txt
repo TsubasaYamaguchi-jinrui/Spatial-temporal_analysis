@@ -76,7 +76,11 @@ fig:mesh
 fig:dist-iph
 fig:mesh-iph
 eq:fma3
+eq:A
 eq:m12-2
+fig:u-map
+eq:stack1
+eq:stack2
 c2
 pseudoreplication
 疑似反復とは
@@ -237,4 +241,9 @@ execute-the-spatial-model-in-r
 results
 model-selection-2
 model-validation-6
-model-interpretation-1
+s12-16
+detailed-information-about-the-stack
+stack-for-the-fitted-model-again
+stack-for-the-new-covariate-values
+combine-the-two-stacks
+run-the-model

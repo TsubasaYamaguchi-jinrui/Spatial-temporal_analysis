@@ -49,16 +49,17 @@ shp <- system.file("shapes/jpn.shp", package = "NipponMap")[1]
 pref <- read_sf(shp) %>% 
   rename(prefecture = name)
 
-natto %>% 
+pref %>% 
   left_join(gyuniku) %>% 
-  left_join(pref) -> japan_data
+  left_join(natto) -> japan_data
+
+st_crs(japan_data) <- 4326
 
 japan_data %>% 
   filter(prefecture != "Okinawa") %>% 
   ggplot()+
-  geom_sf(aes(geometry = geometry,
-              fill = natto))+
-  theme_void()+
+  geom_sf(aes(fill = natto))+
+  theme_bw()+
   theme(aspect.ratio = 1)+
   scale_fill_gradient2(high = muted("blue"), low = muted("red"), mid = "white",
                        midpoint = 3700)+

@@ -253,7 +253,7 @@ data.frame(resid = (sp$Totalparasites - mu)/sqrt(mu),
 ```
 <br/>  
 
-そこで、本節では以下で負の二項分布を適用したもでリン負を行う。  
+そこで、本節では以下で負の二項分布を適用したモデリングを行う。  
 
 ### Negative binomial GLM in R-INLA  
 モデル式は以下のとおりである。$k$は負の二項分布の分散パラメータで、分布の分散を調整する。`INLA`では`size`パラメータと呼ばれる。      

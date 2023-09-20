@@ -1,0 +1,15 @@
+# Spatial Poisson models applied to plant diversity {#c13}  
+本章では、空間的相関を考慮したGLMの分析例を紹介する。  
+
+## Introduction  
+本章では、気候及び地形がカナリア諸島にあるラ・パルマ島の植物種数、特に固有種数に与える影響を調べた @Irl2015 のデータを用いる。島の890地点について多年生の維管束植物の有無(総数、総固有種数など)が測定されている。  
+
+データは以下の通り。
+```{r}
+lp <- read_delim("data/LaPalma.txt")
+
+datatable(lp,
+          options = list(scrollX = 40),
+          filter = "top")
+```
+
