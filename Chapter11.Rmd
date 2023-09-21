@@ -206,7 +206,6 @@ $$
 ```{r mesh-example, fig.cap = "Triangularisation for simulated data. Black dots are sampling locations. Where triangles come together is called a vertex."}
 loc <- cbind(x1, y1)
 
-
 mesh1 <- inla.mesh.2d(loc, 
                       ## 三角形の辺の長さの最大値
                       max.edge=c(10), 

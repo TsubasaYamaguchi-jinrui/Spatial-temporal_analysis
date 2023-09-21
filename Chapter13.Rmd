@@ -4,12 +4,498 @@
 ## Introduction  
 本章では、気候及び地形がカナリア諸島にあるラ・パルマ島の植物種数、特に固有種数に与える影響を調べた @Irl2015 のデータを用いる。島の890地点について多年生の維管束植物の有無(総数、総固有種数など)が測定されている。  
 
-データは以下の通り。
+## Data exploration  
+### Sampling locations  
+データは以下の通り。データには緯度と経度が記録してあるが、これらはUTM形式なので実際の緯度と経度に直す必要がある。  
+
+- `nSIE`: プロットごとの固有種数(= **応答変数**)    
+- `CR_CAN`: カナリア諸島のclimate rarity indices  
+- `CR_LP`: ラ・パルマ島のclimate rarity indices  
+- `INTRA_VAR`: 年内の降水量のばらつき  
+- `INTER_VAR`: 年ごとの降水量のばらつき  
+- `MAT`: 年間平均気温  
+- `MAP`: 年間平均降水量  
+- `RSI`: 降水量の季節性指標  
+- `TCI`: 地形指標  
+- `macro`:マクロアスペクト(半径5km以内のグリッドセルあたりの平均アスペクト)  
+
+
 ```{r}
 lp <- read_delim("data/LaPalma.txt")
+
+## sfクラスに変換
+lpcoords <- st_as_sf(lp,
+                     coords = c("Longitude", "Latitude"),
+                     crs = "+proj=utm +zone=28")
+
+## 緯度経度に変換
+lonlat <- st_transform(lpcoords, crs = "+proj=longlat")
+
+## 元のデータフレームに緯度と経度を追加  
+lp %>% 
+  mutate(lon = st_coordinates(lonlat)[,1],
+         lat = st_coordinates(lonlat)[,2]) -> lp
 
 datatable(lp,
           options = list(scrollX = 40),
           filter = "top")
+```
+<br/>  
+
+地図上にデータポイントをプロットすると以下のようになる。  
+```{r}
+lp_shp <- st_read("shpfile/lapalma.shp")
+
+lp_shp %>% 
+  ggplot()+
+  geom_sf()+
+  geom_sf(data = lonlat,
+          alpha = 0.5)+
+  theme_bw()
+```
+
+### Outliers  
+外れ値がないかを確かめるためにdotplotを描いてみたところ、外れ値はなさそうだった。  
+```{r}
+lp %>% 
+  select(CR_CAN:pAE, -SR, -nAE, -pSIE, -pAE) %>% 
+  mutate(n = 1:n()) %>% 
+  pivot_longer(1:16) %>% 
+  ggplot(aes(x = value, y = n))+
+  geom_point(alpha = 0.6,
+             shape = 1)+
+  facet_rep_wrap(~name, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)
+```
+
+### Collinearity  
+変数間に多重共線性がないかを確認するため、ポワソン分布のGLMを実行してVIFを確認してみる。その結果、`MAT`と`Elevation`がかなり高いVIFを持つことが分かった。     
+```{r}
+m13_vif <- glm(nSIE ~ CR_CAN + CR_LP + Elevation + INTRA_VAR + INTER_VAR + MAT + MAP
+                + RSI + ASR + Easterness + Age + Macro + Northerness + Slope + TCI,
+                family = "poisson", data = lp)
+
+check_collinearity(m13_vif)
+```
+<br/>  
+
+この2つを除いてもう一度VIFを計算したところ、以下のようになった。以後、最もVIFが高い変数を除いてモデルを回し、VIFを計算しなおすという作業を全ての変数のVIFが3を下回るまで繰り返す。まず`Macro`を取り除く。    
+```{r}
+m13_vif2 <- glm(nSIE ~ CR_CAN + CR_LP +  INTRA_VAR + INTER_VAR  + MAP
+                + RSI + ASR + Easterness + Age + Macro + Northerness + Slope + TCI,
+                family = "poisson", data = lp)
+
+check_collinearity(m13_vif2)
+```
+<br/>  
+
+続いて、`ASR`のVIFが最も高くなったのでこれを取り除く。  
+```{r}
+m13_vif3 <- glm(nSIE ~ CR_CAN + CR_LP +  INTRA_VAR + INTER_VAR  + MAP
+                + RSI + ASR + Easterness + Age  + Northerness + Slope + TCI,
+                family = "poisson", data = lp)
+
+check_collinearity(m13_vif3)
+```
+<br/>  
+
+次に、`RSI`が最も高くなったのでこれを取り除く。  
+```{r}
+m13_vif4 <- glm(nSIE ~ CR_CAN + CR_LP +  INTRA_VAR + INTER_VAR  + MAP
+                + RSI + Easterness + Age  + Northerness + Slope + TCI,
+                family = "poisson", data = lp)
+
+check_collinearity(m13_vif4)
+```
+<br/>  
+
+最後に、`INTRA_VAR`のみVIFが3を超えているのでこれを取り除く。  
+```{r}
+m13_vif5 <- glm(nSIE ~ CR_CAN + CR_LP +  INTRA_VAR + INTER_VAR  + MAP
+                +  Easterness + Age  + Northerness + Slope + TCI,
+                family = "poisson", data = lp)
+
+check_collinearity(m13_vif5)
+```
+<br/>  
+
+これで、VIFが3を超える変数はなくなった。よって、以下の変数を説明変数としてモデリングを行う。    
+```{r}
+m13_vif6 <- glm(nSIE ~ CR_CAN + CR_LP + INTER_VAR + MAP
+                +  Easterness + Age  + Northerness + Slope + TCI,
+                family = "poisson", data = lp)
+
+check_collinearity(m13_vif6)
+```
+
+### Relationships  
+説明変数と応答変数(`nSIE`)との関連をプロットしたところ、強い関連はなさそうだ。いくつかの変数とは非線形な関係がありそう?  
+```{r}
+lp %>% 
+  select(CR_CAN, CR_LP, INTER_VAR, MAP, Easterness, Age, Northerness, Slope, TCI, nSIE) %>% 
+  pivot_longer(1:9) %>% 
+  ggplot(aes(x = value, y = nSIE))+
+  geom_point()+
+  geom_smooth(color = "red4",
+              fill = "pink3")+
+  facet_rep_wrap(~name, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)
+```
+
+### Number of zeros  
+応答変数にゼロが多すぎると問題が生じることがあるが、本データにはそこまで多くのゼロはなく(9.55%)、問題はないと思われる。  
+```{r}
+mean(lp$nSIE == "0")
+```
+
+### Conclusions data exploration  
+変数選択は本来はVIFを使うだけでなく、生物学的な知識も合わせて行った方がよい。しかし、ひとまず本章ではVIFのみに基づいて変数を選択した。変数に外れ値はなく、ゼロ過剰はなかった。また、説明変数と応答変数の間には明確な関連はなさそうだった。  
+
+説明変数はスケールを合わせるためにすべて標準化する。  
+```{r}
+lp %>% 
+  mutate(crcan.std = scale(CR_CAN)[,1],
+         crlp.std = scale(CR_LP)[,1],
+         intervar.std = scale(INTER_VAR)[,1],
+         map.std = scale(MAP)[,1],
+         age.std = scale(Age)[,1],
+         slope.std = scale(Slope)[,1],
+         tci.std = scale(TCI)[,1]) -> lp
+```
+
+## Model formulation  
+まず、空間的な相関を考慮しないポワソンGLMを実行し、問題がないかを確認する。モデル式は以下の通り。なお、切片と回帰係数は省略している。  
+$$
+\begin{aligned}
+&nSIE_i \sim P(\mu_i)\\
+&E(nSIE_i) = \mu_i \; and \; var(nSIE_i) = \mu_i \\
+&log(\mu_i) = crcan + crlp + interval + map + age + slope + tci
+\end{aligned}
+$$
+
+## GLM results  
+それでは、`INLA`でモデルを実行する。  
+
+```{r}
+m13_1 <-inla(nSIE ~ crcan.std + crlp.std + intervar.std + map.std + age.std + slope.std + tci.std + Easterness + Northerness,
+             family = "poisson",
+             control.predictor = list(compute = TRUE),
+             control.compute = list(config = TRUE),
+             data = lp)
+```
+
+まず、過分散の有無を確認するため分散パラメータを算出する(第\@ref(s10-1-3-1)節参照)。分散パラメータは0.876...であり、過分散にはなっていないことが分かる(むしろ過少分散?)。ひとまず、ここでは過少分散を無視してポワソン分布で分析を続ける。      
+```{r}
+mu <- m13_1$summary.fitted.values$mean
+E1 <- (lp$nSIE - mu)/sqrt(mu)
+N <- nrow(lp)
+p <- length(m13_1$names.fixed)
+
+phi <- sum(E1^2)/(N-p)
+phi
+```
+
+続いて、ポワソン残差と説明変数の関係をプロットしたところ、明確に非線形のパターンはないように見える。    
+```{r}
+lp %>% 
+  mutate(resid = E1) %>% 
+  select(CR_CAN, CR_LP, INTER_VAR, MAP, Easterness, Age, Northerness, Slope, TCI, resid) %>% 
+  pivot_longer(1:9) %>% 
+  ggplot(aes(x = value, y = resid))+
+  geom_point(shape = 1)+
+  geom_smooth(color = "red4",
+              fill = "pink3")+
+  facet_rep_wrap(~name, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)
+```
+<br/>  
+
+最後に、ピアソン残差に空間的な相関があるかを確かめるためバリアグラムを描く。バリオグラムは明確に2.5kmくらいまで空間的相関がありそうなことを示している。    
+```{r}
+lp %>% 
+  mutate(X.km = lp$Longitude/1000,
+         Y.km = lp$Latitude/1000) -> lp
+
+vario13_1 <- data.frame(resid = E1,
+                        lon = lp$X.km,
+                        lat = lp$Y.km)
+
+sp::coordinates(vario13_1) <- c("lon", "lat")
+
+vario13_1 %>% 
+  variogram(resid ~ 1, data = .,
+            cressie = TRUE,
+            ## 距離が150km以下のデータのみ使用
+            cutoff = 10,
+            ## 各距離範囲カテゴリの範囲
+            width = 0.2) %>% 
+  ggplot(aes(x = dist, y = gamma))+
+  geom_point()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  coord_cartesian(ylim = c(0,1))+
+  geom_smooth(color = "black")+
+  labs(y = "semivariogram")
+```
+
+## Adding spatial correlation to the model  
+### Model formulation  
+そこで、空間的相関を考慮したモデルを実行する。モデル式は以下のとおりである。空間相関を考慮するので`Easterness`と`Northerness`は説明変数から除く。    
+$$
+\begin{aligned}
+&nSIE_i \sim P(\mu_i)\\
+&E(nSIE_i) = \mu_i \; and \; var(nSIE_i) = \mu_i \\
+&log(\mu_i) = crcan + crlp + interval + map + age + slope + tci + u_i
+\end{aligned}
+$$
+
+### Mesh  
+メッシュの適切なサイズを検討するため、各サンプリングポイント間の距離とその累積割合をプロットした。ほとんど(約70%)のポイントは20km以下しか離れていない。  
+
+```{r dist-lp, fig.dim = c(10,4.5), fig.cap = "A: Histogram of distances between the 890 sites on La Palma. B: Cumulative proportion of distances versus distance."}
+
+dist_lp <- dist(cbind(lp$X.km, lp$Y.km)) %>% as.matrix()
+diag(dist_lp) <- NA
+dist_lp.vec <- as.vector(dist_lp) %>% na.omit()
+
+data.frame(dist = dist_lp.vec) %>% 
+  ggplot(aes(x = dist))+
+  geom_histogram(alpha = 0,
+                 color = "black",
+                 binwidth = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(title = "A", x = "Distances between sites",
+       y = "Frequency") -> p1
+
+data.frame(x = sort(dist_lp.vec),
+           y = 1:length(dist_lp.vec)/length(dist_lp.vec)) %>% 
+  ggplot(aes(x =x, y = y))+
+  geom_line()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(title = "B", x = "Distances between sites",
+       y = "Cumlutive proportion") -> p2
+
+p1 + p2
+```
+<br/>  
+
+以上から、本分析では以下のメッシュを作成した。本分析の場合、海上に植物が生育することはないので、メッシュを内側と外側に分けない。  
+```{r}
+Loc13_2 <- cbind(lp$X.km, lp$Y.km)
+
+bound13_2 <- inla.nonconvex.hull(Loc13_2)
+
+mesh13_2 <- inla.mesh.2d(loc = Loc13_2,
+                         boundary = bound13_2,
+                         max.edge = c(1.5))
+
+plot(mesh13_2, main = "", asp=1)
+```
+
+メッシュには3304個の頂点が含まれる。    
+```{r}
+mesh13_2$n
+```
+
+しかし、このメッシュには島外の海の領域が含まれてしまっている。そのため、**島の輪郭の外にメッシュが存在しないようにする**。  
+
+まず、島のshpファイルを読み込み、データフレームに変換する。  
+```{r}
+lp.utm <- readOGR(dsn = "shpfile/lapalma.shp")
+## dfに変換
+lp_df <- fortify(lp.utm) %>% 
+  mutate(X.km = long/1000,
+         Y.km = lat/1000)
+```
+
+データフレームの緯度と経度は島の輪郭を表している。これを`coastline`というオブジェクトに格納する。  
+```{r}
+lp_df %>% 
+  ggplot(aes(x = X.km, y = Y.km))+
+  geom_point()+
+  theme_bw()+
+  theme(aspect.ratio = 1.4)
+
+coastline <- lp_df[,c("X.km", "Y.km", "order")]
+```
+
+輪郭の座標は反時計回りでないといけないので、緯度と経度の順番を逆にする必要がある。  
+```{r}
+coastline_rev <- coastline %>% 
+  arrange(desc(order)) %>% 
+  select(-order)
+
+coastline <- coastline %>% 
+  select(-order)
+```
+
+以下のようにして島の輪郭をメッシュの輪郭とするメッシュを作成する。  
+```{r}
+mesh13_2b <- inla.mesh.2d(loc.domain = coastline,
+                          max.edge = 1.5,
+                          boundary = inla.mesh.segment(coastline_rev))
+```
+
+作成されたメッシュは以下の通り。  
+```{r}
+plot(mesh13_2b)
+points(x = lp$X.km, y = lp$Y.km, col = 1, pch = 16, cex = 0.5)
+```
+
+頂点の数は1192個である。  
+```{r}
+mesh13_2b$n
+```
+
+なお、輪郭が時計回りのままだとメッシュが島の外側に作られてしまう。  
+```{r}
+mesh13_2c <- inla.mesh.2d(loc.domain = coastline,
+                          max.edge = 1.5,
+                          boundary = inla.mesh.segment(coastline))
+
+plot(mesh13_2c)
+points(x = lp$X.km, y = lp$Y.km, col = 1, pch = 16, cex = 0.5)
+```
+
+### Projector matrix  
+続いて、$a_{ik}$を定義する。前章までで学んだように、$a_{ik}$はランダム$w_k$とランダム切片$u_i$を結びつけるものである。  
+
+$$
+u_i = \Sigma_{k=1}^{1192} a_{ik} \times w_k (\#eq:fma)
+$$
+
+メッシュ`mesh13_2b`の$a_k$は以下のように計算できる。$a_{ik}$を含む行列$\bf{A}$は890行×1192列である。    
+```{r}
+A13_2 <- inla.spde.make.A(mesh13_2b, loc = Loc13_2)
+dim(A13_2)
+```
+
+### SPDE  
+SPDEを定義する。  
+
+```{r}
+spde13_2 <- inla.spde2.matern(mesh = mesh13_2b,
+                              alpha = 2)
+```
+
+### Spatial field  
+ランダム場$w_k$を定義する。  
+```{r}
+w.index13_2 <- inla.spde.make.index(name = "w",
+                                    n.spde = spde13_2$n.spde,
+                                    n.group = 1,
+                                    n.repl = 1)
+```
+
+### Stack  
+stackを定義する。まずは$\bf{X}$を準備する。今回は前章と違い`Intercept`を`X`の中に入れる。    
+
+```{r}
+N <- nrow(lp)
+X <- data.frame(Intercept = rep(1,N),
+                crcan.std = lp$crcan.std,
+                crlp.std = lp$crlp.std,
+                intervar.std = lp$intervar.std,
+                map.std = lp$map.std,
+                age.std = lp$age.std,
+                slope.std = lp$slope.std,
+                tci.std = lp$tci.std)
+
+X <- as.data.frame(X)
+```
+
+それでは、stackを定義する。  
+```{r}
+stack13_2 <- inla.stack(tag = "Fit",
+                        data = list(y = lp$nSIE),
+                        A = list(A13_2, 1),
+                        effects = list(w = w.index13_2,
+                                       X = X))
+```
+
+### Formula  
+以下で、空間的相関を含むモデルと含まないモデルを両方実行する。  
+```{r}
+## 空間相関なし
+f13_2a <- y ~1 + Intercept + crcan.std + crlp.std + intervar.std + map.std +
+           age.std + slope.std + tci.std
+
+## 空間相関なし  
+f13_2b <- y ~1 + Intercept + crcan.std + crlp.std + intervar.std + map.std +
+           age.std + slope.std + tci.std + f(w, model = spde13_2)
+```
+
+### Run R-INLA   
+それではモデルを実行する。  
+```{r}
+m13_2a <- inla(f13_2a,
+               family = "poisson",
+               data = inla.stack.data(stack13_2),
+               control.compute = list(dic = TRUE, waic = TRUE), 
+               control.predictor = list( A = inla.stack.A(stack13_2)))
+
+m13_2b <- inla(f13_2b,
+               family = "poisson",
+               data = inla.stack.data(stack13_2),
+               control.compute = list(dic = TRUE, waic = TRUE), 
+               control.predictor = list( A = inla.stack.A(stack13_2)))
+```
+
+DICとWAICを用いてモデル比較を行うと、空間相関を考慮した方がはるかにいいことが分かる。    
+```{r}
+waic13_2 <- c(m13_2a$waic$waic, m13_2b$waic$waic)
+dic13_2 <- c(m13_2a$dic$dic, m13_2b$dic$dic)
+modelcomp13_2 <- cbind(waic13_2, dic13_2)
+rownames(modelcomp13_2) <- c("Poisson GLM", "Poisson GLM + SPDE")
+
+modelcomp13_2
+```
+
+### Inspect results  
+それでは、推定された結果の比較を行う。それぞれのモデルの固定効果の事後平均と95%確信区間を図示したのが図\@ref(fig:modcomp13-2)である。いずれのパラメータも、空間相関を考慮したモデルの方が95%確信区間が大きくなっている。このことは、空間相関を無視して分析を行うと誤った結論を導いてしまうことを示している。  
+
+```{r modcomp13-2, fig.cap = "Results of the Poisson GLM witho ut spatial correlation and the model with spatial correlation."}
+m13_2a$summary.fixed %>% 
+  rownames_to_column(var = "Parameter") %>% 
+  mutate(model = "m13_2a") %>% 
+  bind_rows(m13_2b$summary.fixed %>% 
+              rownames_to_column(var = "Parameter") %>% 
+              mutate(model = "m13_2b")) %>% 
+  ggplot(aes(x = model, y = mean))+
+  geom_point(size = 1.5)+
+  geom_hline(yintercept = 0,
+             linetype = "dashed")+
+  geom_errorbar(aes(ymin = `0.025quant`, ymax = `0.975quant`),
+                width = 0.2)+
+  facet_rep_wrap(~Parameter, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(x = "")
+```
+<br/>  
+
+続いて、それぞれのモデルのバリオグラムを描いて空間相関の問題が解決されているか検討する。まず、各モデルの予測値とピアソン残差を計算する。  
+```{r}
+## μの予測値が含まれている範囲を計算
+index <- inla.stack.index(stack13_2, tag = "Fit")$data
+
+mu13_2a <- m13_2a$summary.fitted.values[index, "mean"]
+mu13_2b <- m13_2b$summary.fitted.values[index, "mean"]
+
+E13_2a <- (lp$nSIE - mu13_2a)/sqrt(mu13_2a)
+E13_2b <- (lp$nSIE - mu13_2b)/sqrt(mu13_2b)
+```
+
+```{r}
+
 ```
 

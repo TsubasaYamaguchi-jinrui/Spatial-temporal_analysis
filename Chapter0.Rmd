@@ -29,6 +29,7 @@ library(sf)
 library(fields)
 library(NipponMap)
 library(ggmap)
+library(rgdal)
 ## モデリング  
 library(INLA)
 library(mgcv)
