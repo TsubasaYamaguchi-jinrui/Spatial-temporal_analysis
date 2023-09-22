@@ -400,16 +400,16 @@ stackを定義する。まずは$\bf{X}$を準備する。今回は前章と違�
 
 ```{r}
 N <- nrow(lp)
-X <- data.frame(Intercept = rep(1,N),
-                crcan.std = lp$crcan.std,
-                crlp.std = lp$crlp.std,
-                intervar.std = lp$intervar.std,
-                map.std = lp$map.std,
-                age.std = lp$age.std,
-                slope.std = lp$slope.std,
-                tci.std = lp$tci.std)
+X13_2 <- data.frame(Intercept = rep(1,N),
+                    crcan.std = lp$crcan.std,
+                    crlp.std = lp$crlp.std,
+                    intervar.std = lp$intervar.std,
+                    map.std = lp$map.std,
+                    age.std = lp$age.std,
+                    slope.std = lp$slope.std,
+                    tci.std = lp$tci.std)
 
-X <- as.data.frame(X)
+X13_2 <- as.data.frame(X13_2)
 ```
 
 それでは、stackを定義する。  
@@ -418,18 +418,18 @@ stack13_2 <- inla.stack(tag = "Fit",
                         data = list(y = lp$nSIE),
                         A = list(A13_2, 1),
                         effects = list(w = w.index13_2,
-                                       X = X))
+                                       X = X13_2))
 ```
 
 ### Formula  
 以下で、空間的相関を含むモデルと含まないモデルを両方実行する。  
 ```{r}
 ## 空間相関なし
-f13_2a <- y ~1 + Intercept + crcan.std + crlp.std + intervar.std + map.std +
+f13_2a <- y ~ -1 + Intercept + crcan.std + crlp.std + intervar.std + map.std +
            age.std + slope.std + tci.std
 
 ## 空間相関なし  
-f13_2b <- y ~1 + Intercept + crcan.std + crlp.std + intervar.std + map.std +
+f13_2b <- y ~ -1 + Intercept + crcan.std + crlp.std + intervar.std + map.std +
            age.std + slope.std + tci.std + f(w, model = spde13_2)
 ```
 
@@ -495,7 +495,290 @@ E13_2a <- (lp$nSIE - mu13_2a)/sqrt(mu13_2a)
 E13_2b <- (lp$nSIE - mu13_2b)/sqrt(mu13_2b)
 ```
 
-```{r}
+各モデルのバリオグラムをプロットしたのが以下の図\@ref(fig:vario13-2)である。空間相関を考慮したモデルの方が空間相関は弱まっているものの、まだ少しだけ残っている。    
+```{r vario13-2, fig.cap = "Sample-variograms of the Pearson residuals for the Poisson GLM (left panel) and the model with spatial correlation (right panel).", fig.dim = c(9.5,4.5)}
 
+## 空間相関なし
+resid13_2a <- data.frame(resid = E13_2a,
+                         lon = lp$X.km,
+                         lat = lp$Y.km)
+
+sp::coordinates(resid13_2a) <- c("lon", "lat")
+
+vario13_2a <- variogram(resid ~ 1, data = resid13_2a,
+                        cressie = TRUE,
+                        cutoff = 10,
+                        width = 0.2) %>% 
+              mutate(model = "GLM")
+
+## 空間相関あり
+resid13_2b <- data.frame(resid = E13_2b,
+                         lon = lp$X.km,
+                         lat = lp$Y.km)
+
+sp::coordinates(resid13_2b) <- c("lon", "lat")
+
+vario13_2b <- variogram(resid ~ 1, data = resid13_2b,
+                        cressie = TRUE,
+                        cutoff = 10,
+                        width = 0.2) %>% 
+              mutate(model = "Spatial GLM")
+
+## 図示  
+vario13_2a %>%
+  bind_rows(vario13_2b) %>% 
+  ggplot(aes(x = dist, y = gamma))+
+  geom_point()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  coord_cartesian(ylim = c(0,1))+
+  geom_smooth(color = "black")+
+  facet_rep_wrap(~ model, repeat.tick.labels = TRUE)+
+  labs(y = "semivariogram")
 ```
 
+#### Plotting interpolated wk  
+次に、推定されたランダム場$w_k$の事後中央値と標準偏差を地図上にプロットする。まず推定された$w_k$を取り出す。  
+```{r}
+w.pm <- m13_2b$summary.random$w$mean
+w.sd <- m13_2b$summary.random$w$sd
+```
+
+次にこれを地図上に作図するためのグリッドを作成してその上に$w_k$の値を対応させる。このグリッドは100×100である。  
+```{r}
+wproj <- inla.mesh.projector(mesh13_2b)
+w.pm100_100 <- inla.mesh.project(wproj, w.pm)
+w.sd100_100 <- inla.mesh.project(wproj, w.sd)
+```
+
+最後に、これを作図する。うまく空間的相関を表せていそう。標準偏差はほとんどが0.2くらいでばらつきが小さい。    
+```{r}
+expand.grid(X.km = wproj$x,
+         Y.km = wproj$y) %>% 
+  mutate(w.pm = as.vector(w.pm100_100),
+         w.sd = as.vector(w.sd100_100)) -> w_df
+  
+w_df %>% 
+  drop_na() %>% 
+  pivot_longer(3:4) %>% 
+  ggplot(aes(x = X.km, y = Y.km))+
+  geom_raster(aes(fill = value))+
+  theme_bw() +
+  scale_fill_gradientn(colors = rainbow(30, alpha = 0.5))+
+  facet_rep_wrap(~ name)
+```
+
+#### Plotting the random intercepts ui  
+続いて、ランダム切片$u_i$を地図上にプロットする。$u_i$を得る方法はいくつかある。一つは前章(\@ref(s12-16))でやったように$\bf{u} = \bf{A} \times \bf{w}$であることを利用して手動で計算する方法である。もう一つは以下のように`INLA`の関数を利用する方法である。どちらもまったく同じ値が得られる。  
+
+```{r}
+u.proj <- inla.mesh.projector(mesh13_2b, loc = Loc13_2)
+u.pm <- inla.mesh.project(u.proj,
+                          m13_2b$summary.random$w$mean)
+```
+
+それでは地図上に作図する。$w_k$が負のところからは負の$u_i$が、$w_k$が正のところからは正の$u_i$が得られていることが分かる。  
+```{r, fig.cap = "Ma p of La Palma with posterior mean values of the spatial random effects u i, and the spatial random field w k. The closed circles represent positive u i values and the open circles are negative u is."}
+data.frame(X.km = lp$X.km,
+           Y.km = lp$Y.km,
+           u = u.pm) %>% 
+  replace_na(list(u = 0)) %>% 
+  ggplot(aes(x = X.km, y = Y.km))+
+  geom_polygon(data = lp_df,
+               fill = NA, color = "black",
+               linewidth = 1)+
+  geom_tile(data = w_df %>% drop_na(),
+              aes(fill = w.pm))+
+  geom_point(aes(shape = u > 0))+
+  scale_shape_manual(values = c(1,16))+
+  theme_bw() +
+  coord_fixed(ratio = 1)+
+  scale_fill_gradient2(high = muted("red"), low = muted("yellow"), mid = "white",
+                       midpoint = 0)
+```
+<br/>  
+
+最後に、得られたパラメータからマテルン関数をプロットする。SPDEの結果を得るには`inla.spde2.result`関数を用いる。$\kappa, \sigma_u$とレンジの事後平均は以下の通り。レンジはおよそ2.37kmだった。        
+```{r}
+spfi.w <- inla.spde2.result(inla = m13_2b,
+                            name = "w",
+                            spde = spde13_2,
+                            do_transfer = TRUE)
+
+kappa <- inla.emarginal(function(x) x, spfi.w$marginals.kappa[[1]])
+sigmau <- inla.emarginal(function(x) sqrt(x), spfi.w$marginals.variance.nominal[[1]])
+range <- inla.emarginal(function(x) x, spfi.w$marginals.range.nominal[[1]])
+
+c(kappa, sigmau, range)
+```
+
+これらの値からMatern関数を描画すると以下のようになる。  
+```{r}
+D <- as.vector(dist(mesh13_2b$loc[,1:2]))
+d.vec <- seq(0, max(D), length = 100)
+corM <- (kappa*d.vec)*besselK(kappa*d.vec,1)
+corM[1] <- 1
+
+data.frame(Distance = d.vec,
+           Correlation = corM) %>% 
+  ggplot(aes(x = Distance, y = Correlation))+
+  geom_line()+
+  geom_vline(xintercept = range,
+             linetype = "dashed")+
+  geom_hline(yintercept = 0.1,
+             linetype = "dashed")+
+  coord_cartesian(xlim = c(0,11))+
+  theme_bw()+
+  theme(aspect.ratio = 1)
+```
+
+## Simulating from the model  
+最後に、モデルがデータによく当てはまっているかを確認するため、モデルからデータをシミュレートし、それが実際のデータに合っているかを検討する。モデルからデータをシミュレートするには`control.compute = list(config = TRUE)`とする必要がある。  
+
+```{r}
+m13_2c <- inla(f13_2b,
+               family = "poisson",
+               data = inla.stack.data(stack13_2),
+               control.compute = list(config = TRUE), 
+               control.predictor = list( A = inla.stack.A(stack13_2)))
+```
+
+続いて、モデルの事後同時分布から各パラメータの値をサンプリングする(第\@ref(s8-5-5-2)節を参照)。ここでは試しに1つのみサンプリングする。  
+
+```{r}
+set.seed(1234)
+sim_test <- inla.posterior.sample(n = 1, result = m13_2c)
+```
+
+得られたオブジェクトには、サンプリングされた各データポイントの平均$\mu_i$の値(`APredictor`)や$w_k$(`w`)、そして回帰係数などが含まれている。  
+```{r}
+sim_test[[1]]$latent %>% 
+  datatable()
+```
+<br/>  
+
+サンプリングされた固定効果のパラメータは以下のとおりである。つまり、3634から3641行目までがこれらのパラメータの値がある行である。    
+```{r}
+sim_test[[1]]$latent %>% 
+  data.frame() %>% 
+  rownames_to_column(var = "Par") %>% 
+  mutate(n = 1:n()) %>% 
+  rename(value = 2) %>% 
+  filter(str_detect(Par, c("Intercept|crcan.st|crlp.std|intervar.std|map.std|age.std|slope.std|tci.std")))
+```
+<br/>  
+
+サンプリングされた$w_k$は以下の通り。2422から3633行目までがこれらのパラメータの値がある行である。  
+```{r}
+sim_test[[1]]$latent %>% 
+  data.frame() %>% 
+  rownames_to_column(var = "Par") %>% 
+  mutate(n = 1:n()) %>% 
+  rename(value = 2) %>% 
+  filter(str_detect(Par, c("w"))) %>% 
+  datatable() %>% 
+  formatRound(2, digits = 3)
+```
+
+よって、事後同時分布からサンプリングされた値を用いて計算した各ポイント($s_i$)の平均値$\mu_i$の値は以下のように計算できる($log(\mu_i) = \bf{X} \times \bf{\beta} + A \times w$より)。   
+```{r}
+## 固定効果
+beta <- sim_test[[1]]$latent[3634:3641]
+## wk
+w <- sim_test[[1]]$latent[2442:3633]
+## muの計算
+mu_sim <- exp(as.matrix(X13_2) %*% beta + as.matrix(A13_2) %*% w)
+```
+
+なお、`inla.posterior.sample(n = 1, result = m13_2c)`で得られたオブジェクトの最初の890行はこうした計算をしなくても$log(\mu_i)$の値を返してくれる。以下より全く同じ値が得られていることが分かる。  
+```{r}
+data.frame(mu = mu_sim,
+           mu2 = exp(sim_test[[1]]$latent[1:890])) %>% 
+  datatable() %>% 
+  formatRound(1:2, digits = 3)
+```
+<br/>  
+
+事後同時分布からのサンプリングによって得られた$\mu_i$を用いてデータをシミュレートすると、得られる値の分布は以下のようになる。  
+```{r}
+y_sim <- rpois(n = 890, lambda = mu_sim)
+
+data.frame(x = y_sim) %>% 
+  ggplot()+
+  geom_histogram(aes(x = x),
+                 size = 0.2)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  scale_x_continuous(breaks = seq(0,12,1))
+```
+<br/>  
+
+それでは、これと同じことを1000回繰り返して得られた分布と実際のデータの分布を比較することで、モデルがデータによく当てはまっているかを検討しよう。以下に、1000回事後同時分布からサンプリングを行ってシミュレーションをしたときに得られた平均分布と実際のデータの分布を同じ図に示した。  
+
+モデルからシミュレートされた値は実データに比べてゼロが多く1が少ないことが分かる。また、実データは9以上のデータがないのに対してシミュレーションでは9以上のデータがある。  
+```{r}
+post_mu <- matrix(ncol = 1000, nrow = nrow(lp))
+y_sim <- matrix(ncol = 1000, nrow = nrow(lp))
+
+### 1000回シミュレーションを行う。
+for(i in 1:1000){
+  sim <- inla.posterior.sample(n = 1, result = m13_2c)
+  post_mu[ ,i] <- exp(sim[[1]]$latent[1:890])
+  y_sim[,i] <- rpois(n = 890, lambda = post_mu[,i])
+}
+
+### 集計  
+y_sim %>% 
+  data.frame() %>% 
+  pivot_longer(1:1000) %>% 
+  group_by(value, name) %>% 
+  summarise(n = n()) %>% 
+  ungroup() %>% 
+  group_by(value) %>% 
+  summarise(freq = mean(n)) %>% 
+  ungroup() %>% 
+  mutate(type = "Simulated") %>% 
+  rename(nSIE = value) -> freq_sim
+
+lp %>% 
+  group_by(nSIE) %>% 
+  summarise(freq = n()) %>% 
+  ungroup() %>% 
+  mutate(type = "Real")-> freq_data
+
+freq_sim %>% 
+  bind_rows(freq_data) %>% 
+  ggplot(aes(x = nSIE, y = freq))+
+  geom_col(aes(fill = type),
+           position = position_dodge2(preserve = "single"))+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  scale_x_continuous(breaks = seq(0,23,1))+
+  labs(y = "Frequencies")
+```
+
+## What to write in a paper   
+モデルではまだ残差に空間的な相関が残っていた。これについてさらに詳しく調べるため、バリオグラムを4方向に分割してみた(図\@ref(fig:vario13-2b))。その結果、北東方向のバリオグラムは他の方角のものよりも強い空間相関を示しているように見える。これは、大きな火山が二つある島の地理的な特徴を反映しているのだろう。    
+
+```{r vario13-2b, fig.cap = "Sample variogram of the Pearson residuals obtained by the model in Equation (13.2). The panels with the labels ‘0’, ‘45’, ‘90’, and ‘135’ represent the sample variograms in northern, northeastern, eastern, and southeastern directions respectively. This is the same as 180, 225, 270,and 315 degrees respectively."}
+
+vario13_2b <- variogram(resid ~ 1, data = resid13_2b,
+                        cressie = TRUE,
+                        cutoff = 10,
+                        width = 0.2,
+                        alpha = c(0, 45, 90, 135)) %>% 
+              mutate(dir = as.factor(dir.hor))
+
+vario13_2b %>% 
+  ggplot(aes(x = dist, y = gamma))+
+  geom_point()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  coord_cartesian(ylim = c(0,1))+
+  geom_smooth(color = "black")+
+  facet_rep_wrap(~ dir.hor, repeat.tick.labels = TRUE)+
+  labs(y = "semivariogram")
+```
+<br/>  
+
+このように、方角によって空間相関のパターンが違うことをanisotropic(異方性)があるという。`INLA`にはこうした異方性を考慮してMatern関数のパラメータ推定を行うことができる方法も存在する[@Lindgren2015]。  

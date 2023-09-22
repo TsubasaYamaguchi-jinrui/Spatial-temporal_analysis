@@ -1,0 +1,5 @@
+# Time-series analysis in R-INLA  
+本章では、`INLA`で扱える時系列相関を考慮したモデルについて解説する。時系列分析についてより詳しい解説が必要な場合は、他の書籍を参照されたし[e.g., @Baba2018; @Baba2019; @Ravishanker2022]。  
+
+## Simulation study  
+以下では、シミュレーションデータを用いる。

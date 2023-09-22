@@ -83,6 +83,9 @@ eq:stack1
 eq:stack2
 fig:dist-lp
 fig:modcomp13-2
+fig:vario13-2
+fig:unnamed-chunk-320
+fig:vario13-2b
 c2
 pseudoreplication
 疑似反復とは
@@ -270,3 +273,8 @@ stack
 formula
 run-r-inla
 inspect-results
+plotting-interpolated-wk
+plotting-the-random-intercepts-ui
+simulating-from-the-model
+what-to-write-in-a-paper
+time-series-analysis-in-r-inla

@@ -441,9 +441,16 @@ div.csl-indent {
 <li class="chapter" data-level="12.5.6" data-path="Chapter13.html"><a href="Chapter13.html#stack"><i class="fa fa-check"></i><b>12.5.6</b> Stack</a></li>
 <li class="chapter" data-level="12.5.7" data-path="Chapter13.html"><a href="Chapter13.html#formula"><i class="fa fa-check"></i><b>12.5.7</b> Formula</a></li>
 <li class="chapter" data-level="12.5.8" data-path="Chapter13.html"><a href="Chapter13.html#run-r-inla"><i class="fa fa-check"></i><b>12.5.8</b> Run R-INLA</a></li>
-<li class="chapter" data-level="12.5.9" data-path="Chapter13.html"><a href="Chapter13.html#inspect-results"><i class="fa fa-check"></i><b>12.5.9</b> Inspect results</a></li>
+<li class="chapter" data-level="12.5.9" data-path="Chapter13.html"><a href="Chapter13.html#inspect-results"><i class="fa fa-check"></i><b>12.5.9</b> Inspect results</a>
+<ul>
+<li class="chapter" data-level="12.5.9.1" data-path="Chapter13.html"><a href="Chapter13.html#plotting-interpolated-wk"><i class="fa fa-check"></i><b>12.5.9.1</b> Plotting interpolated wk</a></li>
+<li class="chapter" data-level="12.5.9.2" data-path="Chapter13.html"><a href="Chapter13.html#plotting-the-random-intercepts-ui"><i class="fa fa-check"></i><b>12.5.9.2</b> Plotting the random intercepts ui</a></li>
 </ul></li>
 </ul></li>
+<li class="chapter" data-level="12.6" data-path="Chapter13.html"><a href="Chapter13.html#simulating-from-the-model"><i class="fa fa-check"></i><b>12.6</b> Simulating from the model</a></li>
+<li class="chapter" data-level="12.7" data-path="Chapter13.html"><a href="Chapter13.html#what-to-write-in-a-paper"><i class="fa fa-check"></i><b>12.7</b> What to write in a paper</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="Chapter14.html"><a href="Chapter14.html"><i class="fa fa-check"></i><b>13</b> Time-series analysis in R-INLA</a></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
 
@@ -1600,7 +1607,7 @@ Alt.SDI.fFor
 <p>続いて、地図上にランダム切片<span class="math inline">\(u_i\)</span>を図示する。まずは、<span class="math inline">\(u_i\)</span>を算出する。これは、式<a href="Chapter12.html#eq:A">(11.2)</a>より<span class="math inline">\(\bf{u} = \bf{A} \times \bf{w}\)</span>であることを利用して簡単に求められる。</p>
 <div class="sourceCode" id="cb373"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb373-1"><a href="Chapter12.html#cb373-1" tabindex="-1"></a><span class="do">## uの算出</span></span>
 <span id="cb373-2"><a href="Chapter12.html#cb373-2" tabindex="-1"></a>w.pm <span class="ot">&lt;-</span> m12_2f<span class="sc">$</span>summary.random<span class="sc">$</span>w<span class="sc">$</span>mean</span>
-<span id="cb373-3"><a href="Chapter12.html#cb373-3" tabindex="-1"></a>u <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(A12_5) <span class="sc">%*%</span> <span class="fu">as.matrix</span>(w.pm,<span class="at">ncol =</span> <span class="dv">1</span>)</span>
+<span id="cb373-3"><a href="Chapter12.html#cb373-3" tabindex="-1"></a>u <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(A12_5) <span class="sc">%*%</span> w.pm</span>
 <span id="cb373-4"><a href="Chapter12.html#cb373-4" tabindex="-1"></a></span>
 <span id="cb373-5"><a href="Chapter12.html#cb373-5" tabindex="-1"></a><span class="do">## 格子上にwkの値を投影  </span></span>
 <span id="cb373-6"><a href="Chapter12.html#cb373-6" tabindex="-1"></a>w.proj <span class="ot">&lt;-</span> <span class="fu">inla.mesh.projector</span>(mesh12_5)</span>

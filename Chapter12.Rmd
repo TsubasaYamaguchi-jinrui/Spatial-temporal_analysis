@@ -894,7 +894,7 @@ plot_ly(fit12_2 %>% group_by(fForested),
 ```{r}
 ## uの算出
 w.pm <- m12_2f$summary.random$w$mean
-u <- as.matrix(A12_5) %*% as.matrix(w.pm,ncol = 1)
+u <- as.matrix(A12_5) %*% w.pm
 
 ## 格子上にwkの値を投影  
 w.proj <- inla.mesh.projector(mesh12_5)
