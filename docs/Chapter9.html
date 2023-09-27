@@ -23,7 +23,7 @@
 <meta name="author" content="Tsubasa Yamaguchi" />
 
 
-<meta name="date" content="2023-09-22" />
+<meta name="date" content="2023-09-27" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -450,7 +450,21 @@ div.csl-indent {
 <li class="chapter" data-level="12.6" data-path="Chapter13.html"><a href="Chapter13.html#simulating-from-the-model"><i class="fa fa-check"></i><b>12.6</b> Simulating from the model</a></li>
 <li class="chapter" data-level="12.7" data-path="Chapter13.html"><a href="Chapter13.html#what-to-write-in-a-paper"><i class="fa fa-check"></i><b>12.7</b> What to write in a paper</a></li>
 </ul></li>
-<li class="chapter" data-level="13" data-path="Chapter14.html"><a href="Chapter14.html"><i class="fa fa-check"></i><b>13</b> Time-series analysis in R-INLA</a></li>
+<li class="chapter" data-level="13" data-path="Chapter14.html"><a href="Chapter14.html"><i class="fa fa-check"></i><b>13</b> Time-series analysis in R-INLA</a>
+<ul>
+<li class="chapter" data-level="13.1" data-path="Chapter14.html"><a href="Chapter14.html#simulation-study-1"><i class="fa fa-check"></i><b>13.1</b> Simulation study</a></li>
+<li class="chapter" data-level="13.2" data-path="Chapter14.html"><a href="Chapter14.html#trends-in-migration-dates-of-sockeye-salmon"><i class="fa fa-check"></i><b>13.2</b> Trends in migration dates of sockeye salmon</a>
+<ul>
+<li class="chapter" data-level="13.2.1" data-path="Chapter14.html"><a href="Chapter14.html#applying-a-random-walk-trend-model"><i class="fa fa-check"></i><b>13.2.1</b> Applying a random walk trend model</a></li>
+<li class="chapter" data-level="13.2.2" data-path="Chapter14.html"><a href="Chapter14.html#posterior-distribution-of-sigmas"><i class="fa fa-check"></i><b>13.2.2</b> Posterior distribution of sigmas</a></li>
+<li class="chapter" data-level="13.2.3" data-path="Chapter14.html"><a href="Chapter14.html#covariates-and-trends"><i class="fa fa-check"></i><b>13.2.3</b> Covariates and trends</a></li>
+<li class="chapter" data-level="13.2.4" data-path="Chapter14.html"><a href="Chapter14.html#making-the-trend-smoother"><i class="fa fa-check"></i><b>13.2.4</b> Making the trend smoother</a>
+<ul>
+<li class="chapter" data-level="13.2.4.1" data-path="Chapter14.html"><a href="Chapter14.html#changing-the-values-of-the-gamma-prior"><i class="fa fa-check"></i><b>13.2.4.1</b> Changing the values of the gamma prior</a></li>
+<li class="chapter" data-level="13.2.4.2" data-path="Chapter14.html"><a href="Chapter14.html#changing-the-gamma-prior-to-the-pc-prior"><i class="fa fa-check"></i><b>13.2.4.2</b> changing the gamma prior to the PC prior</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
 
@@ -899,7 +913,7 @@ div.csl-indent {
 </div>
 <div id="changing-priors-of-hyperparameters" class="section level2 hasAnchor" number="8.11">
 <h2><span class="header-section-number">8.11</span> Changing priors of hyperparameters<a href="Chapter9.html#changing-priors-of-hyperparameters" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>先ほどのモデルにはハイパーパラメータが2つあった(<span class="math inline">\(\sigma\)</span>と<span class="math inline">\(\sigma_{Fish}\)</span>)。しかし、<code>INLA</code>では精度(<span class="math inline">\(\tau = 1/\sigma^2, \tau_{Fish} = 1/\sigma_{Fish}^2\)</span>が推定される。これらのデフォルトの事前分布は以下の通り。これは、<span class="math inline">\(\tau\)</span>と<span class="math inline">\(\tau_{Fish}\)</span>がガンマ分布を事前分布に持つのと同じことである。</p>
+<p>先ほどのモデルにはハイパーパラメータが2つあった(<span class="math inline">\(\sigma\)</span>と<span class="math inline">\(\sigma_{Fish}\)</span>)。しかし、<code>INLA</code>では精度(<span class="math inline">\(\tau = 1/\sigma^2, \tau_{Fish} = 1/\sigma_{Fish}^2\)</span>が推定される。これらのデフォルトの事前分布は以下の通り。これは、<span class="math inline">\(\tau\)</span>と<span class="math inline">\(\tau_{Fish}\)</span>)がガンマ分布を事前分布に持つのと同じことである。</p>
 <p><span class="math display">\[
 \begin{aligned}
 &amp;log(\tau) \sim LogGamma(1, 0.00005)\\
@@ -907,7 +921,7 @@ div.csl-indent {
 \end{aligned}
 \]</span></p>
 <p>ガンマ分布は2つのパラメータshapeとscaleを持っており、それぞれ<span class="math inline">\(a\)</span>とと<span class="math inline">\(b\)</span>で示されることが多い。ただし、<code>INLA</code>では<span class="math inline">\(b\)</span>を<strong>scaleパラメータの逆数に用いている</strong>ためややこしい。以下では、<code>INLA</code>と同様にscaleパラメータの逆数(rateパラメータという)を<span class="math inline">\(b\)</span>で示す。このとき、ガンマ分布の平均は<span class="math inline">\(a/b\)</span>で分散は<span class="math inline">\(a/b^2\)</span>となる。</p>
-<p><code>INLA</code>では、<span class="math inline">\(\tau\)</span>と<span class="math inline">\(\tau_{Fish}\)</span>の事前分布に<span class="math inline">\(Gamma(a = 1, b = 0.00001)\)</span>をしている。これは、ほぼ一様分布のようになる(図<a href="Chapter9.html#fig:gamma">8.4</a>のA)。一方で、 <span class="citation">Carroll et al. (<a href="#ref-Carroll2015">2015</a>)</span> は、<code>INLA</code>ではポワソンGLMMのときには<span class="math inline">\(Gamma(1, 0.5)\)</span>の方がデフォルトよりもうまく分析できることを示している。この時のガンマ分布は図<a href="Chapter9.html#fig:gamma">8.4</a>のBのようになる。</p>
+<p><code>INLA</code>では、<span class="math inline">\(\tau\)</span>と<span class="math inline">\(\tau_{Fish}\)</span>の事前分布に<span class="math inline">\(Gamma(a = 1, b = 0.00001)\)</span>を設定している。これは、ほぼ一様分布のようになる(図<a href="Chapter9.html#fig:gamma">8.4</a>のA)。一方で、 <span class="citation">Carroll et al. (<a href="#ref-Carroll2015">2015</a>)</span> は、<code>INLA</code>ではポワソンGLMMのときには<span class="math inline">\(Gamma(1, 0.5)\)</span>の方がデフォルトよりもうまく分析できることを示している。この時のガンマ分布は図<a href="Chapter9.html#fig:gamma">8.4</a>のBのようになる。</p>
 <div class="sourceCode" id="cb246"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb246-1"><a href="Chapter9.html#cb246-1" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">20</span>, <span class="at">length =</span> <span class="dv">1000</span>)</span>
 <span id="cb246-2"><a href="Chapter9.html#cb246-2" tabindex="-1"></a></span>
 <span id="cb246-3"><a href="Chapter9.html#cb246-3" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">x =</span> x,</span>

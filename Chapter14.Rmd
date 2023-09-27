@@ -2,4 +2,373 @@
 本章では、`INLA`で扱える時系列相関を考慮したモデルについて解説する。時系列分析についてより詳しい解説が必要な場合は、他の書籍を参照されたし[e.g., @Baba2018; @Baba2019; @Ravishanker2022]。  
 
 ## Simulation study  
-以下では、シミュレーションデータを用いる。
+以下では、シミュレーションデータを用いて話を進める。$Y_t$を時系列データとし、以下のモデル式をもとに得られるとする。  
+
+$$
+\begin{aligned}
+&Y_t = \rm{Intercept} + \rm{Covariates_i} + \rm{Trend_t} + \epsilon_t \\ 
+&\epsilon_t \sim N(0, \sigma^2_{\epsilon})
+\end{aligned}
+$$
+
+ここでトレンド項($\rm{Trend_t}$)が$Times \times \beta$のように表せるとすれば、これは通常の線形回帰モデルである。しかしこの場合、時間的な疑似相関が生じてしまう。この問題を解決するため、いわゆるランダムウォークが用いられる。もっとも単純なランダムウォークモデルは以下のように書ける。  
+
+$$
+\begin{aligned}
+&Y_t = \rm{Intercept} + \rm{Covariates_i} + \mu_t + \epsilon_t \\ 
+&\mu_t = \mu_{t-1} + v_t\\
+&\epsilon_t \sim N(0, \sigma^2_{\epsilon}) \; and \; v_t \sim N(0, \sigma^2_v)
+\end{aligned}
+$$
+
+このモデルでは、互いに独立な残差$\epsilon_t$と$v_t$がある。以下、これらについて理解するために$\sigma_{\epsilon}$と$\sigma_{v}$に様々な値を当てはめたときにシミュレートされる$Y_t$を図示したのが図\@ref(fig:timeseries-sim)である。1行目の3つは$\sigma_{\epsilon} = 1,\sigma_v = 1$$、2行目の3つは$$\sigma_{\epsilon} = 1,\sigma_v = 0.1$$、3行目の3つは$$\sigma_{\epsilon} = 5, \sigma_v = 1$$、4行目の3つは$$\sigma_{\epsilon} = 1, \sigma_v = 5$$、5行目の3つは$$\sigma_{\epsilon} = 3, \sigma_v = 3$である。なお、線は$\mu_t$を、点は$Y_t$を表す。    
+
+```{r timeseries-sim, fig.dim = c(7,10.5), fig.cap = "Examples of simulated data sets with different random walk trends. Each of the three panels on the same row represents a different simulation from the same model. The number above a panel is the simulation number. In simulations 1–3 (top row) we used σ ε = 1 and σ v = 1; in simulations 4–6 (second row) we used σ ε = 1 and σ v = 0.1; in simulations 7–9 we used σ ε = 5 and σ v = 1; in simulations 10–12 we used σ ε = 1 and σ v = 5; and in simulations 13–15 we used σ ε = 3 and σ v = 3."}
+
+sigma_e <- rep(c(1,1,5,1,3), each = 3)
+sigma_v <- rep(c(1, 0.1, 1,5,3), each = 3)
+
+set.seed(123)
+tmax <- 100
+Intercept <-  3.2
+y <- matrix(ncol = 15, nrow = tmax)
+mu <- matrix(ncol = 15, nrow = tmax)
+mu[1, 1:15] <- rnorm(n = 15, mean = 0, sd = 1)
+y[1, 1:15] <- Intercept + mu[1,1:15] + rnorm(n = 15, mean = 0, sd = sigma_e)
+
+for(j in seq_along(sigma_e)){
+  for(i in 2:100){
+     mu[i,j] <- mu[i-1,j] + rnorm(n = 1, 0, sigma_v[j])
+     y[i, j] <- Intercept + mu[i,j] + rnorm(n = 1, 0, sigma_e[j]) 
+  }
+}
+
+y %>% 
+  data.frame() %>% 
+  mutate(time = 1:n()) %>% 
+  pivot_longer(1:15) %>% 
+  mutate(name = as.numeric(str_replace_all(name, "X",""))) %>% 
+  ggplot(aes(x = time, y = value))+
+  geom_point(size = 0.5)+
+  geom_line(data = mu %>% 
+              data.frame() %>% 
+              mutate(time = 1:n()) %>% 
+              pivot_longer(1:15) %>% 
+              mutate(name = as.numeric(str_replace_all(name, "X",""))),
+            aes(y = value + Intercept),
+            linewidth = 0.8)+
+  facet_rep_wrap(~name, scales = "free",
+                 repeat.tick.labels = TRUE,
+                 ncol = 3)+
+  theme_bw()+
+  theme(aspect.ratio = 0.7)+
+  labs(y = "Simulated data")
+```
+<br/>  
+
+この図からは、$\sigma_v$が小さいとトレンド項($\mu_t$)の変動も小さく、なめらかであることが分かる(e.g., 2行目)。反対に、$\sigma_v$が大きいと$\mu_t$の変動が大きくなる。一方で、$\sigma_{\epsilon}$は大きいほど$Y_t$がトレンド項$\mu_t$の周りで大きくばらつく。ランダムウォークについてさらに詳しい解説は @Durbin2012 や @Baba2018 、@Baba2019 などを参照。  
+
+## Trends in migration dates of sockeye salmon  
+### Applying a random walk trend model  
+以下では、ベニザケの回遊日を研究した @Crozier2011 のデータを用いる。  
+
+```{r}
+salmon <- read_csv("data/sockeye.csv")
+
+datatable(salmon,
+          options = list(scrollX = 30),
+          filter = "top")
+```
+<br/>  
+
+図\@ref(fig:salmon-mig)は年ごとの回遊日の中央値をプロットしたものである。  
+```{r salmon-mig, fig.cap = "Time-series plot of (median) arrival day versus year.", fig.dim = c(8,4.5)}
+salmon %>% 
+  ggplot(aes(x = Year, y = MigDay))+
+  geom_point()+
+  geom_line()+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  labs(y = "Migration day")
+```
+<br/>  
+
+リサーチクエスチョンは、このデータにトレンドが存在するかである。そこで、以下のランダムウォークモデルを適用する。  
+
+$$
+\begin{aligned}
+&MigDay_t = \rm{Intercept}  + \mu_t + \epsilon_t \\ 
+&\mu_t = \mu_{t-1} + v_t\\
+&\epsilon_t \sim N(0, \sigma^2_{\epsilon}) \; and \; v_t \sim N(0, \sigma^2_v)
+\end{aligned}
+(\#eq:randomtrend)
+$$
+
+`INLA`では以下のようにモデルを実行できる。  
+```{r}
+m14_1 <- inla(MigDay ~ f(Year, model = "rw1"),
+              control.compute = list(dic = TRUE),
+              control.predictor = list(compute = TRUE),
+              family = "gaussian",
+              data = salmon)
+```
+
+モデルの推定結果は以下のように求められる。    
+```{r}
+summary(m14_1)
+```
+
+トレンド項$\mu_t$は時間とともに変化するランダム効果であり、その情報は以下で確認できる。  
+```{r}
+m14_1$summary.random$Year
+```
+
+図示すると以下のようになる。  
+```{r}
+m14_1$summary.random$Year %>% 
+  rename(Year = ID) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0, color = "black", linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Random walk trend")
+```
+<br/>  
+
+切片も足した予測値は以下のように求められる。  
+```{r}
+m14_1$summary.fitted.values %>% 
+  bind_cols(salmon) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0, color = "black", linetype = "dashed")+
+  geom_point(aes(y = MigDay),
+             shape = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Observed and fitted values")
+```
+
+### Posterior distribution of sigmas  
+`INLA`は精度$\tau = 1/\sigma^2$を推定するので、$\sigma_{\epsilon}$と$\sigma_v$の事後分布を求めるためには以下のような変換が必要である。それぞれの事後平均は以下のように求められる。    
+
+```{r}
+tau_eps <- m14_1$marginals.hyperpar$`Precision for the Gaussian observations`
+tau_v <- m14_1$marginals.hyperpar$`Precision for Year`
+
+fun <- function(x){1/sqrt(x)}
+sigma_eps <- inla.emarginal(fun, tau_eps)
+sigma_v <- inla.emarginal(fun, tau_v)
+
+c(sigma_eps, sigma_v)
+```
+
+事後分布は以下のように書ける。  
+```{r, fig.dim = c(8,4)}
+pd_sigma_eps <- inla.tmarginal(fun, tau_eps)
+pd_sigma_v <- inla.tmarginal(fun, tau_v)
+
+pd_sigma_eps %>% 
+  data.frame() %>% 
+  mutate(par = "sigma_eps") %>% 
+  bind_rows(pd_sigma_v %>% 
+  data.frame() %>% 
+  mutate(par = "sigma_v")) %>% 
+  ggplot(aes(x = x, y = y))+
+  geom_line()+
+  facet_rep_wrap(~par, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  labs(x = "")+
+  theme_bw()+
+  theme(aspect.ratio = 1)
+```
+
+### Covariates and trends  
+式\@ref(eq:randomtrend)のモデルは以下のように説明変数を加えて簡単に拡張できる。ここでは、気温($Temp_t$)を加える。    
+
+$$
+\begin{aligned}
+&MigDay_t = \rm{Intercept}  + Temp_t \times \beta + \mu_t + \epsilon_t \\ 
+&\mu_t = \mu_{t-1} + v_t\\
+&\epsilon_t \sim N(0, \sigma^2_{\epsilon}) \; and \; v_t \sim N(0, \sigma^2_v)
+\end{aligned}
+(\#eq:randomtrend2)
+$$
+
+このモデルは以下のように実行できる。  
+```{r}
+f14_2 <- MigDay ~ Temp + f(Year, model = "rw1")
+
+m14_2 <- inla(f14_2,
+              control.compute = list(dic = TRUE),
+              control.predictor = list(compute = TRUE),
+              family = "gaussian",
+              data = salmon)
+```
+
+先ほどのモデルと比べると、気温を共変量に加えたモデルの方がDICが低い。  
+```{r}
+c(m14_1$dic$dic, m14_2$dic$dic)
+```
+
+また、気温にかかる係数の95%確信区間は0を含まないので、応答変数に重要な影響を与えていることが示唆される。
+```{r}
+m14_2$summary.fixed
+```
+
+### Making the trend smoother  
+$\sigma_v$の事前分布を変えたとき、トレンド項$\mu_t$の事後分布は大きな影響を受ける。以下、このことをシミュレーションによって確認する。  
+
+#### Changing the values of the gamma prior  
+`INLA`では$\tau_v = 1/\sigma_v^2$の事前分布はデフォルトでは$Gamma(1, 0.00001)$になっている(第\@ref(c9)章参照)。しかし、個の分布が最善かには議論がある。第\@ref(c9)章では、 事前分布に$Gamma(1, 0.5)$を用いたモデルも実行した。この事前分布は、 @Carroll2015 によって推奨されているものである。この事前分布の下では、$\sigma_v$はおよそ0から5までの値をとる。    
+
+`INLA`では、以下のようにしてこの事前分布によるモデルを実行できる。  
+```{r}
+f14_3 <- MigDay ~ Temp + f(Year, model = "rw1",
+                           hyper = list(theta = list(prior = "loggamma",
+                                                     param = c(1,0.5))))
+
+m14_3 <- inla(f14_3,
+              control.compute = list(dic = TRUE),
+              control.predictor = list(compute = TRUE),
+              family = "gaussian",
+              data = salmon)
+```
+
+@Blangiardo2015 は、$\sigma_v$がとりうる範囲について事前に知識があれば、それをもとに事前分布のパラメータを検討することができることを示している。例えば、仮に$\sigma_v$が0.3から0.7の範囲をとりうると分かっているとしよう。このとき、シミュレーションによって$\sigma_v$を10000個生成する。  
+
+```{r}
+set.seed(1234)
+sim.sigma_v <- runif(n = 10000, 0.3,0.7)
+```
+
+このとき、$\tau_v$の分布は以下のようになる。  
+```{r}
+sim.tau_v <- 1/sim.sigma_v^2
+
+data.frame(x = sim.tau_v) %>% 
+  ggplot(aes(x = x))+
+  geom_density()+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  coord_cartesian(xlim = c(1,12))
+```
+
+ガンマ分布はshape($a$)とscale($b$)の2つのパラメータによって決まるが、これらはガンマ分布の期待値$E(X)$と分散$var(X)$を用いて以下のように表せる。  
+
+$$
+\begin{aligned}
+&a = E(X)^2/var(X)\\
+&b = a/E(X)
+\end{aligned}
+$$
+
+よって、$\tau_v$がガンマ分布に従うとしたらパラメータ$a,b$は以下の値になる。  
+```{r}
+a <- mean(sim.tau_v)^2/var(sim.tau_v)
+b <- a/mean(sim.tau_v)
+
+c(a, b)
+```
+
+これらのパラメータを持つガンマ分布を実際の$\tau_v$の分布と一緒に描くと以下のようになる。おおよそ一致していることが見て取れる。    
+```{r}
+gamma <- rgamma(n =10000, shape = a, scale = b)
+
+data.frame(x = c(sim.tau_v, gamma),
+           type = rep(c("tau","gamma"), each = 10000)) %>% 
+  ggplot(aes(x = x, group = type))+
+  geom_density(aes(linetype = type))+
+  scale_linetype_manual(values = c("dashed","solid"))+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  coord_cartesian(xlim = c(0,12))
+```
+
+#### changing the gamma prior to the PC prior  
+@Simpson2014 はPenalized Complexity (PC) 事前分布というものを導入している。この事前分布では、1つのパラメータを用いて事前分布の強弱を表現できる。例えば$\sigma_v$のPC事前分布を考えるとき、以下の式に用いる$U$を決める必要がある。$\alpha$には0.05を用いる。    
+
+$$
+Prob(\sigma_v > U) = \alpha
+$$
+
+例えば$U = 100$とするとき、$\sigma_v$が100以上の大きな値をとる確率は非常に小さいということを示す。このとき、事前分布はほとんど情報を持っていない。一方で、$U = 0.1$とするならば、$\sigma_v$は高い確率で0から0.1までの値をとることになり、事前分布は情報があるとみなせる。  
+
+以下では、様々な$U$を定めたときの$\tau_v$の分布を描いたものである。密度の算出については @Simpson2014 を参照。$U$が大きいほど$\sigma_v$がとりうる範囲も大きくなるので、逆に$\tau_v$は非常に狭い分布になる。逆もしかりである。      
+
+```{r}
+U <- c(0.1, 0.5, 1, 2, 5)
+alpha  <- 0.05
+DensTau <- matrix(nrow = 100, ncol = 5)
+
+for (i in 1:5){
+  lambda <- - log(alpha) / U[i]
+  tau.v  <- seq(0.001, 12, length = 100)
+  DensTau[,i] <- (lambda / 2) * tau.v ^(-3/2) * exp(-lambda*tau.v^(-0.5))
+}
+
+data.frame(x = tau.v,
+           y = as.vector(DensTau),
+           U = rep(U, each = 100)) %>%
+  mutate(U = str_c("U = ",U)) %>% 
+  ggplot(aes(x = x, y = y))+
+  geom_line()+
+  facet_rep_wrap(~U, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Density", x = expression(tau[v]))
+```
+<br/>  
+
+`INKA`では以下のようにPC事前分布を用いた分析ができる。以下では、$U$が6つの値($0.01, 0.05, 0.1, 0.5, 1, 5$)をとるときそれぞれのモデルを実行している。    
+```{r}
+U <- c(0.01, 0.05, 0.1, 0.5, 1, 5)
+keys <- paste0("m14_4_", 1:6)
+
+for(i in 1:6){
+  hyper.prec <- list(theta = list(prior = "pc.prec",
+                                  param = c(U[[i]], 0.05)))
+  f14_4 <- MigDay ~ f(Year,
+                      model = "rw1",
+                      hyper = hyper.prec)
+  
+  m14_4 <- inla(f14_4,
+                control.compute = list(dic = TRUE),
+                control.predictor = list(compute = TRUE),
+                family = "gaussian",
+                data = salmon)
+  
+  assign(keys[i], m14_4)
+}
+```
+
+$U$の値によってモデルの予測値($\rm{Intercept + \mu_t}$)がどう変わるかを示したのが図\@ref(fig:PCprior)である。$U$の値が小さいと$\sigma_v$も0に近い値しか取らないので、予測値がほぼ変動しないことが分かる。一方で、$U$が一定以上大きければ結果はあまり変わらない。  
+
+```{r PCprior, fig.cap = "Fitted values for the rw1 model applied on the salmon arrival dates data. A PC prior was used for the precision parameter τ v of the variance of the random walk. Each panel corresponds to a different value of U.",fig.dim = c(8,4)}
+m14_4_1$summary.fitted.values %>% 
+  bind_rows(m14_4_2$summary.fitted.values) %>% 
+  bind_rows(m14_4_3$summary.fitted.values) %>% 
+  bind_rows(m14_4_4$summary.fitted.values) %>% 
+  bind_rows(m14_4_5$summary.fitted.values) %>% 
+  bind_rows(m14_4_6$summary.fitted.values) %>% 
+  mutate(Year = rep(salmon$Year, times = 6)) %>% 
+  mutate(U = rep(str_c("U = ", U), each = 61)) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0.5, color = "black", linetype = "dashed")+
+  geom_point(aes(y = MigDay),
+             shape = 1,
+             data = salmon)+
+  facet_rep_wrap(~U, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Migration date")
+```
+
+#### Changing the random walk model: rw2  

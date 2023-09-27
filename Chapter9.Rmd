@@ -465,7 +465,7 @@ m9_4b$summary.fixed %>%
 ```
 
 ## Changing priors of hyperparameters  
-先ほどのモデルにはハイパーパラメータが2つあった($\sigma$と$\sigma_{Fish}$)。しかし、`INLA`では精度($\tau = 1/\sigma^2, \tau_{Fish} = 1/\sigma_{Fish}^2$が推定される。これらのデフォルトの事前分布は以下の通り。これは、$\tau$と$\tau_{Fish}$がガンマ分布を事前分布に持つのと同じことである。      
+先ほどのモデルにはハイパーパラメータが2つあった($\sigma$と$\sigma_{Fish}$)。しかし、`INLA`では精度($\tau = 1/\sigma^2, \tau_{Fish} = 1/\sigma_{Fish}^2$が推定される。これらのデフォルトの事前分布は以下の通り。これは、$\tau$と$\tau_{Fish}$)がガンマ分布を事前分布に持つのと同じことである。      
 
 $$
 \begin{aligned}
@@ -476,7 +476,7 @@ $$
 
 ガンマ分布は2つのパラメータshapeとscaleを持っており、それぞれ$a$とと$b$で示されることが多い。ただし、`INLA`では$b$を**scaleパラメータの逆数に用いている**ためややこしい。以下では、`INLA`と同様にscaleパラメータの逆数(rateパラメータという)を$b$で示す。このとき、ガンマ分布の平均は$a/b$で分散は$a/b^2$となる。  
 
-`INLA`では、$\tau$と$\tau_{Fish}$の事前分布に$Gamma(a = 1, b = 0.00001)$をしている。これは、ほぼ一様分布のようになる(図\@ref(fig:gamma)のA)。一方で、 @Carroll2015 は、`INLA`ではポワソンGLMMのときには$Gamma(1, 0.5)$の方がデフォルトよりもうまく分析できることを示している。この時のガンマ分布は図\@ref(fig:gamma)のBのようになる。  
+`INLA`では、$\tau$と$\tau_{Fish}$の事前分布に$Gamma(a = 1, b = 0.00001)$を設定している。これは、ほぼ一様分布のようになる(図\@ref(fig:gamma)のA)。一方で、 @Carroll2015 は、`INLA`ではポワソンGLMMのときには$Gamma(1, 0.5)$の方がデフォルトよりもうまく分析できることを示している。この時のガンマ分布は図\@ref(fig:gamma)のBのようになる。  
 
 ```{r gamma, fig.cap = "Gamma distribution with shape = 1 and rate = 0.00001.", fig.dim = c(10,4.5)}
 x <- seq(0, 20, length = 1000)

@@ -86,6 +86,11 @@ fig:modcomp13-2
 fig:vario13-2
 fig:unnamed-chunk-320
 fig:vario13-2b
+fig:timeseries-sim
+fig:salmon-mig
+eq:randomtrend
+eq:randomtrend2
+fig:PCprior
 c2
 pseudoreplication
 疑似反復とは
@@ -278,3 +283,11 @@ plotting-the-random-intercepts-ui
 simulating-from-the-model
 what-to-write-in-a-paper
 time-series-analysis-in-r-inla
+simulation-study-1
+trends-in-migration-dates-of-sockeye-salmon
+applying-a-random-walk-trend-model
+posterior-distribution-of-sigmas
+covariates-and-trends
+making-the-trend-smoother
+changing-the-values-of-the-gamma-prior
+changing-the-gamma-prior-to-the-pc-prior
