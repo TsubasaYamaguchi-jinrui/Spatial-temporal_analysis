@@ -291,3 +291,5 @@ covariates-and-trends
 making-the-trend-smoother
 changing-the-values-of-the-gamma-prior
 changing-the-gamma-prior-to-the-pc-prior
+changing-the-random-walk-model-rw2
+trends-in-polar-bear-movements

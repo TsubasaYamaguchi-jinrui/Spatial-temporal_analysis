@@ -462,8 +462,10 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="13.2.4.1" data-path="Chapter14.html"><a href="Chapter14.html#changing-the-values-of-the-gamma-prior"><i class="fa fa-check"></i><b>13.2.4.1</b> Changing the values of the gamma prior</a></li>
 <li class="chapter" data-level="13.2.4.2" data-path="Chapter14.html"><a href="Chapter14.html#changing-the-gamma-prior-to-the-pc-prior"><i class="fa fa-check"></i><b>13.2.4.2</b> changing the gamma prior to the PC prior</a></li>
+<li class="chapter" data-level="13.2.4.3" data-path="Chapter14.html"><a href="Chapter14.html#changing-the-random-walk-model-rw2"><i class="fa fa-check"></i><b>13.2.4.3</b> Changing the random walk model: rw2</a></li>
 </ul></li>
 </ul></li>
+<li class="chapter" data-level="13.3" data-path="Chapter14.html"><a href="Chapter14.html#trends-in-polar-bear-movements"><i class="fa fa-check"></i><b>13.3</b> Trends in polar bear movements</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -1013,7 +1015,7 @@ a_i &amp;\sim N(0, \sigma_{Logger}^2)
 <span id="cb31-5"><a href="Chapter2.html#cb31-5" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">color =</span> <span class="st">&quot;grey23&quot;</span>)<span class="sc">+</span></span>
 <span id="cb31-6"><a href="Chapter2.html#cb31-6" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>Logger,</span>
 <span id="cb31-7"><a href="Chapter2.html#cb31-7" tabindex="-1"></a>                 <span class="at">scales =</span> <span class="st">&quot;free_y&quot;</span>)</span></code></pre></div>
-<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-22-1.png" width="672" style="display: block; margin: auto;" />
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-22-1.png" width="864" style="display: block; margin: auto;" />
 <br/></p>
 <p>時系列相関があるかを調べるためには、自己相関関数(acf)を描くことが有効である。自己相関関数は、k時点前のデータとの相関をkの関数としてあらわしたものである。</p>
 <p>以下で、ロガーごとに時系列相関を算出する。</p>

@@ -462,8 +462,10 @@ div.csl-indent {
 <ul>
 <li class="chapter" data-level="13.2.4.1" data-path="Chapter14.html"><a href="Chapter14.html#changing-the-values-of-the-gamma-prior"><i class="fa fa-check"></i><b>13.2.4.1</b> Changing the values of the gamma prior</a></li>
 <li class="chapter" data-level="13.2.4.2" data-path="Chapter14.html"><a href="Chapter14.html#changing-the-gamma-prior-to-the-pc-prior"><i class="fa fa-check"></i><b>13.2.4.2</b> changing the gamma prior to the PC prior</a></li>
+<li class="chapter" data-level="13.2.4.3" data-path="Chapter14.html"><a href="Chapter14.html#changing-the-random-walk-model-rw2"><i class="fa fa-check"></i><b>13.2.4.3</b> Changing the random walk model: rw2</a></li>
 </ul></li>
 </ul></li>
+<li class="chapter" data-level="13.3" data-path="Chapter14.html"><a href="Chapter14.html#trends-in-polar-bear-movements"><i class="fa fa-check"></i><b>13.3</b> Trends in polar bear movements</a></li>
 </ul></li>
 <li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
 </ul>
@@ -495,7 +497,7 @@ div.csl-indent {
 &amp;\epsilon_t \sim N(0, \sigma^2_{\epsilon})
 \end{aligned}
 \]</span></p>
-<p>ここでトレンド項(<span class="math inline">\(\rm{Trend_t}\)</span>)が<span class="math inline">\(Times \times \beta\)</span>のように表せるとすれば、これは通常の線形回帰モデルである。しかしこの場合、時間的な疑似相関が生じてしまう。この問題を解決するため、いわゆるランダムウォークが用いられる。もっとも単純なランダムウォークモデルは以下のように書ける。</p>
+<p>ここでトレンド項(<span class="math inline">\(\rm{Trend_t}\)</span>)が<span class="math inline">\(Times \times \beta\)</span>のように表せるとすれば、これは通常の線形回帰モデルである。しかしこの場合、時間的な疑似相関が生じてしまう。この問題を解決するため、いわゆるランダムウォークが用いられる。もっとも単純なランダムウォークモデルは以下のように書ける。<a href="#fn10" class="footnote-ref" id="fnref10"><sup>10</sup></a></p>
 <p><span class="math display">\[
 \begin{aligned}
 &amp;Y_t = \rm{Intercept} + \rm{Covariates_i} + \mu_t + \epsilon_t \\
@@ -703,7 +705,7 @@ div.csl-indent {
 <span id="cb472-14"><a href="Chapter14.html#cb472-14" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;&quot;</span>)<span class="sc">+</span></span>
 <span id="cb472-15"><a href="Chapter14.html#cb472-15" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
 <span id="cb472-16"><a href="Chapter14.html#cb472-16" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)</span></code></pre></div>
-<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-339-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-339-1.png" width="768" style="display: block; margin: auto;" /></p>
 </div>
 <div id="covariates-and-trends" class="section level3 hasAnchor" number="13.2.3">
 <h3><span class="header-section-number">13.2.3</span> Covariates and trends<a href="Chapter14.html#covariates-and-trends" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -867,9 +869,30 @@ Prob(\sigma_v &gt; U) = \alpha
 図13.3: Fitted values for the rw1 model applied on the salmon arrival dates data. A PC prior was used for the precision parameter τ v of the variance of the random walk. Each panel corresponds to a different value of U.
 </p>
 </div>
+</div>
+<div id="changing-the-random-walk-model-rw2" class="section level4 hasAnchor" number="13.2.4.3">
+<h4><span class="header-section-number">13.2.4.3</span> Changing the random walk model: rw2<a href="Chapter14.html#changing-the-random-walk-model-rw2" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p><code>INLA</code>にはこれまで用いてきたランダムウォークモデル<code>rw1</code>に加えてもう一つのランダムウォークモデル<code>rw2``がある。これは、以下のように書ける[^foot11]。</code>rw2`モデルではこれまで用いていたランダムモデルよりも滑らかな予測値が得られる。</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;(\mu_t - \mu_{t-1}) - (\mu_{t-1} - \mu_{t-2}) = v_t \\
+&amp;v_t \sim N(0,\sigma^2_v)
+\end{aligned}
+\]</span></p>
+<p>これは、<span class="math inline">\(\phi_t = \mu_t - \mu_{t-1}\)</span>と書くとき、以下のように書き換えられる。<br />
+<span class="math display">\[
+\begin{aligned}
+&amp;\phi_t - \phi_{t-1} = v_t \\
+&amp;v_t \sim N(0,\sigma^2_v)
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+</div>
+<div id="trends-in-polar-bear-movements" class="section level2 hasAnchor" number="13.3">
+<h2><span class="header-section-number">13.3</span> Trends in polar bear movements<a href="Chapter14.html#trends-in-polar-bear-movements" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>以下では、シロクマの自発的あるいは受動的な移動を分析した <span class="citation">(<a href="#ref-Mauritzen2003"><strong>Mauritzen2003?</strong></a>)</span> のデータを用いる。1988年から1999年の間に、86頭のオトナのメスの位置情報がテレメトリーによって記録された。テレメトリーは6日ごとに最大3年間位置情報を記録した。記録は2つの場所(スバールバル諸島とバレンツ海)で行われている。</p>
 
-</div>
-</div>
 </div>
 </div>
 <h3>References</h3>
@@ -898,6 +921,12 @@ Simpson DP, Rue H, Martins TG, et al (2014) Penalising model component complexit
 <div id="ref-Baba2018" class="csl-entry">
 馬場真哉 (2018) 時系列分析と状態空間モデルの基礎 : <span>RとStanで学ぶ理論と実装</span>. プレアデス出版
 </div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="10">
+<li id="fn10"><p>基本的には、 <span class="citation">馬場 (<a href="#ref-Baba2019">2019</a>)</span> でローカルレベルモデルといわれているモデルである。<a href="Chapter14.html#fnref10" class="footnote-back">↩︎</a></p></li>
+</ol>
 </div>
             </section>
 

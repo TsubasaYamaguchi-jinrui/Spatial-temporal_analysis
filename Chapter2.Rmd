@@ -400,7 +400,7 @@ summary(m2_4$lme)
 
 ### Model validation  
 ロガーごとの標準化残差を時系列的に図示したのが下図である。ここからパターンを読み取るのは難しい。  
-```{r}
+```{r, fig.dim = c(9,4)}
 sn2 %>% 
   mutate(resid = resid(m2_4$lme, type = "n")) %>% 
   ggplot(aes(x = date_num, y = resid))+
