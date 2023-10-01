@@ -91,6 +91,7 @@ fig:salmon-mig
 eq:randomtrend
 eq:randomtrend2
 fig:PCprior
+fig:rwtrend-whales1
 c2
 pseudoreplication
 疑似反復とは
@@ -293,3 +294,7 @@ changing-the-values-of-the-gamma-prior
 changing-the-gamma-prior-to-the-pc-prior
 changing-the-random-walk-model-rw2
 trends-in-polar-bear-movements
+trends-in-whale-strandings
+multivariate-time-series-for-hawaiian-birds
+importing-and-preparing-the-data
+data-exploration-4

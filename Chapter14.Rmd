@@ -374,9 +374,9 @@ m14_4_1$summary.fitted.values %>%
 ```
 
 #### Changing the random walk model: rw2  
-`INLA`にはこれまで用いてきたランダムウォークモデル`rw1`に加えてもう一つのランダムウォークモデル`rw2``がある。これは、以下のように書ける[^foot11]。`rw2`モデルではこれまで用いていたランダムモデルよりも滑らかな予測値が得られる。  
+`INLA`にはこれまで用いてきたランダムウォークモデル`rw1`に加えてもう一つのランダムウォークモデル`rw2`がある。これは、以下のように書ける[^foot11]。`rw2`モデルではこれまで用いていたランダムモデルよりも滑らかな予測値が得られる。  
 
-[^foot11]: @Baba2019 で平滑化トレンドレベルモデルといわれているモデルである。    
+[^foot11]:  @Baba2019 で平滑化トレンドレベルモデルといわれているモデルである。    
 
 $$
 \begin{aligned}
@@ -397,16 +397,226 @@ $$
 以下では、シロクマの自発的あるいは受動的な移動を分析した @Mauritzen2003 のデータを用いる。1988年から1999年の間に、86頭のオトナのメスの位置情報がテレメトリーによって記録された。テレメトリーは6日ごとに最大3年間位置情報を記録した。記録は2つの場所(スバールバル諸島とバレンツ海)で行われている。  
 
 ```{r}
-pb <- read_
+pb <- read_delim("data/PolarBearsV2.txt") %>% 
+  mutate(fRepro = factor(Repro, 
+                        levels = c("0","1","2"),
+                        labels = c("With cubs of the year", 
+                                   "With one-year old cubs", 
+                                   "With 2-year old cubs / weaning & reproducing"))) %>% 
+  mutate(BearID = as.integer(as.factor(BearID)))
+
+datatable(pb,
+          options = list(scrollX = 20),
+          filter = "top")
 ```
 
 
-以下のモデルを考える。  
+以下のモデルを考える。回帰係数は省略している。また、$Bear_i$は個体IDのランダム切片である。$Repro_{ij}$はクマ$i$の$j$時点での配偶状態(0: 1歳未満の子がいる、1: 1歳の子がいる、2: 2歳で離乳した子がいる)を表す。最後に、 $f_1(Year_{ij}), f_2(DayInYear_{ij})$はそれぞれ年による長期的なトレンドと年内の日付による短期的なトレンドを表し、いずれもランダムウォークモデルを当てはめる。  
 
 $$
 \begin{aligned}
-Movements_{ij} \sim Gamma(\mu_{ij})
+&Movements_{ij} \sim Gamma(\mu_{ij}, r) \\
+&E(Movement_{ij}) = \mu_{ij}\\
+&log(\mu_{ij}) = Intercept + f_1(Year_{ij}) + f_2(DayInYear_{ij}) + Repro_{ij} + Bear_i
+Bear_i \sim N(0, \sigma^2_{Bear})
 \end{aligned}
 $$
 
+`INLA`では以下のように実行できる。  
+```{r}
+f14_5 <- Movement ~ fRepro + f(Year, model = "rw1") + f(DayInYear, model = "rw1") + f(BearID, model = "iid")
 
+m14_5 <- inla(f14_5,
+              control.predictor(compute = TRUE),
+              family = "gamma",
+              data = pb)
+```
+
+モデルによって得られた2つのランダムウォークトレンドは以下の通り。観察年(`Year`)のトレンドはかなり滑らかな一方、日付(`DayInYear`)のトレンドはかなりガタガタしている。  
+
+```{r, fig.dim = c(8,4)}
+mu_year <- m14_5$summary.random$Year
+mu_diy <- m14_5$summary.random$DayInYear
+
+mu_year %>% 
+  rename(Year = 1) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0, color = "black", linetype = "dashed")+
+  geom_hline(yintercept = 0,
+             linetype = "dotted",
+             linewidth = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  scale_y_continuous(breaks = seq(-0.2,0.2,0.02))+
+  labs(y = "Smoother") -> p1
+
+mu_diy %>% 
+  rename(DayInYear = 1) %>% 
+  ggplot(aes(x = DayInYear, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0, color = "black", linetype = "dashed")+
+  geom_hline(yintercept = 0,
+             linetype = "dotted",
+             linewidth = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  scale_y_continuous(breaks = seq(-0.4,0.6,0.1))+
+  labs(y = "Smoother") -> p2
+
+p1 + p2
+```
+<br/>  
+
+これを解決する方法としては、日付のトレンドに`rw2`モデルを適用することが挙げられる。また、ハイパーパラメータの事前分布を変えることもできるが、このモデルでは複数のパラメータがあるので行わない。かわりに、ここではPC事前分布を用いる。  
+
+```{r}
+U <- 1.5
+hyper.prec <- list(theta = list(prior = "pc.prec",
+                                param = c(U, 0.01)))
+
+f14_6 <- Movement ~ fRepro + f(Year, 
+                               model = "rw1",
+                               hyper = hyper.prec) +
+                             f(DayInYear, 
+                               model = "rw2",
+                               hyper = hyper.prec)+ f(BearID, model = "iid")
+
+m14_6 <- inla(f14_6,
+              control.predictor(compute = TRUE),
+              family = "gamma",
+              data = pb)
+```
+
+その結果を表したのが以下の図である。  
+```{r, fig.dim = c(8,4)}
+mu_year <- m14_6$summary.random$Year
+mu_diy <- m14_6$summary.random$DayInYear
+
+mu_year %>% 
+  rename(Year = 1) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0, color = "black", linetype = "dashed")+
+  geom_hline(yintercept = 0,
+             linetype = "dotted",
+             linewidth = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  scale_y_continuous(breaks = seq(-0.2,0.2,0.02))+
+  labs(y = "Smoother") -> p1
+
+mu_diy %>% 
+  rename(DayInYear = 1) %>% 
+  ggplot(aes(x = DayInYear, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0, color = "black", linetype = "dashed")+
+  geom_hline(yintercept = 0,
+             linetype = "dotted",
+             linewidth = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  scale_y_continuous(breaks = seq(-0.4,0.6,0.1))+
+  labs(y = "Smoother") -> p2
+
+p1 + p2
+```
+<br/>   
+
+## Trends in whale strandings   
+本節では、マッコウクジラの漂着を調べた @Smeenk1997 と @Pierce2007 のデータを用いる。クジラの漂着には気候変動やソナーの活動、食物の入手可能性、クジラの回遊パターン、太陽の黒点など様々な要因がかかわっていると考えられている。  
+
+データは1563年から2001年までの439の観察からなる。まず、以下のポワソン分布のランダムウォークモデルを適用する。また、同様の負の二項分布モデルも併せて検討する。     
+
+$$
+\begin{aligned}
+&Whales_t \sim Poisson(\mu_t)\\
+&E(Whales) = \mu_t \\
+&log(\mu_t) = Intercept + a_t\\
+&a_t = a_{t-1} + v_t\\
+&v_t \sim N(0, \sigma^2_v)
+&
+\end{aligned}
+$$
+
+データは以下の通り。  
+```{r}
+sw <- read_delim("data/Spermwhales.txt") %>% 
+  filter(Year >= 1563 & Year <= 2001)
+
+datatable(sw,
+          options = list(scrollX = 30),
+          filter = "top")
+```
+<br/>  
+
+モデルは以下のように実行できる。  
+```{r}
+## ポワソンモデル  
+f14_7 <- Nsea ~ f(Year, model = "rw1")
+
+m14_7 <- inla(f14_7,
+              control.predictor(compute = TRUE),
+              family = "poisson",
+              data = sw)
+
+## 負の二項分布モデル  
+f14_8 <- Nsea ~ f(Year, model = "rw1")
+
+m14_8 <- inla(f14_8,
+              control.predictor(compute = TRUE),
+              family = "nbinomial",
+              data = sw)
+```
+
+ポワソン分布モデルと負の二項分布モデルのランダムウォークトレンド($a_t$)を図示したのが図\@ref(fig:rwtrend-whales1)である。ポワソン分布モデルの方がよりガタガタしているのは、応答変数に0が非常に多いからである(82%が0である)。負の二項分布の方がこうしたゼロ過剰のデータにより対応できている。  
+
+```{r rwtrend-whales1, fig.cap = "A: random walk trend of the Poisson GLMM. B: Random walk trend of a negative binomial GLMM."}
+a_poisson <- m14_7$summary.random$Year
+a_nbinom <- m14_8$summary.random$Year
+
+bind_rows(a_poisson, a_nbinom) %>% 
+  mutate(model = rep(c("Poisson","Negbinom"), each = nrow(sw))) %>% 
+  mutate(model = fct_relevel(model, "Poisson")) %>% 
+  rename(Year = ID) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0, color = "black", linetype = "dashed")+
+  geom_hline(yintercept = 0,
+             linetype = "dotted",
+             linewidth = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  facet_rep_wrap(~model, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  labs(y = "Random walk trend")
+```
+
+## Multivariate time series for Hawaiian birds  
+
+### Importing and preparing the data  
+本節では、 @Zuur2007 と @Reed2011 で分析されている、ハワイに生息する3種の固有種を1年に2回測定したデータを用いる。  
+
+データは以下の通り。`Birds`は確認された羽数を、`Year`は観測年を、`Species`は種のID(1: stilts, 2: coots, 3: moorhen)を、`Island`はデータを取得した島(1: オアフ, 2: マウイ, 3: カウアイとニイハウ)を示す。`Species`と`Island`は実際の名前を記した変数を作成する。  
+```{r}
+hb <- read_delim("data/HawaiiBirdsV2.txt")
+
+speciesname <- c("Stilts", "Coots", "moorhens")
+islandname <- c("Oahu", "Maui", "Kauai and Niihau")
+
+hb2 <- hb %>% 
+  mutate(fSpecies = speciesname[hb$Species],
+         fIsland = islandname[hb$Island]) %>% 
+  mutate(species_island = str_c(fSpecies, ".",fIsland))
+
+datatable(hb2,
+          options = list(scrollX = 30),
+          filter = "top")
+```
+
+### Data exploration  
