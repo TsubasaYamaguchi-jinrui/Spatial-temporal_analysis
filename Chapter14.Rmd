@@ -606,17 +606,817 @@ bind_rows(a_poisson, a_nbinom) %>%
 ```{r}
 hb <- read_delim("data/HawaiiBirdsV2.txt")
 
-speciesname <- c("Stilts", "Coots", "moorhens")
+speciesname <- c("Stilts", "Coots", "Moorhens")
 islandname <- c("Oahu", "Maui", "Kauai and Niihau")
 
 hb2 <- hb %>% 
   mutate(fSpecies = speciesname[hb$Species],
          fIsland = islandname[hb$Island]) %>% 
-  mutate(species_island = str_c(fSpecies, ".",fIsland))
+  mutate(species_island = str_c(fSpecies, ".",fIsland)) %>% 
+  mutate(fSpecies = fct_relevel(fSpecies, "Stilts", "Moorhens"),
+         fIsland = fct_relevel(fIsland, "Maui", "Oahu")) 
 
 datatable(hb2,
           options = list(scrollX = 30),
           filter = "top")
 ```
 
-### Data exploration  
+### Data exploration   
+各島における各種の羽数の推移を示したのが図\@ref(fig:hb-dataexplore)である。島ごとにトレンドは異なっていそうである。一方で、オアフ島のMoorhensとCootsは似たトレンドを持つ。    
+
+```{r hb-dataexplore, fig.cap = "Time-series  plot  of  the  bird  abundance  at three islands  and three species.",fig.dim = c(8,5)}
+hb2 %>% 
+  ggplot(aes(x = Year, y = Birds))+
+  geom_point()+
+  geom_line()+
+  facet_rep_grid(fSpecies ~ fIsland,
+                 repeat.tick.labels = TRUE,
+                 scales = "free")+
+  theme_bw()+
+  labs(y = "Bird abundance")
+```
+<br/>  
+
+### Model formulation  
+ここでは、負の二項分布モデルを用いる。考えなければいけないのは、トレンド項をどのように扱うかである。以下の4つのパターンが考えられる。  
+
+1. 全ての島のすべての種が同じトレンドを持つ  
+2. 島ごとに異なるトレンドを持つが、種によるトレンドの違いはない   
+3. 種ごとに異なるトレンドを持つが、島によるトレンドの違いはない  
+4. 各島の各種ごとに異なるトレンドを持つ  
+
+いずれのモデルでもモデルの以下の部分は変わらない。なお、$t$は年を、$i$は種を、$j$は島を表す添え字である。    
+
+$$
+\begin{aligned}
+&Birds_{tij} \sim NB(\mu_{tij}, \theta)\\
+&E(Birds_{tij}) = \mu_{tij} \\
+&var(Birds_{tij}) = \mu_{tij} + \mu_{tij}^2/\theta
+\end{aligned}
+$$
+
+一方で、$\mu_{tij}$をどうモデリングするかが4つの場合で異なる。$a_{tij}$は8つの時系列ごとに異なる切片である。    
+
+$$
+\begin{aligned}
+log(\mu_{tij})= 
+\begin{cases}  
+a_{tij} + Trend_t \;\; &(1)\\
+a_{tij} + Trend_{tj} \;\; &(2)\\
+a_{tij} + Trend_{ti} \;\; &(3)\\
+a_{tij} + Trend_{tij} \;\; &(4)
+\end{cases}
+\end{aligned}
+$$
+
+### Executing the models  
+#### One trend for all series  
+それでは、まず1の場合のモデルを実行する。データから応答変数が欠損値である行を削除する。  
+```{r}
+hb3 <- hb2 %>% 
+  drop_na(Birds)
+```
+
+ハイパーパラメータの事前分布には、$U=1$のPC事前分布を用いる。  
+```{r}
+hyper.prec <- list(theta = list(prior = "pc.prec",
+                                param = c(1, 0.01)))
+
+f14_9a <- Birds ~ species_island + f(Year, model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec)
+
+m14_9a <- inla(f14_9a,
+               control.compute = list(dic = TRUE),
+               family = "nbinomial",
+               data = hb3)
+```
+
+モデルの事後平均から算出したピアソン残差は以下のように求められる。  
+```{r}
+mu <- m14_9a$summary.fitted.values$mean
+theta <- m14_9a$summary.hyperpar[1,1]
+E1 <- (hb3$Birds - mu)/sqrt(mu + mu^2/theta)
+```
+
+モデルから求められた$\mu_{tij}$の事後平均とその95%確信区間を図示すると図\@ref(fig:fit-m14-9a)のようになる。これらの曲線は、切片以外はすべて同じである。    
+
+```{r fit-m14-9a, fig.dim = c(8,5), fig.cap = "Fitted values of the model m14_9a"}
+m14_9a$summary.fitted.values %>% 
+  bind_cols(hb3) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0.2)+
+  geom_point(aes(y = Birds))+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  facet_rep_grid(fSpecies~fIsland, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  labs(y = "Bird abundance")
+```
+<br/>  
+
+モデルの事後平均から算出したピアソン残差を用いて分散パラメータを算出すると、やや過少分散？   
+```{r}
+mu_a <- m14_9a$summary.fitted.values$mean
+theta_a <- m14_9a$summary.hyperpar[1,1]
+E1_a <- (hb3$Birds - mu_a)/sqrt(mu_a + mu^2/theta_a)
+p_a <- nrow(m14_9a$summary.fixed)
+N <- nrow(hb3)
+
+phi_a <- sum(E1^2)/(N - p_a)
+
+phi_a
+```
+
+最後に、残差の自己相関を調べる。  
+```{r}
+hb3 %>% 
+  mutate(resid = E1_a) %>% 
+  group_by(species_island) %>% 
+  arrange(Year, .by_group = TRUE) -> hb3b
+
+species_island <- unique(hb3b$species_island)
+all.out_a <- NULL
+
+for(i in seq_along(species_island)){
+  data <- hb3b %>% filter(species_island == species_island[i])
+  
+  out.acf <- acf(data$resid,
+                 lag.max = 15,
+                 plot = FALSE)
+  
+  out.df <- data.frame(Timelag = out.acf$lag,
+                       Acf = out.acf$acf,
+                       SE = qnorm(0.975)/sqrt(out.acf$n.used),
+                       ID = species_island[i])
+  
+  all.out_a <- bind_rows(all.out_a, out.df)
+}
+```
+
+自己相関はまだかなり残っている。  
+```{r}
+all.out_a %>% 
+  ggplot(aes(x = Timelag, y = 0))+
+  geom_segment(aes(xend = Timelag, yend = Acf))+
+  geom_ribbon(aes(ymax = SE, ymin = -SE),
+              alpha = 0.3)+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  facet_rep_wrap(~ID, repeat.tick.labels = TRUE)+
+  labs(y = "Auto-correlation")
+```
+
+#### One trend for each island  
+続いて、2のモデルを実行する。このモデルでは、各島ごとに異なるトレンドがあると仮定する。  
+
+このようなモデルを実行するとき、まず複数のランダムウォークの事前分布を標準化する必要がある。  
+```{r}
+inla.setOption(scale.model.default = TRUE)
+```
+
+また、新たな変数として、各島を表すダミー変数を作成する。また、`Year`を3つのモデルに使用するので観察年を含む`Year2`、`Year3`という変数も作成する。    
+```{r}
+hb3 %>% 
+  mutate(Oahu = as.numeric(fIsland == "Oahu"),
+         Maui = as.numeric(fIsland == "Maui"),
+         KN = as.numeric(fIsland == "Kauai and Niihau")) %>% 
+  mutate(Year2 = Year,
+         Year3 = Year)-> hb4
+```
+
+モデルは以下のように実行できる。  
+```{r}
+f14_9b <- Birds ~ species_island + f(Year, Oahu,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year2, Maui,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year3, KN,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec)
+  
+
+m14_9b<- inla(f14_9b,
+               control.compute = list(dic = TRUE),
+               family = "nbinomial",
+               data = hb4)
+```
+
+3つのランダムウォークごとに$\sigma_v$が推定されている。  
+```{r}
+m14_9b$summary.hyperpar
+```
+
+
+モデルから求められた$\mu_{tij}$の事後平均とその95%確信区間を図示すると図\@ref(fig:fit-m14-9b)のようになる。  
+```{r fit-m14-9b, fig.dim = c(8,5), fig.cap = "Fitted values of the model m14_9b"}
+m14_9b$summary.fitted.values %>% 
+  bind_cols(hb4) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0.2)+
+  geom_point(aes(y = Birds))+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  facet_rep_grid(fSpecies~fIsland, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  labs(y = "Bird abundance")
+```
+<br/>  
+
+先ほどのモデルと比較すると、トレンドを島ごとにした方がはるかに良い。  
+```{r}
+c(m14_9a$dic$dic, m14_9b$dic$dic)
+```
+
+モデルの事後平均から算出したピアソン残差を用いて分散パラメータを算出すると、やや過少分散？   
+```{r}
+mu_b <- m14_9b$summary.fitted.values$mean
+theta_b <- m14_9b$summary.hyperpar[1,1]
+E1_b <- (hb3$Birds - mu_b)/sqrt(mu_b + mu_b^2/theta_b)
+p_b <- nrow(m14_9b$summary.fixed)
+N <- nrow(hb4)
+
+phi_b <- sum(E1_b^2)/(N - p_b)
+
+phi_b
+```
+
+最後に、残差の自己相関を調べる。  
+```{r}
+hb4 %>% 
+  mutate(resid = E1_b) %>% 
+  group_by(species_island) %>% 
+  arrange(Year, .by_group = TRUE) -> hb4b
+
+species_island <- unique(hb4b$species_island)
+all.out_b <- NULL
+
+for(i in seq_along(species_island)){
+  data <- hb4b %>% filter(species_island == species_island[i])
+  
+  out.acf <- acf(data$resid,
+                 lag.max = 15,
+                 plot = FALSE)
+  
+  out.df <- data.frame(Timelag = out.acf$lag,
+                       Acf = out.acf$acf,
+                       SE = qnorm(0.975)/sqrt(out.acf$n.used),
+                       ID = species_island[i])
+  
+  all.out_b <- bind_rows(all.out_b, out.df)
+}
+```
+
+自己相関はまだかなり残っているように見える。  
+```{r}
+all.out_b %>% 
+  ggplot(aes(x = Timelag, y = 0))+
+  geom_segment(aes(xend = Timelag, yend = Acf))+
+  geom_ribbon(aes(ymax = SE, ymin = -SE),
+              alpha = 0.3)+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  facet_rep_wrap(~ID, repeat.tick.labels = TRUE)+
+  labs(y = "Auto-correlation")
+```
+
+#### One trend for each species    
+続いて、3のモデルを実行する。このモデルでは、各種ごとに異なるトレンドがあると仮定する。  
+
+新たな変数として、各島を表すダミー変数を作成する。また、`Year`を3つのモデルに使用するので観察年を含む`Year2`、`Year3`という変数も作成する。    
+```{r}
+hb3 %>% 
+  mutate(Stilts = as.numeric(fSpecies == "Stilts"),
+         Coots = as.numeric(fSpecies == "Coots"),
+         Moorhens = as.numeric(fSpecies == "Moorhens")) %>% 
+  mutate(Year2 = Year,
+         Year3 = Year)-> hb5
+```
+
+モデルは以下のように実行できる。  
+```{r}
+f14_9c <- Birds ~ species_island + f(Year, Stilts,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year2, Coots,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year3, Moorhens,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec)
+  
+
+m14_9c <- inla(f14_9c,
+               control.compute = list(dic = TRUE),
+               family = "nbinomial",
+               data = hb5)
+```
+
+モデルから求められた$\mu_{tij}$の事後平均とその95%確信区間を図示すると図\@ref(fig:fit-m14-9c)のようになる。  
+```{r fit-m14-9c, fig.dim = c(8,5), fig.cap = "Fitted values of the model m14_9c"}
+m14_9c$summary.fitted.values %>% 
+  bind_cols(hb4) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0.2)+
+  geom_point(aes(y = Birds))+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  facet_rep_grid(fSpecies~fIsland, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  labs(y = "Bird abundance")
+```
+<br/>  
+
+モデルの事後平均から算出したピアソン残差を用いて分散パラメータを算出すると、やや過少分散？   
+```{r}
+mu_c <- m14_9c$summary.fitted.values$mean
+theta_c <- m14_9c$summary.hyperpar[1,1]
+E1_c <- (hb3$Birds - mu_c)/sqrt(mu_c + mu_c^2/theta_c)
+p_c <- nrow(m14_9c$summary.fixed)
+N <- nrow(hb5)
+
+phi_c <- sum(E1_c^2)/(N - p_c)
+
+phi_c
+```
+
+最後に、残差の自己相関を調べる。  
+```{r}
+hb5 %>% 
+  mutate(resid = E1_c) %>% 
+  group_by(species_island) %>% 
+  arrange(Year, .by_group = TRUE) -> hb5b
+
+species_island <- unique(hb5b$species_island)
+all.out_c <- NULL
+
+for(i in seq_along(species_island)){
+  data <- hb5b %>% filter(species_island == species_island[i])
+  
+  out.acf <- acf(data$resid,
+                 lag.max = 15,
+                 plot = FALSE)
+  
+  out.df <- data.frame(Timelag = out.acf$lag,
+                       Acf = out.acf$acf,
+                       SE = qnorm(0.975)/sqrt(out.acf$n.used),
+                       ID = species_island[i])
+  
+  all.out_c <- bind_rows(all.out_b, out.df)
+}
+```
+
+自己相関はまだかなり残っているように見える。  
+```{r}
+all.out_c %>% 
+  ggplot(aes(x = Timelag, y = 0))+
+  geom_segment(aes(xend = Timelag, yend = Acf))+
+  geom_ribbon(aes(ymax = SE, ymin = -SE),
+              alpha = 0.3)+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  facet_rep_wrap(~ID, repeat.tick.labels = TRUE)+
+  labs(y = "Auto-correlation")
+```
+
+#### One trend for each species and island combination  
+最後に、4のモデルを実行する。このモデルでは、各島の各種ごとに異なるトレンドがあると仮定する。  
+
+新たな変数として、島と種の組み合わせを表すダミー変数を作成する。また、`Year`を8つのモデルに使用するので観察年を含む`Year2`から`Year8`という変数も作成する。    
+```{r}
+hb3 %>% 
+  mutate(Stilts_Oahu = as.numeric(species_island == "Stilts.Oahu"),
+         Stilts_Maui = as.numeric(species_island == "Stilts.Maui"),
+         Stilts_KN = as.numeric(species_island == "Stilts.Kauai and Niihau"),
+         Coots_Oahu = as.numeric(species_island == "Coots.Oahu"),
+         Coots_Maui = as.numeric(species_island == "Coots.Maui"),
+         Coots_KN = as.numeric(species_island == "Coots.Kauai and Niihau"),
+         Moorhens_Oahu = as.numeric(species_island == "Moorhens.Oahu"),
+         Moorhens_Maui = as.numeric(species_island == "Moorhens.Maui")) %>% 
+  mutate(Year2 = Year,
+         Year3 = Year,
+         Year4 = Year,
+         Year5 = Year,
+         Year6 = Year,
+         Year7 = Year,
+         Year8 = Year) -> hb6
+```
+
+モデルは以下のように実行できる。  
+```{r}
+f14_9d <- Birds ~ species_island + f(Year, Stilts_Oahu,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year2, Stilts_Maui,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year3, Stilts_KN,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year4, Coots_Oahu,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year5, Coots_Maui,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year6, Coots_KN,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year7, Moorhens_Oahu,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year8, Moorhens_Maui,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) 
+  
+
+m14_9d <- inla(f14_9d,
+               control.compute = list(dic = TRUE),
+               family = "nbinomial",
+               data = hb6)
+```
+
+モデルから求められた$\mu_{tij}$の事後平均とその95%確信区間を図示すると図\@ref(fig:fit-m14-9d)のようになる。より実データに近い予測値になっていることが分かる。     
+```{r fit-m14-9d, fig.dim = c(8,5), fig.cap = "Fitted values of the model m14_9d"}
+m14_9d$summary.fitted.values %>% 
+  bind_cols(hb4) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0.2)+
+  geom_point(aes(y = Birds))+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  facet_rep_grid(fSpecies~fIsland, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  labs(y = "Bird abundance")
+```  
+<br/>  
+
+モデルの事後平均から算出したピアソン残差を用いて分散パラメータを算出すると、かなり過少分散？   
+```{r}
+mu_d <- m14_9d$summary.fitted.values$mean
+theta_d <- m14_9d$summary.hyperpar[1,1]
+E1_d <- (hb6$Birds - mu_d)/sqrt(mu_d + mu_d^2/theta_d)
+p_d <- nrow(m14_9d$summary.fixed)
+N <- nrow(hb6)
+
+phi_d <- sum(E1_d^2)/(N - p_d)
+
+phi_d
+```
+
+最後に、残差の自己相関を調べる。  
+```{r}
+hb6 %>% 
+  mutate(resid = E1_d) %>% 
+  group_by(species_island) %>% 
+  arrange(Year, .by_group = TRUE) -> hb6b
+
+species_island <- unique(hb6b$species_island)
+all.out_d <- NULL
+
+for(i in seq_along(species_island)){
+  data <- hb6b %>% filter(species_island == species_island[i])
+  
+  out.acf <- acf(data$resid,
+                 lag.max = 15,
+                 plot = FALSE)
+  
+  out.df <- data.frame(Timelag = out.acf$lag,
+                       Acf = out.acf$acf,
+                       SE = qnorm(0.975)/sqrt(out.acf$n.used),
+                       ID = species_island[i])
+  
+  all.out_d <- bind_rows(all.out_d, out.df)
+}
+```
+
+自己相関はほとんど消えている。  
+```{r}
+all.out_d %>% 
+  ggplot(aes(x = Timelag, y = 0))+
+  geom_segment(aes(xend = Timelag, yend = Acf))+
+  geom_ribbon(aes(ymax = SE, ymin = -SE),
+              alpha = 0.3)+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  facet_rep_wrap(~ID, repeat.tick.labels = TRUE)+
+  labs(y = "Auto-correlation")
+```
+
+### Mixing Poisson and negative binomial distributions  
+データを見てみると、時系列によってばらつきの大きさに差があることが分かる。このことから、**時系列ごとにポワソン分布を適用したり負の二項分布を適用**したらよりデータに合った分析ができ、先ほどのモデルで見られた過少分散も解決できる可能性があることが分かる。`INLA`ではこれを行うことができる。  
+
+この分析を行うためには、以下のように各列に各時系列のデータが入った以下のような行列を作成する必要がある。  
+```{r}
+Y <- matrix(NA, nrow = nrow(hb6), ncol = 8)
+
+hb6 %>% 
+  mutate(species_island = fct_relevel(species_island, unique(hb6$species_island))) -> hb6
+  
+hb6 %>% 
+  select(species_island, Birds, Year) %>% 
+  group_by(species_island) %>% 
+  arrange(Year, .by_group = TRUE) %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = species_island,
+              values_from = Birds) %>% 
+  select(-Year) -> hb7
+
+hb6 %>% 
+  group_by(species_island) %>% 
+  summarise(N = n()) %>% 
+  ungroup() %>% 
+  mutate(cum = cumsum(N))-> n_cat
+
+for(i in seq_along(species_island)){
+  if(i == 1){
+    Y[1:n_cat[[3]][i], i] <- na.omit(hb7[[i]])
+  }else{
+    Y[(n_cat[[3]][i-1]+1):n_cat[[3]][i], i] <- na.omit(hb7[[i]])
+  }
+}
+
+Y %>% 
+  data.frame()
+```
+<br/>  
+
+そして、この行列に加えて観察年などを含むリストを作成する。  
+
+```{r}
+data_list <- list(Birds = Y,
+                  Stilts_Oahu = hb6$Stilts_Oahu,
+                  Stilts_Maui = hb6$Stilts_Maui,
+                  Stilts_KN = hb6$Stilts_KN,
+                  Coots_Oahu = hb6$Coots_Oahu,
+                  Coots_Maui = hb6$Coots_Maui,
+                  Coots_KN = hb6$Coots_KN,
+                  Moorhens_Oahu = hb6$Moorhens_Oahu,
+                  Moorhens_Maui = hb6$Moorhens_Maui,
+                  species_island = hb6$species_island,
+                  Year = hb6$Year,
+                  Year2 = hb6$Year,
+                  Year3 = hb6$Year,
+                  Year4 = hb6$Year,
+                  Year5 = hb6$Year,
+                  Year6 = hb6$Year,
+                  Year7 = hb6$Year,
+                  Year8 = hb6$Year)
+```
+
+モデルは、以下のように実行できる。  
+```{r}
+f14_9e <- Birds ~ species_island + f(Year, Stilts_Oahu,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year2, Stilts_Maui,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year3, Stilts_KN,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year4, Coots_Oahu,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year5, Coots_Maui,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year6, Coots_KN,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year7, Moorhens_Oahu,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) +
+                                   f(Year8, Moorhens_Maui,
+                                     model = "rw1",
+                                     scale.model = TRUE,
+                                     hyper = hyper.prec) 
+  
+
+m14_9e <- inla(f14_9e,
+               control.compute = list(dic = TRUE),
+               family = c("nbinomial", "nbinomial", "nbinomial", "poisson", "poisson", "nbinomial", "nbinomial","nbinomial"),
+               data = data_list)
+```
+
+モデルの事後平均から算出したピアソン残差を用いて分散パラメータを算出すると、概ね過少分散が解消されている。   
+```{r}
+mu_e <- m14_9e$summary.fitted.values$mean
+theta_e <- m14_9e$summary.hyperpar[1,1]
+E1_e <- (hb6$Birds - mu_e)/sqrt(mu_e + mu_e^2/theta_e)
+p_e <- nrow(m14_9e$summary.fixed)
+N <- nrow(hb6)
+
+phi_e <- sum(E1_e^2)/(N - p_e)
+
+phi_e
+```
+
+モデルから求められた$\mu_{tij}$の事後平均とその95%確信区間を図示すると図\@ref(fig:fit-m14-9e)のようになる。より実データに近い予測値になっていることが分かる。     
+```{r fit-m14-9e, fig.dim = c(8,5), fig.cap = "Fitted values of the model m14_9d"}
+m14_9e$summary.fitted.values %>% 
+  bind_cols(hb4) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0.2)+
+  geom_point(aes(y = Birds))+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  facet_rep_grid(fSpecies~fIsland, repeat.tick.labels = TRUE,
+                 scales = "free")+
+  labs(y = "Bird abundance")
+```  
+<br/>  
+
+DICも先ほどより改善している。  
+```{r}
+c(m14_9d$dic$dic, m14_9e$dic$dic)
+```
+
+## AR1 trends  
+### AR1 trend regularly spaced time-series data  
+最後に、AR1モデルについて解説する。  
+
+ベニザケの回遊日を研究した @Crozier2011 のデータを用いるとき、AR1モデルは以下のように表せる。パラメータ$\rho$はトレンドがどの程度前年に依存しているかを表す係数である。$\rho = 1$であればランダムウォークモデルに一致する。  
+
+$$
+\begin{aligned}
+&MigDay_t = \rm{Intercept}  +  \mu_t + \epsilon_t \\ 
+&\mu_t = \rho \times \mu_{t-1} + v_t\\
+&\epsilon_t \sim N(0, \sigma^2_{\epsilon}) \; and \; v_t \sim N(0, \sigma^2_v)
+\end{aligned}
+(\#eq:AR1)
+$$
+
+ポワソンGLMに対してAR1モデルを適用するとき、もし$\rho = 0$であり、$\sigma_v$が大きければ、観察レベルランダム切片をもつポワソンGLMMと同じになる。  
+
+式\@ref(eq:AR1)を`INLA`で実行すると以下のようになる。  
+```{r}
+f14_10 <- MigDay ~  f(Year, model = "ar1")
+
+m14_10 <- inla(f14_10,
+              control.compute = list(dic = TRUE),
+              control.predictor = list(compute = TRUE),
+              family = "gaussian",
+              data = salmon)
+```
+
+予測値を描くと以下のようになる。**なぜかうまく回らない。原因は不明。**      
+```{r}
+m14_10$summary.fitted.values %>% 
+  bind_cols(salmon) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0, color = "black", linetype = "dashed")+
+  geom_point(aes(y = MigDay),
+             shape = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Observed and fitted values")
+```
+
+### AR1 trend for irregularly spaced time-series data  
+AR1モデルは基本的に時間的に等間隔に並んだデータに対して用いられる。本節では、そうではないとき(欠損値があるときなど)の対処法を解説する。  
+
+簡単に言えば、空間モデルでメッシュを作成したように、規則正しく並んだ時間的なポイントを作成することでこの問題に対処できる。このことを説明するため、南極大陸の3か所(コア)の氷から過去の大気中のCO2の割合を調べた @Etheridge1998 のデータを用いる。  
+
+```{r}
+co2 <- read_csv("data/IceCoresV2.csv") %>% 
+  rename(Year = MeanAirAgeYear,
+         CO2 = CO2MixingRatio)
+
+datatable(co2,
+          options = list(scrollX = 30),
+          filter = "top")
+```
+<br/>  
+
+図\@ref(fig:CO2)は、それぞれのコアにおけるCO2の割合を示したものである。産業革命以降に急激にCO2の割合が高くなっていることが分かるが、`DSS`のみが産業革命以前のデータを含んでいる。データ間の時間間隔は不規則である。    
+```{r CO2, fig.dim = c(9,4), fig.cap = "CO 2 mixing ratio (parts per million) plotted versus age (year). Each panel corresponds to a core."}
+co2 %>% 
+  ggplot(aes(x = Year, y = CO2))+
+  geom_point(shape = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 0.7)+
+  facet_rep_wrap(~Core, repeat.tick.labels = TRUE) +
+  labs(y = "CO2 Mixing ratio (ppm)",
+       x = "Air age (Year AD)")
+```
+<br/>  
+
+まずは、不規則性を考慮せずにモデルを適用する。全ての時系列でトレンドは同じだとする。    
+
+$$
+\begin{aligned}
+&CO2_{ti} = \mu_t + Core_i + \epsilon_{ti}\\
+&\mu_t = \rho \times \mu_{t-1} + v_t\\
+&\epsilon_{ti} \sim N(0,\sigma^2_{\epsilon}) \; and \; v_t \sim N(0, \sigma^2_v)
+\end{aligned}
+$$
+
+普通にモデルを回すと、例えば1006年と1046年、1096年の間隔は同じものとして処理される。モデルは以下のように実行できる。  
+```{r}
+f14_11a <- CO2 ~ -1 + Core + f(Year, model = "ar1") 
+
+m14_11a <- inla(f14_11a,
+               control.compute = list(dic = TRUE),
+               family = "gaussian",
+               data = co2)
+```
+
+この結果は、1006年を1、1046年を2、1096年を3としたときと同じ結果になる。  
+```{r}
+co2 %>% 
+  mutate(Year2 = as.numeric(as.factor(Year))) -> co2b
+
+f14_11b <- CO2 ~ -1 + Core + f(Year2, model = "ar1") 
+
+m14_11b <- inla(f14_11b,
+               control.compute = list(dic = TRUE),
+               family = "gaussian",
+               data = co2b)
+```
+
+`m14_11a`と`m14_11b`で推定された$\mu_t$の事後平均と95%確信区間を図示したのが図\@ref(fig:fit-m14-11)である。この図から、両モデルが全く同じことをしていたことが分かる。  
+
+```{r fit-m14-11, fig.cap = "Fitted values and 95% credible intervals for each model.", fig.dim = c(7.5,4)}
+m14_11a$summary.fitted.values %>% 
+  bind_cols(co2) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0.3)+
+  geom_point(aes(y = CO2),
+             shape = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Observed and fitted values") -> p1
+
+m14_11b$summary.fitted.values %>% 
+  bind_cols(co2) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0.3)+
+  geom_point(aes(y = CO2),
+             shape = 1)+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  labs(y = "Observed and fitted values") -> p2
+
+p1 + p2
+```
+<br/>  
+
+この問題を解決する一つの方法は、規則的に並んだノットを作成し、そのノットに対してトレンドを計算する方法である。例えば、50年ずつのノットを作成すると以下のようになる。    
+
+```{r, fig.dim = c(10,3)}
+co2 %>% 
+  ggplot(aes(x = Year, y = 0))+
+  geom_point(shape = "|",
+             size = 8)+
+  theme_classic()+
+  coord_cartesian(ylim = c(0,0.04))+
+  theme(aspect.ratio = 0.07)+
+  geom_vline(xintercept = seq(1000,2000, by = 50),
+             linetype = "dashed")+
+  scale_y_continuous(breaks = NULL)+
+  scale_x_continuous(breaks = seq(1000,2000,50))+
+  labs(y = "")
+```
+<br/>  
+
+
