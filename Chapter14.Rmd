@@ -1419,4 +1419,69 @@ co2 %>%
 ```
 <br/>  
 
+ノットを作成し、それぞれの観測年を最も近いノットに割り当てる。これは、空間モデルでメッシュを作成したときと似ている。以下のように、例えば最初の12このデータ(1953年から1969年)は20個目のノット(1950)に割り当てられる。   
+```{r}
+knots <- seq(1000,2000, by = 50)
 
+intervals <- findInterval(co2$Year,
+                          c(1000, knots, 2000))
+
+intervals
+```
+
+もしこのインターバルを用いてそのままモデリングを行うならば、以下のように式を書けばよい。  
+```{r}
+f14_12a <- CO2 ~ -1 + Core + f(intervals, model = "ar1")
+```
+
+ここでは、空間モデルのようにメッシュを用いたモデリングを行う。空間モデルと異なり、1次元のメッシュを作成し、投影行列$\bf{A}$を計算する。  
+
+```{r}
+mesh14_12 <- inla.mesh.1d(loc = knots)
+A14_12 <- inla.spde.make.A(mesh = mesh14_12,
+                           loc = co2$Year)
+```
+
+投影行列は$84 \times 21$(観察数×ノット数)からなり、各観測値がそのぞれのノットに依存する度合いが空間モデルのときの同じように計算されている。例えば、1つ目のデータ(1969年)は21個目のノット(2000年)に0.38、20個目のノット(1950年)に0.62依存している。これは単純にそれぞれのノットからの距離に反比例して決定されている($19/50 = 0.38, 31/50 = 0.62$)。    
+```{r}
+dim(A14_12)
+head(A14_12, 10)
+```
+
+トレンドは各ノットの位置で定義されるため、ノットの数だけ事後分布が得られる。空間モデルでは予測値を$\mathbf{A \times w}$で得たが、時系列モデルでは$\mathbf{A} \times \rm{Trend}$で得る。  
+
+それではモデルを実行する。空間モデルと同様に以下のようにして行う。    
+
+```{r}
+f14_12b <- CO2 ~ -1 + Core2 + Core3 + f(Year, model = "ar1")
+
+# ダミー変数
+X <- data.frame(Core2 = model.matrix(~Core, data = co2)[,2],
+                Core3 = model.matrix(~Core, data = co2)[,3])
+
+Stackfit14_12 <- inla.stack(tag = "Fit",
+                            data = list(CO2 = co2$CO2),
+                            A = list(1, A14_12),
+                            effects = list(X = X,
+                                           Year = knots))
+
+m14_12 <- inla(f14_12b,
+               control.compute(dic = TRUE),
+               control.predictor = list(A = inla.stack.A(Stackfit14_12)),
+               family = "gaussian",
+               data = inla.stack.data(Stackfit14_12))
+```
+
+モデルによって推定されたトレンドとその95%確信区間は以下のとおりである。  
+```{r}
+m14_12$summary.random$Year %>% 
+  rename(Year = ID) %>% 
+  ggplot(aes(x = Year, y = mean))+
+  geom_line()+
+  geom_ribbon(aes(ymax = `0.025quant`, ymin = `0.975quant`),
+              alpha = 0, color = "black", linetype = "dashed")+
+  theme_bw()+
+  theme(aspect.ratio = 0.8)+
+  labs(y = "Trend")
+```
+<br/>  

@@ -1863,6 +1863,70 @@ a_{tij} + Trend_{tij} \;\; &amp;(4)
 <span id="cb544-12"><a href="Chapter14.html#cb544-12" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;&quot;</span>)</span></code></pre></div>
 <p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-392-1.png" width="960" style="display: block; margin: auto;" />
 <br/></p>
+<p>ノットを作成し、それぞれの観測年を最も近いノットに割り当てる。これは、空間モデルでメッシュを作成したときと似ている。以下のように、例えば最初の12このデータ(1953年から1969年)は20個目のノット(1950)に割り当てられる。</p>
+<div class="sourceCode" id="cb545"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb545-1"><a href="Chapter14.html#cb545-1" tabindex="-1"></a>knots <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">1000</span>,<span class="dv">2000</span>, <span class="at">by =</span> <span class="dv">50</span>)</span>
+<span id="cb545-2"><a href="Chapter14.html#cb545-2" tabindex="-1"></a></span>
+<span id="cb545-3"><a href="Chapter14.html#cb545-3" tabindex="-1"></a>intervals <span class="ot">&lt;-</span> <span class="fu">findInterval</span>(co2<span class="sc">$</span>Year,</span>
+<span id="cb545-4"><a href="Chapter14.html#cb545-4" tabindex="-1"></a>                          <span class="fu">c</span>(<span class="dv">1000</span>, knots, <span class="dv">2000</span>))</span>
+<span id="cb545-5"><a href="Chapter14.html#cb545-5" tabindex="-1"></a></span>
+<span id="cb545-6"><a href="Chapter14.html#cb545-6" tabindex="-1"></a>intervals</span></code></pre></div>
+<pre><code>##  [1] 21 21 21 21 21 21 21 21 21 21 21 21 20 20 20 20 20 20 20 20 20 20 19 19 19
+## [26] 19 19 19 19 19 19 18 21 21 21 21 21 21 21 20 20 20 18 21 21 21 21 20 20 20
+## [51] 20 20 20 19 19 18 18 17 17 17 17 16 16 16 15 15 14 14 13 13 12 12 11 11 10
+## [76]  9  9  8  6  5  4  3  2  2</code></pre>
+<p>もしこのインターバルを用いてそのままモデリングを行うならば、以下のように式を書けばよい。</p>
+<div class="sourceCode" id="cb547"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb547-1"><a href="Chapter14.html#cb547-1" tabindex="-1"></a>f14_12a <span class="ot">&lt;-</span> CO2 <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Core <span class="sc">+</span> <span class="fu">f</span>(intervals, <span class="at">model =</span> <span class="st">&quot;ar1&quot;</span>)</span></code></pre></div>
+<p>ここでは、空間モデルのようにメッシュを用いたモデリングを行う。空間モデルと異なり、1次元のメッシュを作成し、投影行列<span class="math inline">\(\bf{A}\)</span>を計算する。</p>
+<div class="sourceCode" id="cb548"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb548-1"><a href="Chapter14.html#cb548-1" tabindex="-1"></a>mesh14_12 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.1d</span>(<span class="at">loc =</span> knots)</span>
+<span id="cb548-2"><a href="Chapter14.html#cb548-2" tabindex="-1"></a>A14_12 <span class="ot">&lt;-</span> <span class="fu">inla.spde.make.A</span>(<span class="at">mesh =</span> mesh14_12,</span>
+<span id="cb548-3"><a href="Chapter14.html#cb548-3" tabindex="-1"></a>                           <span class="at">loc =</span> co2<span class="sc">$</span>Year)</span></code></pre></div>
+<p>投影行列は<span class="math inline">\(84 \times 21\)</span>(観察数×ノット数)からなり、各観測値がそのぞれのノットに依存する度合いが空間モデルのときの同じように計算されている。例えば、1つ目のデータ(1969年)は21個目のノット(2000年)に0.38、20個目のノット(1950年)に0.62依存している。これは単純にそれぞれのノットからの距離に反比例して決定されている(<span class="math inline">\(19/50 = 0.38, 31/50 = 0.62\)</span>)。</p>
+<div class="sourceCode" id="cb549"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb549-1"><a href="Chapter14.html#cb549-1" tabindex="-1"></a><span class="fu">dim</span>(A14_12)</span></code></pre></div>
+<pre><code>## [1] 84 21</code></pre>
+<div class="sourceCode" id="cb551"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb551-1"><a href="Chapter14.html#cb551-1" tabindex="-1"></a><span class="fu">head</span>(A14_12, <span class="dv">10</span>)</span></code></pre></div>
+<pre><code>## 10 x 21 sparse Matrix of class &quot;dgCMatrix&quot;
+##                                                      
+##  [1,] . . . . . . . . . . . . . . . . . . . 0.62 0.38
+##  [2,] . . . . . . . . . . . . . . . . . . . 0.64 0.36
+##  [3,] . . . . . . . . . . . . . . . . . . . 0.70 0.30
+##  [4,] . . . . . . . . . . . . . . . . . . . 0.70 0.30
+##  [5,] . . . . . . . . . . . . . . . . . . . 0.74 0.26
+##  [6,] . . . . . . . . . . . . . . . . . . . 0.76 0.24
+##  [7,] . . . . . . . . . . . . . . . . . . . 0.76 0.24
+##  [8,] . . . . . . . . . . . . . . . . . . . 0.76 0.24
+##  [9,] . . . . . . . . . . . . . . . . . . . 0.76 0.24
+## [10,] . . . . . . . . . . . . . . . . . . . 0.94 0.06</code></pre>
+<p>トレンドは各ノットの位置で定義されるため、ノットの数だけ事後分布が得られる。空間モデルでは予測値を<span class="math inline">\(\mathbf{A \times w}\)</span>で得たが、時系列モデルでは<span class="math inline">\(\mathbf{A} \times \rm{Trend}\)</span>で得る。</p>
+<p>それではモデルを実行する。空間モデルと同様に以下のようにして行う。</p>
+<div class="sourceCode" id="cb553"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb553-1"><a href="Chapter14.html#cb553-1" tabindex="-1"></a>f14_12b <span class="ot">&lt;-</span> CO2 <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Core2 <span class="sc">+</span> Core3 <span class="sc">+</span> <span class="fu">f</span>(Year, <span class="at">model =</span> <span class="st">&quot;ar1&quot;</span>)</span>
+<span id="cb553-2"><a href="Chapter14.html#cb553-2" tabindex="-1"></a></span>
+<span id="cb553-3"><a href="Chapter14.html#cb553-3" tabindex="-1"></a><span class="co"># ダミー変数</span></span>
+<span id="cb553-4"><a href="Chapter14.html#cb553-4" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Core2 =</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>Core, <span class="at">data =</span> co2)[,<span class="dv">2</span>],</span>
+<span id="cb553-5"><a href="Chapter14.html#cb553-5" tabindex="-1"></a>                <span class="at">Core3 =</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>Core, <span class="at">data =</span> co2)[,<span class="dv">3</span>])</span>
+<span id="cb553-6"><a href="Chapter14.html#cb553-6" tabindex="-1"></a></span>
+<span id="cb553-7"><a href="Chapter14.html#cb553-7" tabindex="-1"></a>Stackfit14_12 <span class="ot">&lt;-</span> <span class="fu">inla.stack</span>(<span class="at">tag =</span> <span class="st">&quot;Fit&quot;</span>,</span>
+<span id="cb553-8"><a href="Chapter14.html#cb553-8" tabindex="-1"></a>                            <span class="at">data =</span> <span class="fu">list</span>(<span class="at">CO2 =</span> co2<span class="sc">$</span>CO2),</span>
+<span id="cb553-9"><a href="Chapter14.html#cb553-9" tabindex="-1"></a>                            <span class="at">A =</span> <span class="fu">list</span>(<span class="dv">1</span>, A14_12),</span>
+<span id="cb553-10"><a href="Chapter14.html#cb553-10" tabindex="-1"></a>                            <span class="at">effects =</span> <span class="fu">list</span>(<span class="at">X =</span> X,</span>
+<span id="cb553-11"><a href="Chapter14.html#cb553-11" tabindex="-1"></a>                                           <span class="at">Year =</span> knots))</span>
+<span id="cb553-12"><a href="Chapter14.html#cb553-12" tabindex="-1"></a></span>
+<span id="cb553-13"><a href="Chapter14.html#cb553-13" tabindex="-1"></a>m14_12 <span class="ot">&lt;-</span> <span class="fu">inla</span>(f14_12b,</span>
+<span id="cb553-14"><a href="Chapter14.html#cb553-14" tabindex="-1"></a>               <span class="fu">control.compute</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb553-15"><a href="Chapter14.html#cb553-15" tabindex="-1"></a>               <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">inla.stack.A</span>(Stackfit14_12)),</span>
+<span id="cb553-16"><a href="Chapter14.html#cb553-16" tabindex="-1"></a>               <span class="at">family =</span> <span class="st">&quot;gaussian&quot;</span>,</span>
+<span id="cb553-17"><a href="Chapter14.html#cb553-17" tabindex="-1"></a>               <span class="at">data =</span> <span class="fu">inla.stack.data</span>(Stackfit14_12))</span></code></pre></div>
+<p>モデルによって推定されたトレンドとその95%確信区間は以下のとおりである。</p>
+<div class="sourceCode" id="cb554"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb554-1"><a href="Chapter14.html#cb554-1" tabindex="-1"></a>m14_12<span class="sc">$</span>summary.random<span class="sc">$</span>Year <span class="sc">%&gt;%</span> </span>
+<span id="cb554-2"><a href="Chapter14.html#cb554-2" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Year =</span> ID) <span class="sc">%&gt;%</span> </span>
+<span id="cb554-3"><a href="Chapter14.html#cb554-3" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Year, <span class="at">y =</span> mean))<span class="sc">+</span></span>
+<span id="cb554-4"><a href="Chapter14.html#cb554-4" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span></span>
+<span id="cb554-5"><a href="Chapter14.html#cb554-5" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymax =</span> <span class="st">`</span><span class="at">0.025quant</span><span class="st">`</span>, <span class="at">ymin =</span> <span class="st">`</span><span class="at">0.975quant</span><span class="st">`</span>),</span>
+<span id="cb554-6"><a href="Chapter14.html#cb554-6" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">&quot;black&quot;</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb554-7"><a href="Chapter14.html#cb554-7" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb554-8"><a href="Chapter14.html#cb554-8" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="fl">0.8</span>)<span class="sc">+</span></span>
+<span id="cb554-9"><a href="Chapter14.html#cb554-9" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">&quot;Trend&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-398-1.png" width="672" style="display: block; margin: auto;" />
+<br/></p>
 
 </div>
 </div>
