@@ -1,4 +1,4 @@
-# Linear regression model with spatial dependency for the Irish pH data  
+# Linear regression model with spatial dependency for the Irish pH data {#c12}   
 本章では、前章で学んだ手法を実際の空間データに適用して分析を行う。  
 
 ## Introduction  

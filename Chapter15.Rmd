@@ -1,0 +1,181 @@
+# Spatial-temporal models for orange crowned warblers count data  
+## Introduction  
+本章では、競争の強さと捕食圧がサメズアカアメリカムシクイのコドモの数に及ぼす影響を調べた @Sofaer2014 のデータを用いる。それぞれの巣の産卵数が個体密度と年間降水量の関数としてモデル化されている。データは2003年から2009年の7年間取得されている。  
+
+```{r}
+ocw <- read_delim("data/OrangedCrownedWarblers.txt")
+
+ocwcoords <- st_as_sf(ocw,
+                      coords = c("Xloc", "Yloc"),
+                      crs = "+proj=utm +zone=11")
+
+## 緯度経度に変換
+lonlat <- st_transform(ocwcoords, crs = "+proj=longlat")
+
+## 元のデータフレームに緯度と経度を追加  
+ocw %>% 
+  mutate(lon = st_coordinates(lonlat)[,1],
+         lat = st_coordinates(lonlat)[,2]) -> ocw
+
+
+datatable(ocw,
+          options = list(scrollX = 30),
+          filter = "top")
+```
+<br/>  
+
+各巣の位置を年ごとに示したのが以下の図である。年ごとにサンプリング場所とその数は異なっている。  
+```{r}
+ocw %>% 
+  ggplot(aes(x =lon, y = lat))+
+  geom_point()+
+  theme_bw()+
+  coord_fixed(ratio = 1)+
+  facet_rep_wrap(~Year, repeat.tick.labels = TRUE)
+```
+
+## Poisson GLM  
+まずは、時空間相関を考えずに通常のポワソンGLMを適用する。`FL`は雛の数、`BreedingD`は繁殖ペアの密度、`Rain`は年間降水量である。    
+
+$$
+\begin{aligned}
+&FL_i \sim Poisson(\mu_i)\\
+&log(\mu_i) = \beta_1 + \beta_2 \times BreedingD_i + \beta_3 \times Rain_i
+\end{aligned}
+$$
+
+モデル化にあたり、変数を標準化する。  
+```{r}
+ocw %>% 
+  mutate(BD_std = (BreedingDensity - mean(BreedingDensity))/sd(BreedingDensity),
+         Rain_std = (Precip - mean(Precip))/sd(Precip)) -> ocw
+```
+
+モデルは以下のように実行する。  
+```{r}
+m15_1 <- inla(NumFledged ~ 1 + BD_std + Rain_std,
+              family = "poisson",
+              data = ocw,
+              control.compute = list(dic = TRUE,
+                                     config = TRUE))
+```
+
+それでは、このモデルの診断を行う。ピアソン残差は以下のように計算できる。  
+```{r}
+fit15_1 <- m15_1$summary.fitted.values$mean
+E15_1 <- (ocw$NumFledged - fit15_1)/sqrt(fit15_1)  
+```
+
+
+### Overdispersion -approach 1  
+まずは、過分散を確かめるために分散パラメータを計算する。結果は1.595...であり、やや過分散が生じていることが分かる。    
+
+```{r}
+sum(E15_1^2)/(nrow(ocw) - nrow(m15_1$summary.fixed))
+```
+
+### Overdispersion -approach 2  
+第\@ref(s9-1-3-1-2)節で見たように、ベイズモデリングではシミュレーションによって過分散を検討する方がより適切である。以下でシミュレートされたデータと実データを比較する。  
+
+```{r}
+set.seed(123)
+
+## 事後分布からサンプリング  
+nsim <- 1000
+sim_param <- inla.posterior.sample(n = nsim,
+                                   result = m15_1)
+
+## シミュレーションデータのぴ話損残差の平方和を計算
+y_sim <- matrix(nrow = nrow(ocw),
+                ncol = nsim)
+sum_E2_sim <- vector()
+
+for(i in 1:1000){
+ y_sim[,i] <- rpois(n = nrow(ocw), lambda = exp(sim_param[[i]]$latent[1:nrow(ocw),])) 
+ E <- (y_sim[,i] - fit15_1)/sqrt(fit15_1)
+ sum_E2_sim[i] <- sum(E^2)
+} 
+```
+
+実データとシミュレーションデータの観測値の頻度を比較したのが図\@ref(fig:freq-sim-m15-1)である。明らかに観測値の方が0が多く、また分布の裾が狭いことが分かる。1も極端に少ない。      
+```{r freq-sim-m15-1, fig.cap = "Simulated frequencies (blue) and observed frequencies (red)."}
+data.frame(y_sim) %>% 
+  pivot_longer(everything()) %>% 
+  group_by(name, value) %>% 
+  summarise(N = n()) %>% 
+  ungroup() %>% 
+  mutate(Freq = N/181) %>% 
+  group_by(value) %>% 
+  summarise(Frequency = mean(Freq)) %>% 
+  ungroup() %>% 
+  rename(NumFledged = 1) %>% 
+  mutate(type = "Simulated") -> freq_sim
+
+ocw %>% 
+  group_by(NumFledged) %>% 
+  summarise(N = n()) %>% 
+  mutate(Frequency = N/181) %>% 
+  ungroup() %>% 
+  select(-2) %>% 
+  mutate(type = "Observed") %>% 
+  bind_rows(freq_sim) %>% 
+  complete(NumFledged,  type) %>% 
+  ggplot(aes(x = NumFledged, y = Frequency))+
+  geom_col(aes(fill = type),
+           position = position_dodge(0.95))+
+  scale_fill_nejm()+
+  scale_x_continuous(breaks = seq(0,15,1))+
+  theme_bw()+
+  theme(legend.position = c(0.9,0.9),
+        aspect.ratio = 0.8)+
+  labs(fill = "", x = "Number of fledged chixks")
+```
+<br/>  
+
+ピアソン残差の平方和の比較も行う。ヒストグラムがシミュレーションデータのピアソン残差の平方和の分布で、赤い点線が実データのものである。実データでは過分散が生じていることが分かる。  
+```{r}
+data.frame(pr = sum_E2_sim) %>% 
+  ggplot(aes(x = pr))+
+  geom_histogram(fill = "white",
+                 color = "black")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  geom_vline(xintercept = sum(E15_1^2),
+             color = "red3",
+             linetype = "dashed")+
+  geom_text(aes(x = 250, y = 80),
+            label = str_c("P = ", mean(sum(E15_1^2) < sum_E2_sim)))+
+  labs(x = "Pearson residuals")
+```
+
+## Model with spatial correlation  
+続いて、空間相関を考慮したモデルを実行する。モデル式は以下のようになる。共分散行列の成分は、マテルン関数を用いて定義する。    
+
+$$
+\begin{aligned}
+&FL_i \sim Poisson(\mu_i)\\
+&log(\mu_i) = \beta_1 + \beta_2 \times BreedingD_i + \beta_3 \times Rain_i + u_i\\
+&\mathbf{u} \sim GMRF(0, \mathbf{\Omega})
+\end{aligned}
+$$
+
+それでは、第\@ref(c12)でデモンストレーションを行った手順通りに準備を行う。まずは、メッシュを作成する。ひとまずは、以下のように作成する。このメッシュには571個の頂点が存在する。      
+
+```{r}
+Loc <- cbind(ocw$Xloc, ocw$Yloc)
+ConvHull <- inla.nonconvex.hull(Loc)
+mesh15_2 <- inla.mesh.2d(boundary = ConvHull,
+                         max.edge = 30, cutoff = 1)
+```
+
+続いて、揺曳マトリックス$\mathbf{A}$を定義する。  
+```{r}
+A15_2 <- inla.spde.make.A(mesh15_2, loc = Loc)
+```
+
+続いて、Matern関数を用いてSPDEを定義する。  
+```{r}
+spde15_2 <- inla.spde2.matern(mesh15_2, alpha = 2)
+```
+
+また、ランダム空間場$\mathbf{w}$を定義する。
