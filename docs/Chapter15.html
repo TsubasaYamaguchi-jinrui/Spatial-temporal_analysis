@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>14 Spatial-temporal models for orange crowned warblers count data | Introduction to spatial-temporal data anlysis using R</title>
+  <meta name="description" content="14 Spatial-temporal models for orange crowned warblers count data | Introduction to spatial-temporal data anlysis using R" />
+  <meta name="generator" content="bookdown 0.35 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="14 Spatial-temporal models for orange crowned warblers count data | Introduction to spatial-temporal data anlysis using R" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="14 Spatial-temporal models for orange crowned warblers count data | Introduction to spatial-temporal data anlysis using R" />
+  
+  
+  
+
+<meta name="author" content="Tsubasa Yamaguchi" />
+
+
+<meta name="date" content="2023-10-10" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="Chapter14.html"/>
+<link rel="next" href="sessioninfo.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<script src="libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.27/datatables.js"></script>
+<link href="libs/dt-core-1.12.1/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.12.1/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.12.1/js/jquery.dataTables.min.js"></script>
+<link href="libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet" />
+<script src="libs/nouislider-7.0.10/jquery.nouislider.min.js"></script>
+<link href="libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet" />
+<script src="libs/selectize-0.12.0/selectize.min.js"></script>
+<link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+<script src="libs/plotly-binding-4.10.1/plotly.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="custom_style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>本稿の目的</a></li>
+<li class="chapter" data-level="" data-path="Chapter0.html"><a href="Chapter0.html"><i class="fa fa-check"></i>0. パッケージの読み込み</a></li>
+<li class="chapter" data-level="1" data-path="Chapter2.html"><a href="Chapter2.html"><i class="fa fa-check"></i><b>1</b> Recognizing statistical dependency</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="Chapter2.html"><a href="Chapter2.html#pseudoreplication"><i class="fa fa-check"></i><b>1.1</b> Pseudoreplication</a>
+<ul>
+<li class="chapter" data-level="1.1.1" data-path="Chapter2.html"><a href="Chapter2.html#疑似反復とは"><i class="fa fa-check"></i><b>1.1.1</b> 疑似反復とは</a></li>
+<li class="chapter" data-level="1.1.2" data-path="Chapter2.html"><a href="Chapter2.html#時空間的な疑似反復"><i class="fa fa-check"></i><b>1.1.2</b> 時空間的な疑似反復</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="Chapter2.html"><a href="Chapter2.html#s1-2"><i class="fa fa-check"></i><b>1.2</b> Linear regression applied to spatial data</a>
+<ul>
+<li class="chapter" data-level="1.2.1" data-path="Chapter2.html"><a href="Chapter2.html#visualization"><i class="fa fa-check"></i><b>1.2.1</b> Visualization</a></li>
+<li class="chapter" data-level="1.2.2" data-path="Chapter2.html"><a href="Chapter2.html#dependency"><i class="fa fa-check"></i><b>1.2.2</b> Dependency</a></li>
+<li class="chapter" data-level="1.2.3" data-path="Chapter2.html"><a href="Chapter2.html#fit-the-model"><i class="fa fa-check"></i><b>1.2.3</b> Fit the model</a></li>
+<li class="chapter" data-level="1.2.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation"><i class="fa fa-check"></i><b>1.2.4</b> Model validation</a>
+<ul>
+<li class="chapter" data-level="1.2.4.1" data-path="Chapter2.html"><a href="Chapter2.html#check-homogeinity-and-model-misfit"><i class="fa fa-check"></i><b>1.2.4.1</b> Check homogeinity and model misfit</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2.5" data-path="Chapter2.html"><a href="Chapter2.html#check-spatial-dependence"><i class="fa fa-check"></i><b>1.2.5</b> Check spatial dependence</a></li>
+</ul></li>
+<li class="chapter" data-level="1.3" data-path="Chapter2.html"><a href="Chapter2.html#s2-2"><i class="fa fa-check"></i><b>1.3</b> GAM applied to temporal data</a>
+<ul>
+<li class="chapter" data-level="1.3.1" data-path="Chapter2.html"><a href="Chapter2.html#subnivium-temperature-data"><i class="fa fa-check"></i><b>1.3.1</b> Subnivium temperature data</a></li>
+<li class="chapter" data-level="1.3.2" data-path="Chapter2.html"><a href="Chapter2.html#sources-of-dependency"><i class="fa fa-check"></i><b>1.3.2</b> Sources of dependency</a></li>
+<li class="chapter" data-level="1.3.3" data-path="Chapter2.html"><a href="Chapter2.html#the-model"><i class="fa fa-check"></i><b>1.3.3</b> The model</a></li>
+<li class="chapter" data-level="1.3.4" data-path="Chapter2.html"><a href="Chapter2.html#model-validation-1"><i class="fa fa-check"></i><b>1.3.4</b> Model validation</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="Chapter3.html"><a href="Chapter3.html"><i class="fa fa-check"></i><b>2</b> Time series and GLS</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="Chapter3.html"><a href="Chapter3.html#ospreys"><i class="fa fa-check"></i><b>2.1</b> Ospreys</a></li>
+<li class="chapter" data-level="2.2" data-path="Chapter3.html"><a href="Chapter3.html#covariance-and-correlation-coefficients"><i class="fa fa-check"></i><b>2.2</b> Covariance and correlation coefficients</a></li>
+<li class="chapter" data-level="2.3" data-path="Chapter3.html"><a href="Chapter3.html#linear-regression-models"><i class="fa fa-check"></i><b>2.3</b> Linear regression models</a></li>
+<li class="chapter" data-level="2.4" data-path="Chapter3.html"><a href="Chapter3.html#focusing-on-the-residual-covariance-matrix"><i class="fa fa-check"></i><b>2.4</b> Focusing on the residual covariance matrix</a></li>
+<li class="chapter" data-level="2.5" data-path="Chapter3.html"><a href="Chapter3.html#dependency-and-the-covariance-matrix"><i class="fa fa-check"></i><b>2.5</b> Dependency and the covariance matrix</a></li>
+<li class="chapter" data-level="2.6" data-path="Chapter3.html"><a href="Chapter3.html#dealing-with-temporal-dependency"><i class="fa fa-check"></i><b>2.6</b> Dealing with temporal dependency</a>
+<ul>
+<li class="chapter" data-level="2.6.1" data-path="Chapter3.html"><a href="Chapter3.html#adelie-penguins"><i class="fa fa-check"></i><b>2.6.1</b> Adelie penguins</a></li>
+<li class="chapter" data-level="2.6.2" data-path="Chapter3.html"><a href="Chapter3.html#do-we-have-dependency"><i class="fa fa-check"></i><b>2.6.2</b> Do we have dependency?</a></li>
+<li class="chapter" data-level="2.6.3" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.3</b> Formulation of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.4" data-path="Chapter3.html"><a href="Chapter3.html#application-of-the-linear-regression-model"><i class="fa fa-check"></i><b>2.6.4</b> Application of the linear regression model</a></li>
+<li class="chapter" data-level="2.6.5" data-path="Chapter3.html"><a href="Chapter3.html#formulation-of-the-gls-model"><i class="fa fa-check"></i><b>2.6.5</b> Formulation of the GLS model</a></li>
+<li class="chapter" data-level="2.6.6" data-path="Chapter3.html"><a href="Chapter3.html#implementation-using-the-gls-function"><i class="fa fa-check"></i><b>2.6.6</b> Implementation using the gls function</a></li>
+</ul></li>
+<li class="chapter" data-level="2.7" data-path="Chapter3.html"><a href="Chapter3.html#multiple-time-series"><i class="fa fa-check"></i><b>2.7</b> Multiple time series</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="Chapter4.html"><a href="Chapter4.html"><i class="fa fa-check"></i><b>3</b> Spatial data and GLS</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="Chapter4.html"><a href="Chapter4.html#variogram-models-for-spatial-dependency"><i class="fa fa-check"></i><b>3.1</b> Variogram models for spatial dependency</a></li>
+<li class="chapter" data-level="3.2" data-path="Chapter4.html"><a href="Chapter4.html#application-on-the-irish-ph-data"><i class="fa fa-check"></i><b>3.2</b> Application on the Irish pH data</a></li>
+<li class="chapter" data-level="3.3" data-path="Chapter4.html"><a href="Chapter4.html#s4-3"><i class="fa fa-check"></i><b>3.3</b> Matern correlation function</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="Chapter5.html"><a href="Chapter5.html"><i class="fa fa-check"></i><b>4</b> Linear mixed-effects models and dependency</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="Chapter5.html"><a href="Chapter5.html#white-storks"><i class="fa fa-check"></i><b>4.1</b> White Storks</a></li>
+<li class="chapter" data-level="4.2" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-wrongly-as-one-way-nested"><i class="fa fa-check"></i><b>4.2</b> Considering the data (wrongly) as one-way nested</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="Chapter5.html"><a href="Chapter5.html#model-formulation"><i class="fa fa-check"></i><b>4.2.1</b> model formulation</a></li>
+</ul></li>
+<li class="chapter" data-level="4.3" data-path="Chapter5.html"><a href="Chapter5.html#fitting-the-one-way-nested-model-using-lmer"><i class="fa fa-check"></i><b>4.3</b> Fitting the one-way nested model using lmer</a></li>
+<li class="chapter" data-level="4.4" data-path="Chapter5.html"><a href="Chapter5.html#model-validation-2"><i class="fa fa-check"></i><b>4.4</b> Model validation</a></li>
+<li class="chapter" data-level="4.5" data-path="Chapter5.html"><a href="Chapter5.html#sketching-the-fitted-value"><i class="fa fa-check"></i><b>4.5</b> Sketching the fitted value</a></li>
+<li class="chapter" data-level="4.6" data-path="Chapter5.html"><a href="Chapter5.html#considering-the-data-correctly-as-two-way-nested"><i class="fa fa-check"></i><b>4.6</b> Considering the data (correctly) as two-way nested</a></li>
+<li class="chapter" data-level="4.7" data-path="Chapter5.html"><a href="Chapter5.html#differences-with-the-ar1-process-approach"><i class="fa fa-check"></i><b>4.7</b> Differences with the AR1 process approach</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="Chapter6.html"><a href="Chapter6.html"><i class="fa fa-check"></i><b>5</b> Modelling space explicitly</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="Chapter6.html"><a href="Chapter6.html#model-formulation-1"><i class="fa fa-check"></i><b>5.1</b> Model formulation</a></li>
+<li class="chapter" data-level="5.2" data-path="Chapter6.html"><a href="Chapter6.html#s6-2"><i class="fa fa-check"></i><b>5.2</b> Covariance matrix of the spatial random effect</a>
+<ul>
+<li class="chapter" data-level="5.2.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study"><i class="fa fa-check"></i><b>5.2.1</b> Simulation study</a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="Chapter6.html"><a href="Chapter6.html#spatial-temporal-correlation"><i class="fa fa-check"></i><b>5.3</b> Spatial-temporal correlation</a>
+<ul>
+<li class="chapter" data-level="5.3.1" data-path="Chapter6.html"><a href="Chapter6.html#simulation-study-continued"><i class="fa fa-check"></i><b>5.3.1</b> Simulation study (continued)</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="Chapter7.html"><a href="Chapter7.html"><i class="fa fa-check"></i><b>6</b> Introduction to Bayesian statistics</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="Chapter7.html"><a href="Chapter7.html#why-go-bayesian"><i class="fa fa-check"></i><b>6.1</b> Why go Bayesian?</a></li>
+<li class="chapter" data-level="6.2" data-path="Chapter7.html"><a href="Chapter7.html#s7-2"><i class="fa fa-check"></i><b>6.2</b> General probability rules</a></li>
+<li class="chapter" data-level="6.3" data-path="Chapter7.html"><a href="Chapter7.html#s7-3"><i class="fa fa-check"></i><b>6.3</b> The mean of a distribution</a></li>
+<li class="chapter" data-level="6.4" data-path="Chapter7.html"><a href="Chapter7.html#bayes-theorem-again"><i class="fa fa-check"></i><b>6.4</b> Bayes theorem again</a></li>
+<li class="chapter" data-level="6.5" data-path="Chapter7.html"><a href="Chapter7.html#s7-5"><i class="fa fa-check"></i><b>6.5</b> Conjugate priors</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="Chapter7.html"><a href="Chapter7.html#likelihood-function"><i class="fa fa-check"></i><b>6.5.1</b> Likelihood function</a></li>
+<li class="chapter" data-level="6.5.2" data-path="Chapter7.html"><a href="Chapter7.html#priors"><i class="fa fa-check"></i><b>6.5.2</b> Priors</a></li>
+<li class="chapter" data-level="6.5.3" data-path="Chapter7.html"><a href="Chapter7.html#posterior-distribution"><i class="fa fa-check"></i><b>6.5.3</b> Posterior distribution</a></li>
+<li class="chapter" data-level="6.5.4" data-path="Chapter7.html"><a href="Chapter7.html#diffuse-prior"><i class="fa fa-check"></i><b>6.5.4</b> Diffuse prior</a></li>
+<li class="chapter" data-level="6.5.5" data-path="Chapter7.html"><a href="Chapter7.html#informative-prior"><i class="fa fa-check"></i><b>6.5.5</b> Informative prior</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6" data-path="Chapter7.html"><a href="Chapter7.html#markov-chain-monte-carlo-simulation"><i class="fa fa-check"></i><b>6.6</b> Markov chain Monte Carlo simulation</a>
+<ul>
+<li class="chapter" data-level="6.6.1" data-path="Chapter7.html"><a href="Chapter7.html#underlying-idea"><i class="fa fa-check"></i><b>6.6.1</b> underlying idea</a></li>
+<li class="chapter" data-level="6.6.2" data-path="Chapter7.html"><a href="Chapter7.html#simple-example-of-mcmc-algorithm"><i class="fa fa-check"></i><b>6.6.2</b> Simple example of MCMC algorithm</a></li>
+<li class="chapter" data-level="6.6.3" data-path="Chapter7.html"><a href="Chapter7.html#methods-in-mcmc"><i class="fa fa-check"></i><b>6.6.3</b> Methods in MCMC</a></li>
+<li class="chapter" data-level="6.6.4" data-path="Chapter7.html"><a href="Chapter7.html#flowchart-for-running-a-model-in-stan"><i class="fa fa-check"></i><b>6.6.4</b> Flowchart for running a model in Stan</a>
+<ul>
+<li class="chapter" data-level="6.6.4.1" data-path="Chapter7.html"><a href="Chapter7.html#preparing-the-data-for-stan"><i class="fa fa-check"></i><b>6.6.4.1</b> Preparing the data for Stan</a></li>
+<li class="chapter" data-level="6.6.4.2" data-path="Chapter7.html"><a href="Chapter7.html#decide-model-formulation-and-priors"><i class="fa fa-check"></i><b>6.6.4.2</b> Decide model formulation and priors</a></li>
+<li class="chapter" data-level="6.6.4.3" data-path="Chapter7.html"><a href="Chapter7.html#preparing-stan-file"><i class="fa fa-check"></i><b>6.6.4.3</b> Preparing stan file</a></li>
+<li class="chapter" data-level="6.6.4.4" data-path="Chapter7.html"><a href="Chapter7.html#initial-values"><i class="fa fa-check"></i><b>6.6.4.4</b> Initial values</a></li>
+</ul></li>
+<li class="chapter" data-level="6.6.5" data-path="Chapter7.html"><a href="Chapter7.html#running-model-in-stan"><i class="fa fa-check"></i><b>6.6.5</b> Running model in Stan</a></li>
+<li class="chapter" data-level="6.6.6" data-path="Chapter7.html"><a href="Chapter7.html#assess-mixing"><i class="fa fa-check"></i><b>6.6.6</b> Assess mixing</a></li>
+</ul></li>
+<li class="chapter" data-level="6.7" data-path="Chapter7.html"><a href="Chapter7.html#integrated-nested-laplace-approximation"><i class="fa fa-check"></i><b>6.7</b> Integrated nested Laplace approximation</a>
+<ul>
+<li class="chapter" data-level="6.7.1" data-path="Chapter7.html"><a href="Chapter7.html#joint-posterior-distribution"><i class="fa fa-check"></i><b>6.7.1</b> Joint posterior distribution</a></li>
+<li class="chapter" data-level="6.7.2" data-path="Chapter7.html"><a href="Chapter7.html#marginal-distributions"><i class="fa fa-check"></i><b>6.7.2</b> Marginal distributions</a></li>
+<li class="chapter" data-level="6.7.3" data-path="Chapter7.html"><a href="Chapter7.html#back-to-high-school"><i class="fa fa-check"></i><b>6.7.3</b> Back to high school</a></li>
+<li class="chapter" data-level="6.7.4" data-path="Chapter7.html"><a href="Chapter7.html#inla"><i class="fa fa-check"></i><b>6.7.4</b> INLA</a></li>
+</ul></li>
+<li class="chapter" data-level="6.8" data-path="Chapter7.html"><a href="Chapter7.html#examples-using-r-inla"><i class="fa fa-check"></i><b>6.8</b> Examples using R-INLA</a>
+<ul>
+<li class="chapter" data-level="6.8.1" data-path="Chapter7.html"><a href="Chapter7.html#s7-8-1"><i class="fa fa-check"></i><b>6.8.1</b> Posterior summary</a></li>
+<li class="chapter" data-level="6.8.2" data-path="Chapter7.html"><a href="Chapter7.html#posterior-marginal-distributions"><i class="fa fa-check"></i><b>6.8.2</b> Posterior marginal distributions</a></li>
+</ul></li>
+<li class="chapter" data-level="6.9" data-path="Chapter7.html"><a href="Chapter7.html#追記"><i class="fa fa-check"></i><b>6.9</b> 追記</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="Chapter8.html"><a href="Chapter8.html"><i class="fa fa-check"></i><b>7</b> Multiple linear regression in R-INLA</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="Chapter8.html"><a href="Chapter8.html#introduction"><i class="fa fa-check"></i><b>7.1</b> Introduction</a></li>
+<li class="chapter" data-level="7.2" data-path="Chapter8.html"><a href="Chapter8.html#data-exploration"><i class="fa fa-check"></i><b>7.2</b> Data exploration</a></li>
+<li class="chapter" data-level="7.3" data-path="Chapter8.html"><a href="Chapter8.html#linear-regression-result"><i class="fa fa-check"></i><b>7.3</b> Linear regression result</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="Chapter8.html"><a href="Chapter8.html#executing-the-model-in-rinla"><i class="fa fa-check"></i><b>7.3.1</b> Executing the model in R=INLA</a></li>
+<li class="chapter" data-level="7.3.2" data-path="Chapter8.html"><a href="Chapter8.html#output-for-betas"><i class="fa fa-check"></i><b>7.3.2</b> Output for betas</a>
+<ul>
+<li class="chapter" data-level="7.3.2.1" data-path="Chapter8.html"><a href="Chapter8.html#numerical-output-for-the-betas"><i class="fa fa-check"></i><b>7.3.2.1</b> Numerical output for the betas</a></li>
+<li class="chapter" data-level="7.3.2.2" data-path="Chapter8.html"><a href="Chapter8.html#graphical-output-for-the-betas"><i class="fa fa-check"></i><b>7.3.2.2</b> Graphical output for the betas</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3.3" data-path="Chapter8.html"><a href="Chapter8.html#output-for-hyperparameters"><i class="fa fa-check"></i><b>7.3.3</b> Output for hyperparameters</a>
+<ul>
+<li class="chapter" data-level="7.3.3.1" data-path="Chapter8.html"><a href="Chapter8.html#numerical-output-for-hyper-parameters"><i class="fa fa-check"></i><b>7.3.3.1</b> Numerical output for hyper parameters</a></li>
+<li class="chapter" data-level="7.3.3.2" data-path="Chapter8.html"><a href="Chapter8.html#graphical-output-for-the-hyperparameters"><i class="fa fa-check"></i><b>7.3.3.2</b> Graphical output for the hyperparameters</a></li>
+</ul></li>
+<li class="chapter" data-level="7.3.4" data-path="Chapter8.html"><a href="Chapter8.html#fitted-model"><i class="fa fa-check"></i><b>7.3.4</b> Fitted model</a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="Chapter8.html"><a href="Chapter8.html#model-validation-3"><i class="fa fa-check"></i><b>7.4</b> Model validation</a></li>
+<li class="chapter" data-level="7.5" data-path="Chapter8.html"><a href="Chapter8.html#model-selection"><i class="fa fa-check"></i><b>7.5</b> Model selection</a>
+<ul>
+<li class="chapter" data-level="7.5.1" data-path="Chapter8.html"><a href="Chapter8.html#what-should-we-do"><i class="fa fa-check"></i><b>7.5.1</b> What should we do?</a></li>
+<li class="chapter" data-level="7.5.2" data-path="Chapter8.html"><a href="Chapter8.html#usind-the-dic"><i class="fa fa-check"></i><b>7.5.2</b> Usind the DIC</a>
+<ul>
+<li class="chapter" data-level="7.5.2.1" data-path="Chapter8.html"><a href="Chapter8.html#effective-number-of-parameters"><i class="fa fa-check"></i><b>7.5.2.1</b> Effective number of parameters</a></li>
+<li class="chapter" data-level="7.5.2.2" data-path="Chapter8.html"><a href="Chapter8.html#dic-related-output"><i class="fa fa-check"></i><b>7.5.2.2</b> DIC related output</a></li>
+<li class="chapter" data-level="7.5.2.3" data-path="Chapter8.html"><a href="Chapter8.html#model-selection-using-dic"><i class="fa fa-check"></i><b>7.5.2.3</b> Model selection using DIC</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5.3" data-path="Chapter8.html"><a href="Chapter8.html#waic"><i class="fa fa-check"></i><b>7.5.3</b> WAIC</a></li>
+<li class="chapter" data-level="7.5.4" data-path="Chapter8.html"><a href="Chapter8.html#out-of-sample-prediction"><i class="fa fa-check"></i><b>7.5.4</b> Out of sample prediction</a></li>
+<li class="chapter" data-level="7.5.5" data-path="Chapter8.html"><a href="Chapter8.html#posterior-predictive-check"><i class="fa fa-check"></i><b>7.5.5</b> Posterior predictive check</a>
+<ul>
+<li class="chapter" data-level="7.5.5.1" data-path="Chapter8.html"><a href="Chapter8.html#zuur-2017の方法"><i class="fa fa-check"></i><b>7.5.5.1</b> Zuur (2017)の方法</a></li>
+<li class="chapter" data-level="7.5.5.2" data-path="Chapter8.html"><a href="Chapter8.html#s8-5-5-2"><i class="fa fa-check"></i><b>7.5.5.2</b> 正しい方法</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7.6" data-path="Chapter8.html"><a href="Chapter8.html#s8-6"><i class="fa fa-check"></i><b>7.6</b> Visualizing the model</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="Chapter9.html"><a href="Chapter9.html"><i class="fa fa-check"></i><b>8</b> Mixed effects modelling in R-INLA to analysis otolith data</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="Chapter9.html"><a href="Chapter9.html#otoliths-in-plaice"><i class="fa fa-check"></i><b>8.1</b> Otoliths in plaice</a></li>
+<li class="chapter" data-level="8.2" data-path="Chapter9.html"><a href="Chapter9.html#model-formulation-2"><i class="fa fa-check"></i><b>8.2</b> Model formulation</a></li>
+<li class="chapter" data-level="8.3" data-path="Chapter9.html"><a href="Chapter9.html#dependency-1"><i class="fa fa-check"></i><b>8.3</b> Dependency</a></li>
+<li class="chapter" data-level="8.4" data-path="Chapter9.html"><a href="Chapter9.html#data-exploration-1"><i class="fa fa-check"></i><b>8.4</b> Data exploration</a></li>
+<li class="chapter" data-level="8.5" data-path="Chapter9.html"><a href="Chapter9.html#running-the-model-in-r-inla"><i class="fa fa-check"></i><b>8.5</b> Running the model in R-INLA</a></li>
+<li class="chapter" data-level="8.6" data-path="Chapter9.html"><a href="Chapter9.html#model-validation-4"><i class="fa fa-check"></i><b>8.6</b> Model validation</a></li>
+<li class="chapter" data-level="8.7" data-path="Chapter9.html"><a href="Chapter9.html#model-selection-1"><i class="fa fa-check"></i><b>8.7</b> Model selection</a></li>
+<li class="chapter" data-level="8.8" data-path="Chapter9.html"><a href="Chapter9.html#model-interpretation"><i class="fa fa-check"></i><b>8.8</b> Model interpretation</a>
+<ul>
+<li class="chapter" data-level="8.8.1" data-path="Chapter9.html"><a href="Chapter9.html#option-1-for-prediction-adding-extra-data"><i class="fa fa-check"></i><b>8.8.1</b> Option 1 for prediction: Adding extra data</a></li>
+<li class="chapter" data-level="8.8.2" data-path="Chapter9.html"><a href="Chapter9.html#s9-8-2"><i class="fa fa-check"></i><b>8.8.2</b> Option 2 for prediction: Using the <code>inla.make.lincombs</code></a></li>
+</ul></li>
+<li class="chapter" data-level="8.9" data-path="Chapter9.html"><a href="Chapter9.html#multiple-random-effects"><i class="fa fa-check"></i><b>8.9</b> Multiple random effects</a></li>
+<li class="chapter" data-level="8.10" data-path="Chapter9.html"><a href="Chapter9.html#changin-prior-of-fixed-parameters"><i class="fa fa-check"></i><b>8.10</b> Changin prior of fixed parameters</a></li>
+<li class="chapter" data-level="8.11" data-path="Chapter9.html"><a href="Chapter9.html#changing-priors-of-hyperparameters"><i class="fa fa-check"></i><b>8.11</b> Changing priors of hyperparameters</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="Chapter10.html"><a href="Chapter10.html"><i class="fa fa-check"></i><b>9</b> Poisson, negative binomial, binomial and g amma GLMs in R-INLA</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="Chapter10.html"><a href="Chapter10.html#poisson-and-negative-binomial-glms-in-r-inla"><i class="fa fa-check"></i><b>9.1</b> Poisson and negative binomial GLMs in R-INLA</a>
+<ul>
+<li class="chapter" data-level="9.1.1" data-path="Chapter10.html"><a href="Chapter10.html#introduction-1"><i class="fa fa-check"></i><b>9.1.1</b> Introduction</a></li>
+<li class="chapter" data-level="9.1.2" data-path="Chapter10.html"><a href="Chapter10.html#data-exploration-2"><i class="fa fa-check"></i><b>9.1.2</b> Data exploration</a></li>
+<li class="chapter" data-level="9.1.3" data-path="Chapter10.html"><a href="Chapter10.html#poisson-glm-an-r-inla"><i class="fa fa-check"></i><b>9.1.3</b> Poisson GLM an R-INLA</a>
+<ul>
+<li class="chapter" data-level="9.1.3.1" data-path="Chapter10.html"><a href="Chapter10.html#s10-1-3-1"><i class="fa fa-check"></i><b>9.1.3.1</b> Checking overdispersion</a></li>
+</ul></li>
+<li class="chapter" data-level="9.1.4" data-path="Chapter10.html"><a href="Chapter10.html#negative-binomial-glm-in-r-inla"><i class="fa fa-check"></i><b>9.1.4</b> Negative binomial GLM in R-INLA</a></li>
+<li class="chapter" data-level="9.1.5" data-path="Chapter10.html"><a href="Chapter10.html#model-selection-for-the-nb-glm"><i class="fa fa-check"></i><b>9.1.5</b> Model selection for the NB GLM</a></li>
+<li class="chapter" data-level="9.1.6" data-path="Chapter10.html"><a href="Chapter10.html#visualization-of-the-nb-glm"><i class="fa fa-check"></i><b>9.1.6</b> Visualization of the NB GLM</a></li>
+</ul></li>
+<li class="chapter" data-level="9.2" data-path="Chapter10.html"><a href="Chapter10.html#bernoulli-and-binomial-glm"><i class="fa fa-check"></i><b>9.2</b> Bernoulli and binomial GLM</a>
+<ul>
+<li class="chapter" data-level="9.2.1" data-path="Chapter10.html"><a href="Chapter10.html#bernoulli-glm"><i class="fa fa-check"></i><b>9.2.1</b> Bernoulli GLM</a></li>
+<li class="chapter" data-level="9.2.2" data-path="Chapter10.html"><a href="Chapter10.html#model-selection-with-the-marginal-likelihood"><i class="fa fa-check"></i><b>9.2.2</b> 10.2.2 Model selection with the marginal likelihood</a></li>
+<li class="chapter" data-level="9.2.3" data-path="Chapter10.html"><a href="Chapter10.html#binomial-glm"><i class="fa fa-check"></i><b>9.2.3</b> Binomial GLM</a></li>
+</ul></li>
+<li class="chapter" data-level="9.3" data-path="Chapter10.html"><a href="Chapter10.html#gamma-glm"><i class="fa fa-check"></i><b>9.3</b> Gamma GLM</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="Chapter11.html"><a href="Chapter11.html"><i class="fa fa-check"></i><b>10</b> Matern correlation and SPDE</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="Chapter11.html"><a href="Chapter11.html#continuous-gaussian-field"><i class="fa fa-check"></i><b>10.1</b> Continuous Gaussian field</a></li>
+<li class="chapter" data-level="10.2" data-path="Chapter11.html"><a href="Chapter11.html#models-that-we-have-in-mind"><i class="fa fa-check"></i><b>10.2</b> Models that we have in mind</a></li>
+<li class="chapter" data-level="10.3" data-path="Chapter11.html"><a href="Chapter11.html#matern-correlation"><i class="fa fa-check"></i><b>10.3</b> Matern correlation</a></li>
+<li class="chapter" data-level="10.4" data-path="Chapter11.html"><a href="Chapter11.html#spde-approach"><i class="fa fa-check"></i><b>10.4</b> SPDE approach</a>
+<ul>
+<li class="chapter" data-level="10.4.1" data-path="Chapter11.html"><a href="Chapter11.html#mesh"><i class="fa fa-check"></i><b>10.4.1</b> Mesh</a></li>
+<li class="chapter" data-level="10.4.2" data-path="Chapter11.html"><a href="Chapter11.html#finite-element-approach"><i class="fa fa-check"></i><b>10.4.2</b> Finite element approach</a></li>
+<li class="chapter" data-level="10.4.3" data-path="Chapter11.html"><a href="Chapter11.html#simulation-study-with-five-points"><i class="fa fa-check"></i><b>10.4.3</b> Simulation study with five points</a></li>
+</ul></li>
+<li class="chapter" data-level="10.5" data-path="Chapter11.html"><a href="Chapter11.html#weighting-factors-again"><i class="fa fa-check"></i><b>10.5</b> Weighting factors … again</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="Chapter12.html"><a href="Chapter12.html"><i class="fa fa-check"></i><b>11</b> Linear regression model with spatial dependency for the Irish pH data</a>
+<ul>
+<li class="chapter" data-level="11.1" data-path="Chapter12.html"><a href="Chapter12.html#introduction-2"><i class="fa fa-check"></i><b>11.1</b> Introduction</a></li>
+<li class="chapter" data-level="11.2" data-path="Chapter12.html"><a href="Chapter12.html#model-formulation-3"><i class="fa fa-check"></i><b>11.2</b> Model formulation</a></li>
+<li class="chapter" data-level="11.3" data-path="Chapter12.html"><a href="Chapter12.html#linear-regression-results"><i class="fa fa-check"></i><b>11.3</b> Linear regression results</a></li>
+<li class="chapter" data-level="11.4" data-path="Chapter12.html"><a href="Chapter12.html#model-validation-5"><i class="fa fa-check"></i><b>11.4</b> Model validation</a></li>
+<li class="chapter" data-level="11.5" data-path="Chapter12.html"><a href="Chapter12.html#adding-spatial-correlation-to-the-model"><i class="fa fa-check"></i><b>11.5</b> Adding spatial correlation to the model</a></li>
+<li class="chapter" data-level="11.6" data-path="Chapter12.html"><a href="Chapter12.html#defining-the-mesh-for-the-irish-ph-data"><i class="fa fa-check"></i><b>11.6</b> Defining the mesh for the Irish pH data</a></li>
+<li class="chapter" data-level="11.7" data-path="Chapter12.html"><a href="Chapter12.html#define-the-weight-factor-aik"><i class="fa fa-check"></i><b>11.7</b> Define the weight factor aik</a></li>
+<li class="chapter" data-level="11.8" data-path="Chapter12.html"><a href="Chapter12.html#define-the-spde"><i class="fa fa-check"></i><b>11.8</b> Define the SPDE</a></li>
+<li class="chapter" data-level="11.9" data-path="Chapter12.html"><a href="Chapter12.html#define-the-spatial-field"><i class="fa fa-check"></i><b>11.9</b> Define the spatial field</a></li>
+<li class="chapter" data-level="11.10" data-path="Chapter12.html"><a href="Chapter12.html#define-the-stack"><i class="fa fa-check"></i><b>11.10</b> Define the stack</a></li>
+<li class="chapter" data-level="11.11" data-path="Chapter12.html"><a href="Chapter12.html#define-the-formula-for-the-spatial-model"><i class="fa fa-check"></i><b>11.11</b> Define the formula for the spatial model</a></li>
+<li class="chapter" data-level="11.12" data-path="Chapter12.html"><a href="Chapter12.html#execute-the-spatial-model-in-r"><i class="fa fa-check"></i><b>11.12</b> Execute the spatial model in R</a></li>
+<li class="chapter" data-level="11.13" data-path="Chapter12.html"><a href="Chapter12.html#results"><i class="fa fa-check"></i><b>11.13</b> Results</a></li>
+<li class="chapter" data-level="11.14" data-path="Chapter12.html"><a href="Chapter12.html#model-selection-2"><i class="fa fa-check"></i><b>11.14</b> Model selection</a></li>
+<li class="chapter" data-level="11.15" data-path="Chapter12.html"><a href="Chapter12.html#model-validation-6"><i class="fa fa-check"></i><b>11.15</b> Model validation</a></li>
+<li class="chapter" data-level="11.16" data-path="Chapter12.html"><a href="Chapter12.html#s12-16"><i class="fa fa-check"></i><b>11.16</b> Model interpretation</a></li>
+<li class="chapter" data-level="11.17" data-path="Chapter12.html"><a href="Chapter12.html#detailed-information-about-the-stack"><i class="fa fa-check"></i><b>11.17</b> Detailed information about the stack</a>
+<ul>
+<li class="chapter" data-level="11.17.1" data-path="Chapter12.html"><a href="Chapter12.html#stack-for-the-fitted-model-again"><i class="fa fa-check"></i><b>11.17.1</b> Stack for the fitted model again</a></li>
+<li class="chapter" data-level="11.17.2" data-path="Chapter12.html"><a href="Chapter12.html#stack-for-the-new-covariate-values"><i class="fa fa-check"></i><b>11.17.2</b> Stack for the new covariate values</a></li>
+<li class="chapter" data-level="11.17.3" data-path="Chapter12.html"><a href="Chapter12.html#combine-the-two-stacks"><i class="fa fa-check"></i><b>11.17.3</b> Combine the two stacks</a></li>
+<li class="chapter" data-level="11.17.4" data-path="Chapter12.html"><a href="Chapter12.html#run-the-model"><i class="fa fa-check"></i><b>11.17.4</b> Run the model</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="Chapter13.html"><a href="Chapter13.html"><i class="fa fa-check"></i><b>12</b> Spatial Poisson models applied to plant diversity</a>
+<ul>
+<li class="chapter" data-level="12.1" data-path="Chapter13.html"><a href="Chapter13.html#introduction-3"><i class="fa fa-check"></i><b>12.1</b> Introduction</a></li>
+<li class="chapter" data-level="12.2" data-path="Chapter13.html"><a href="Chapter13.html#data-exploration-3"><i class="fa fa-check"></i><b>12.2</b> Data exploration</a>
+<ul>
+<li class="chapter" data-level="12.2.1" data-path="Chapter13.html"><a href="Chapter13.html#sampling-locations"><i class="fa fa-check"></i><b>12.2.1</b> Sampling locations</a></li>
+<li class="chapter" data-level="12.2.2" data-path="Chapter13.html"><a href="Chapter13.html#outliers"><i class="fa fa-check"></i><b>12.2.2</b> Outliers</a></li>
+<li class="chapter" data-level="12.2.3" data-path="Chapter13.html"><a href="Chapter13.html#collinearity"><i class="fa fa-check"></i><b>12.2.3</b> Collinearity</a></li>
+<li class="chapter" data-level="12.2.4" data-path="Chapter13.html"><a href="Chapter13.html#relationships"><i class="fa fa-check"></i><b>12.2.4</b> Relationships</a></li>
+<li class="chapter" data-level="12.2.5" data-path="Chapter13.html"><a href="Chapter13.html#number-of-zeros"><i class="fa fa-check"></i><b>12.2.5</b> Number of zeros</a></li>
+<li class="chapter" data-level="12.2.6" data-path="Chapter13.html"><a href="Chapter13.html#conclusions-data-exploration"><i class="fa fa-check"></i><b>12.2.6</b> Conclusions data exploration</a></li>
+</ul></li>
+<li class="chapter" data-level="12.3" data-path="Chapter13.html"><a href="Chapter13.html#model-formulation-4"><i class="fa fa-check"></i><b>12.3</b> Model formulation</a></li>
+<li class="chapter" data-level="12.4" data-path="Chapter13.html"><a href="Chapter13.html#glm-results"><i class="fa fa-check"></i><b>12.4</b> GLM results</a></li>
+<li class="chapter" data-level="12.5" data-path="Chapter13.html"><a href="Chapter13.html#adding-spatial-correlation-to-the-model-1"><i class="fa fa-check"></i><b>12.5</b> Adding spatial correlation to the model</a>
+<ul>
+<li class="chapter" data-level="12.5.1" data-path="Chapter13.html"><a href="Chapter13.html#model-formulation-5"><i class="fa fa-check"></i><b>12.5.1</b> Model formulation</a></li>
+<li class="chapter" data-level="12.5.2" data-path="Chapter13.html"><a href="Chapter13.html#mesh-1"><i class="fa fa-check"></i><b>12.5.2</b> Mesh</a></li>
+<li class="chapter" data-level="12.5.3" data-path="Chapter13.html"><a href="Chapter13.html#projector-matrix"><i class="fa fa-check"></i><b>12.5.3</b> Projector matrix</a></li>
+<li class="chapter" data-level="12.5.4" data-path="Chapter13.html"><a href="Chapter13.html#spde"><i class="fa fa-check"></i><b>12.5.4</b> SPDE</a></li>
+<li class="chapter" data-level="12.5.5" data-path="Chapter13.html"><a href="Chapter13.html#spatial-field"><i class="fa fa-check"></i><b>12.5.5</b> Spatial field</a></li>
+<li class="chapter" data-level="12.5.6" data-path="Chapter13.html"><a href="Chapter13.html#stack"><i class="fa fa-check"></i><b>12.5.6</b> Stack</a></li>
+<li class="chapter" data-level="12.5.7" data-path="Chapter13.html"><a href="Chapter13.html#formula"><i class="fa fa-check"></i><b>12.5.7</b> Formula</a></li>
+<li class="chapter" data-level="12.5.8" data-path="Chapter13.html"><a href="Chapter13.html#run-r-inla"><i class="fa fa-check"></i><b>12.5.8</b> Run R-INLA</a></li>
+<li class="chapter" data-level="12.5.9" data-path="Chapter13.html"><a href="Chapter13.html#inspect-results"><i class="fa fa-check"></i><b>12.5.9</b> Inspect results</a>
+<ul>
+<li class="chapter" data-level="12.5.9.1" data-path="Chapter13.html"><a href="Chapter13.html#plotting-interpolated-wk"><i class="fa fa-check"></i><b>12.5.9.1</b> Plotting interpolated wk</a></li>
+<li class="chapter" data-level="12.5.9.2" data-path="Chapter13.html"><a href="Chapter13.html#plotting-the-random-intercepts-ui"><i class="fa fa-check"></i><b>12.5.9.2</b> Plotting the random intercepts ui</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="12.6" data-path="Chapter13.html"><a href="Chapter13.html#simulating-from-the-model"><i class="fa fa-check"></i><b>12.6</b> Simulating from the model</a></li>
+<li class="chapter" data-level="12.7" data-path="Chapter13.html"><a href="Chapter13.html#what-to-write-in-a-paper"><i class="fa fa-check"></i><b>12.7</b> What to write in a paper</a></li>
+</ul></li>
+<li class="chapter" data-level="13" data-path="Chapter14.html"><a href="Chapter14.html"><i class="fa fa-check"></i><b>13</b> Time-series analysis in R-INLA</a>
+<ul>
+<li class="chapter" data-level="13.1" data-path="Chapter14.html"><a href="Chapter14.html#simulation-study-1"><i class="fa fa-check"></i><b>13.1</b> Simulation study</a></li>
+<li class="chapter" data-level="13.2" data-path="Chapter14.html"><a href="Chapter14.html#trends-in-migration-dates-of-sockeye-salmon"><i class="fa fa-check"></i><b>13.2</b> Trends in migration dates of sockeye salmon</a>
+<ul>
+<li class="chapter" data-level="13.2.1" data-path="Chapter14.html"><a href="Chapter14.html#applying-a-random-walk-trend-model"><i class="fa fa-check"></i><b>13.2.1</b> Applying a random walk trend model</a></li>
+<li class="chapter" data-level="13.2.2" data-path="Chapter14.html"><a href="Chapter14.html#posterior-distribution-of-sigmas"><i class="fa fa-check"></i><b>13.2.2</b> Posterior distribution of sigmas</a></li>
+<li class="chapter" data-level="13.2.3" data-path="Chapter14.html"><a href="Chapter14.html#covariates-and-trends"><i class="fa fa-check"></i><b>13.2.3</b> Covariates and trends</a></li>
+<li class="chapter" data-level="13.2.4" data-path="Chapter14.html"><a href="Chapter14.html#making-the-trend-smoother"><i class="fa fa-check"></i><b>13.2.4</b> Making the trend smoother</a>
+<ul>
+<li class="chapter" data-level="13.2.4.1" data-path="Chapter14.html"><a href="Chapter14.html#changing-the-values-of-the-gamma-prior"><i class="fa fa-check"></i><b>13.2.4.1</b> Changing the values of the gamma prior</a></li>
+<li class="chapter" data-level="13.2.4.2" data-path="Chapter14.html"><a href="Chapter14.html#changing-the-gamma-prior-to-the-pc-prior"><i class="fa fa-check"></i><b>13.2.4.2</b> changing the gamma prior to the PC prior</a></li>
+<li class="chapter" data-level="13.2.4.3" data-path="Chapter14.html"><a href="Chapter14.html#changing-the-random-walk-model-rw2"><i class="fa fa-check"></i><b>13.2.4.3</b> Changing the random walk model: rw2</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="13.3" data-path="Chapter14.html"><a href="Chapter14.html#trends-in-polar-bear-movements"><i class="fa fa-check"></i><b>13.3</b> Trends in polar bear movements</a></li>
+<li class="chapter" data-level="13.4" data-path="Chapter14.html"><a href="Chapter14.html#trends-in-whale-strandings"><i class="fa fa-check"></i><b>13.4</b> Trends in whale strandings</a></li>
+<li class="chapter" data-level="13.5" data-path="Chapter14.html"><a href="Chapter14.html#multivariate-time-series-for-hawaiian-birds"><i class="fa fa-check"></i><b>13.5</b> Multivariate time series for Hawaiian birds</a>
+<ul>
+<li class="chapter" data-level="13.5.1" data-path="Chapter14.html"><a href="Chapter14.html#importing-and-preparing-the-data"><i class="fa fa-check"></i><b>13.5.1</b> Importing and preparing the data</a></li>
+<li class="chapter" data-level="13.5.2" data-path="Chapter14.html"><a href="Chapter14.html#data-exploration-4"><i class="fa fa-check"></i><b>13.5.2</b> Data exploration</a></li>
+<li class="chapter" data-level="13.5.3" data-path="Chapter14.html"><a href="Chapter14.html#model-formulation-6"><i class="fa fa-check"></i><b>13.5.3</b> Model formulation</a></li>
+<li class="chapter" data-level="13.5.4" data-path="Chapter14.html"><a href="Chapter14.html#executing-the-models"><i class="fa fa-check"></i><b>13.5.4</b> Executing the models</a>
+<ul>
+<li class="chapter" data-level="13.5.4.1" data-path="Chapter14.html"><a href="Chapter14.html#one-trend-for-all-series"><i class="fa fa-check"></i><b>13.5.4.1</b> One trend for all series</a></li>
+<li class="chapter" data-level="13.5.4.2" data-path="Chapter14.html"><a href="Chapter14.html#one-trend-for-each-island"><i class="fa fa-check"></i><b>13.5.4.2</b> One trend for each island</a></li>
+<li class="chapter" data-level="13.5.4.3" data-path="Chapter14.html"><a href="Chapter14.html#one-trend-for-each-species"><i class="fa fa-check"></i><b>13.5.4.3</b> One trend for each species</a></li>
+<li class="chapter" data-level="13.5.4.4" data-path="Chapter14.html"><a href="Chapter14.html#one-trend-for-each-species-and-island-combination"><i class="fa fa-check"></i><b>13.5.4.4</b> One trend for each species and island combination</a></li>
+</ul></li>
+<li class="chapter" data-level="13.5.5" data-path="Chapter14.html"><a href="Chapter14.html#mixing-poisson-and-negative-binomial-distributions"><i class="fa fa-check"></i><b>13.5.5</b> Mixing Poisson and negative binomial distributions</a></li>
+</ul></li>
+<li class="chapter" data-level="13.6" data-path="Chapter14.html"><a href="Chapter14.html#ar1-trends"><i class="fa fa-check"></i><b>13.6</b> AR1 trends</a>
+<ul>
+<li class="chapter" data-level="13.6.1" data-path="Chapter14.html"><a href="Chapter14.html#ar1-trend-regularly-spaced-time-series-data"><i class="fa fa-check"></i><b>13.6.1</b> AR1 trend regularly spaced time-series data</a></li>
+<li class="chapter" data-level="13.6.2" data-path="Chapter14.html"><a href="Chapter14.html#ar1-trend-for-irregularly-spaced-time-series-data"><i class="fa fa-check"></i><b>13.6.2</b> AR1 trend for irregularly spaced time-series data</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="14" data-path="Chapter15.html"><a href="Chapter15.html"><i class="fa fa-check"></i><b>14</b> Spatial-temporal models for orange crowned warblers count data</a>
+<ul>
+<li class="chapter" data-level="14.1" data-path="Chapter15.html"><a href="Chapter15.html#introduction-4"><i class="fa fa-check"></i><b>14.1</b> Introduction</a></li>
+<li class="chapter" data-level="14.2" data-path="Chapter15.html"><a href="Chapter15.html#poisson-glm"><i class="fa fa-check"></i><b>14.2</b> Poisson GLM</a>
+<ul>
+<li class="chapter" data-level="14.2.1" data-path="Chapter15.html"><a href="Chapter15.html#overdispersion--approach-1"><i class="fa fa-check"></i><b>14.2.1</b> Overdispersion -approach 1</a></li>
+<li class="chapter" data-level="14.2.2" data-path="Chapter15.html"><a href="Chapter15.html#overdispersion--approach-2"><i class="fa fa-check"></i><b>14.2.2</b> Overdispersion -approach 2</a></li>
+</ul></li>
+<li class="chapter" data-level="14.3" data-path="Chapter15.html"><a href="Chapter15.html#model-with-spatial-correlation"><i class="fa fa-check"></i><b>14.3</b> Model with spatial correlation</a>
+<ul>
+<li class="chapter" data-level="14.3.1" data-path="Chapter15.html"><a href="Chapter15.html#model-diagnosis"><i class="fa fa-check"></i><b>14.3.1</b> Model diagnosis</a></li>
+</ul></li>
+<li class="chapter" data-level="14.4" data-path="Chapter15.html"><a href="Chapter15.html#spatial-temporal-correlation-ar1"><i class="fa fa-check"></i><b>14.4</b> Spatial-temporal correlation: AR1</a>
+<ul>
+<li class="chapter" data-level="14.4.1" data-path="Chapter15.html"><a href="Chapter15.html#explanation-of-the-model"><i class="fa fa-check"></i><b>14.4.1</b> Explanation of the model</a></li>
+<li class="chapter" data-level="14.4.2" data-path="Chapter15.html"><a href="Chapter15.html#implementation-of-ar1-model-in-r-inla"><i class="fa fa-check"></i><b>14.4.2</b> Implementation of AR1 model in R-INLA</a>
+<ul>
+<li class="chapter" data-level="14.4.2.1" data-path="Chapter15.html"><a href="Chapter15.html#model-diagnosis-1"><i class="fa fa-check"></i><b>14.4.2.1</b> Model diagnosis</a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="sessioninfo.html"><a href="sessioninfo.html"><i class="fa fa-check"></i>実行環境</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Introduction to spatial-temporal data anlysis using R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="spatial-temporal-models-for-orange-crowned-warblers-count-data" class="section level1 hasAnchor" number="14">
+<h1><span class="header-section-number">14</span> Spatial-temporal models for orange crowned warblers count data<a href="Chapter15.html#spatial-temporal-models-for-orange-crowned-warblers-count-data" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="introduction-4" class="section level2 hasAnchor" number="14.1">
+<h2><span class="header-section-number">14.1</span> Introduction<a href="Chapter15.html#introduction-4" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>本章では、競争の強さと捕食圧がサメズアカアメリカムシクイのコドモの数に及ぼす影響を調べた <span class="citation">Sofaer et al. (<a href="#ref-Sofaer2014">2014</a>)</span> のデータを用いる。それぞれの巣の産卵数が個体密度と年間降水量の関数としてモデル化されている。データは2003年から2009年の7年間取得されている。</p>
+<div class="sourceCode" id="cb555"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb555-1"><a href="Chapter15.html#cb555-1" tabindex="-1"></a>ocw <span class="ot">&lt;-</span> <span class="fu">read_delim</span>(<span class="st">&quot;data/OrangedCrownedWarblers.txt&quot;</span>)</span>
+<span id="cb555-2"><a href="Chapter15.html#cb555-2" tabindex="-1"></a></span>
+<span id="cb555-3"><a href="Chapter15.html#cb555-3" tabindex="-1"></a>ocwcoords <span class="ot">&lt;-</span> <span class="fu">st_as_sf</span>(ocw,</span>
+<span id="cb555-4"><a href="Chapter15.html#cb555-4" tabindex="-1"></a>                      <span class="at">coords =</span> <span class="fu">c</span>(<span class="st">&quot;Xloc&quot;</span>, <span class="st">&quot;Yloc&quot;</span>),</span>
+<span id="cb555-5"><a href="Chapter15.html#cb555-5" tabindex="-1"></a>                      <span class="at">crs =</span> <span class="st">&quot;+proj=utm +zone=11&quot;</span>)</span>
+<span id="cb555-6"><a href="Chapter15.html#cb555-6" tabindex="-1"></a></span>
+<span id="cb555-7"><a href="Chapter15.html#cb555-7" tabindex="-1"></a><span class="do">## 緯度経度に変換</span></span>
+<span id="cb555-8"><a href="Chapter15.html#cb555-8" tabindex="-1"></a>lonlat <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(ocwcoords, <span class="at">crs =</span> <span class="st">&quot;+proj=longlat&quot;</span>)</span>
+<span id="cb555-9"><a href="Chapter15.html#cb555-9" tabindex="-1"></a></span>
+<span id="cb555-10"><a href="Chapter15.html#cb555-10" tabindex="-1"></a><span class="do">## 元のデータフレームに緯度と経度を追加  </span></span>
+<span id="cb555-11"><a href="Chapter15.html#cb555-11" tabindex="-1"></a>ocw <span class="sc">%&gt;%</span> </span>
+<span id="cb555-12"><a href="Chapter15.html#cb555-12" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">lon =</span> <span class="fu">st_coordinates</span>(lonlat)[,<span class="dv">1</span>],</span>
+<span id="cb555-13"><a href="Chapter15.html#cb555-13" tabindex="-1"></a>         <span class="at">lat =</span> <span class="fu">st_coordinates</span>(lonlat)[,<span class="dv">2</span>]) <span class="ot">-&gt;</span> ocw</span>
+<span id="cb555-14"><a href="Chapter15.html#cb555-14" tabindex="-1"></a></span>
+<span id="cb555-15"><a href="Chapter15.html#cb555-15" tabindex="-1"></a></span>
+<span id="cb555-16"><a href="Chapter15.html#cb555-16" tabindex="-1"></a><span class="fu">datatable</span>(ocw,</span>
+<span id="cb555-17"><a href="Chapter15.html#cb555-17" tabindex="-1"></a>          <span class="at">options =</span> <span class="fu">list</span>(<span class="at">scrollX =</span> <span class="dv">30</span>),</span>
+<span id="cb555-18"><a href="Chapter15.html#cb555-18" tabindex="-1"></a>          <span class="at">filter =</span> <span class="st">&quot;top&quot;</span>)</span></code></pre></div>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-706d87e57d520d7f4b57" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-706d87e57d520d7f4b57">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td><\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"1\" data-max=\"181\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"2003\" data-max=\"2009\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"364959\" data-max=\"365460\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"3690669\" data-max=\"3691003\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"227049502\" data-max=\"251044263\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"51\" data-max=\"4102\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"6\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"3.43317466\" data-max=\"6.31856463\" data-scale=\"8\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"9.144\" data-max=\"62.0522\" data-scale=\"4\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"-118.451256943415\" data-max=\"-118.445861775517\" data-scale=\"14\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"33.346804415098\" data-max=\"33.3497767352879\" data-scale=\"14\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","163","164","165","166","167","168","169","170","171","172","173","174","175","176","177","178","179","180","181"],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181],[2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2003,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2004,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2005,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2006,2007,2007,2007,2007,2007,2007,2007,2007,2007,2007,2007,2007,2007,2007,2007,2007,2007,2007,2008,2008,2008,2008,2008,2008,2008,2008,2008,2008,2008,2008,2008,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009,2009],[365111,365228,365234,365146,365123,365332,365041,365348,365232,365374,365070,365030,365147,365332,365089,364968,365116,365146,365136,365394,365404,365442,364992,365019,365050,365089,365165,365246,365420,365460,365188,365278,365058,365198,365239,365250,365330,365103,365235,365360,365413,364999,365119,365134,365323,365212,365302,365184,365114,365385,365401,365442,365055,365135,365158,365159,365380,364959,365191,365012,365278,365057,365159,365392,365204,364996,365368,365325,365366,365064,365354,365444,365016,365138,365331,364971,365095,365295,365137,365398,365208,365419,364997,365055,365068,365128,365140,365373,365188,365044,365279,365267,365220,365212,365171,365410,365110,365359,364995,365143,365012,365128,365009,365370,364985,365296,365108,365009,365403,365210,365244,365061,365016,365041,365103,365260,365280,365163,365215,365049,365196,364998,365436,365363,365120,365309,365003,365003,365393,365067,365000,365209,365249,365450,365048,365029,365124,365209,365432,365149,365311,365276,365208,365061,365216,365156,365061,365310,365057,365145,365132,365232,365011,365167,365308,365258,365200,365045,365088,365367,365120,365214,365255,365035,364989,365245,365065,365308,364994,365131,365203,365106,364996,365187,365078,365321,365089,365343,365353,365224,365006],[3690846,3690893,3690796,3690857,3690822,3690758,3690957,3690818,3690847,3690785,3690803,3690881,3690800,3690714,3690779,3690837,3690785,3690835,3690901,3690754,3690783,3690784,3690843,3690794,3690772,3690884,3690907,3690741,3690740,3690754,3690764,3690774,3690833,3690908,3690799,3690822,3690733,3690827,3690874,3690776,3690753,3690891,3690791,3690804,3690711,3690775,3690731,3690850,3690930,3690751,3690785,3690750,3690970,3690958,3690893,3690858,3690725,3690838,3690746,3690822,3690770,3690820,3690712,3690669,3690901,3690834,3690762,3690828,3690789,3690957,3690809,3690751,3690880,3690801,3690712,3690880,3690919,3690727,3690922,3690782,3690822,3690760,3690798,3690924,3690782,3690839,3690759,3690743,3690754,3690822,3690782,3690853,3690787,3690748,3690811,3690698,3690879,3690753,3690831,3690904,3690948,3690776,3690803,3690787,3690870,3690731,3690919,3690903,3690785,3690808,3690804,3690922,3690786,3690976,3690773,3690781,3690761,3690874,3690770,3690880,3690740,3690820,3690790,3690740,3690910,3690770,3690850,3690870,3690770,3690890,3690900,3690790,3690810,3690760,3690920,3690890,3690830,3690748,3690787,3690852,3690742,3690769,3690848,3690970,3690896,3690780,3690881,3690694,3690921,3690909,3690805,3690761,3690780,3690839,3690731,3690779,3690848,3690795,3690796,3690791,3690931,3690730,3690813,3690873,3690812,3690855,3690889,3690808,3690872,3690835,3690814,3690877,3690836,3690772,3691003,3690750,3690925,3690709,3690821,3690889,3690900],[227049509,227049525,227049577,227049506,227049549,227049542,227049515,227049709,227049502,227049701,227049507,227049544,227049519,227049703,227049530,227049545,227049520,227049529,227049543,227049538,227049705,227049720,227049512,null,null,null,null,null,null,227049541,227049604,227049534,227049568,227049525,227049577,227049850,227049632,227049549,227049502,227049701,227049627,227049544,227049519,227049519,227049703,227049530,227049629,227049529,227049543,227049538,227049705,227049720,null,null,null,null,null,null,227049604,227049521,227049534,227049568,227049550,227049738,227049525,227049872,243074153,227049709,227049701,243074154,227049881,227049627,227049544,227049519,227049703,227049545,243074133,227049629,227049543,227049705,243074166,243074011,243074028,227049607,null,null,null,null,227049604,227049521,227049534,227049640,227049877,243074128,null,227049738,227049509,243074215,227049872,243074205,227049870,243074236,243074244,227049881,227049545,227049629,243074241,227049555,227049705,243074166,227049749,227049607,null,null,null,null,227049534,243074216,227049877,null,243074024,236081032,227049632,243074011,243074153,236081065,243074241,243074239,243074240,243074166,243073910,227049749,227049607,236081024,236081035,243074252,243074217,243074239,243074153,243074202,227049632,236081118,236081016,243074154,236081126,236081125,243074241,243074097,227049607,236081078,null,243074239,243074024,243074202,227049632,236081118,236081016,236081025,236081142,243074209,236081197,251044240,236081195,236081198,251044203,251044219,251044209,251044210,251044238,251044241,227049529,251044253,245088595,251044263,227049813,251044258,null,null,null,251044260,251044221],[337,328,313,302,306,381,320,365,304,353,307,341,321,329,323,346,367,384,309,324,333,383,305,345,377,336,331,311,322,325,344,314,340,4102,413,459,468,403,437,409,494,412,410,462,405,417,425,404,416,406,419,445,447,418,438,448,481,408,443,402,414,480,422,539,521,558,542,525,533,515,577,57,574,56,566,54,573,583,516,536,548,590,550,552,559,100,529,549,560,551,524,544,51,569,632,637,647,68,67,629,652,638,611,618,643,623,658,619,628,630,636,659,612,61,627,615,622,631,633,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,75,null,null,817,835,815,831,812,814,83,823,830,813,82,86,834,950,937,932,959,941,949,91,96,935,962,972,933,927,910,958,971,943,939,929,922,964,944,916,912,960,963,948,973,953,966,934],[2,0,2,2,2,2,3,2,0,0,0,4,3,3,0,2,1,0,2,3,3,3,2,0,2,0,0,0,0,3,2,2,3,0,1,0,0,2,0,0,0,4,3,3,0,2,2,3,0,2,3,0,4,3,0,2,0,0,2,2,3,3,0,3,0,3,3,6,2,0,2,4,2,4,3,0,4,0,4,4,2,0,0,2,3,0,3,2,5,2,3,4,3,0,0,0,2,0,0,0,0,3,0,0,0,0,4,4,0,0,4,4,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,2,4,6,4,3,3,3,4,5,3,0,0,3,0,0,0,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,3,0,0,1,0,0,0,0],[4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.93445624,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,4.84511168,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,5.59355547,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,4.94617356,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,5.57744416,3.43317466,3.43317466,3.43317466,3.43317466,3.43317466,3.43317466,3.43317466,3.43317466,3.43317466,3.43317466,3.43317466,3.43317466,3.43317466,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463,6.31856463],[39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,39.243,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,18.4658,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,62.0522,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,20.574,9.144,9.144,9.144,9.144,9.144,9.144,9.144,9.144,9.144,9.144,9.144,9.144,9.144,9.144,9.144,9.144,9.144,9.144,34.798,34.798,34.798,34.798,34.798,34.798,34.798,34.798,34.798,34.798,34.798,34.798,34.798,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056,19.4056],[-118.449625082685,-118.448375075637,-118.448296127773,-118.449250693095,-118.449492570239,-118.447237568953,-118.450393748326,-118.44707462116,-118.448325230975,-118.446790360006,-118.450059149899,-118.450500565143,-118.449231432238,-118.447231003678,-118.449851430923,-118.451160099707,-118.44956224689,-118.449247405768,-118.449364706536,-118.446570861393,-118.446467749022,-118.44605963534,-118.45090314637,-118.45060573531,-118.450269389687,-118.449867126962,-118.449054030755,-118.448158990713,-118.44628943697,-118.445861775517,-118.448785560681,-118.447820118286,-118.450192560549,-118.448699632138,-118.44824285693,-118.448128109586,-118.447255326059,-118.449708193185,-118.448297031342,-118.446939429942,-118.446366581518,-118.450835120031,-118.449530912373,-118.449371698819,-118.447327249091,-118.448529354171,-118.447555851025,-118.448841382183,-118.449605406089,-118.44666710744,-118.446500278565,-118.446054566242,-118.4502452773,-118.449383968581,-118.449127146095,-118.44911117283,-118.446716947933,-118.451256943415,-118.448750640893,-118.450685129459,-118.447819521194,-118.450201360562,-118.449089359626,-118.446579671705,-118.448634123307,-118.450858824885,-118.446851391553,-118.447323220578,-118.44687690676,-118.450146638047,-118.447008815688,-118.446033227886,-118.45065082932,-118.449328275484,-118.447241448932,-118.451134301941,-118.449807895823,-118.44763045986,-118.449357100871,-118.446532062416,-118.448579348661,-118.446303162988,-118.450842695972,-118.450238398856,-118.450077497769,-118.449441391864,-118.449300512067,-118.446794838737,-118.448784066964,-118.450341328687,-118.447810568726,-118.447950093138,-118.448445196347,-118.448525321849,-118.448975225363,-118.446390610881,-118.449640758833,-118.446946742483,-118.450869119899,-118.449289947746,-118.450703975892,-118.449431977062,-118.450714518884,-118.446833633375,-118.45098239221,-118.447620313174,-118.4496682253,-118.450729476489,-118.446478791049,-118.448555770173,-118.448189884678,-118.450173636476,-118.450636770025,-118.450396589742,-118.449700121887,-118.448014550605,-118.447796690295,-118.449070588042,-118.448496376255,-118.450296282646,-118.448696026217,-118.450835243103,-118.44612499249,-118.4469018283,-118.449537953538,-118.447486465433,-118.450786011698,-118.450789003361,-118.446583991436,-118.45010438866,-118.450825722482,-118.448563825624,-118.448137061679,-118.445970107279,-118.450313007926,-118.450512654987,-118.449483022034,-118.448557552962,-118.446167520243,-118.449217714526,-118.447460799373,-118.447840859386,-118.44858323188,-118.450180813661,-118.448504450073,-118.449131750233,-118.450167506085,-118.447464379848,-118.450216462496,-118.449269207147,-118.449393335779,-118.448312388941,-118.450689591276,-118.44902238363,-118.447491388874,-118.448035739503,-118.448669182397,-118.450326547514,-118.449864715886,-118.446866461351,-118.449541092149,-118.448501146291,-118.448073046927,-118.450445649553,-118.450930740264,-118.448186755887,-118.450125726847,-118.447502880321,-118.450885996976,-118.449408562706,-118.448631872718,-118.449683435263,-118.450859124063,-118.448797499388,-118.450003100452,-118.447354556114,-118.44987325609,-118.447112077266,-118.447021349783,-118.448417453738,-118.450761259329],[33.3483652103733,33.3488036785987,33.3479297833388,33.3484687869578,33.3481503081301,33.3475994150704,33.3493573112926,33.3481424378952,33.3483893987776,33.347848132643,33.3479723366267,33.3486706407477,33.3479549445975,33.3472026676183,33.3477583130713,33.3482661102381,33.3478158019497,33.3482704134396,33.3488642798308,33.3475711096337,33.3478338540325,33.3478476266217,33.3483232255363,33.3478847833765,33.3476903006998,33.3487050955367,33.3489220184595,33.3474353530646,33.3474481259419,33.347579369029,33.3476354740915,33.3477369230109,33.348241340088,33.348935172879,33.3479574608927,33.3481662299544,33.3473737399237,33.3481928842732,33.3486332332618,33.3477652269579,33.3475644707625,33.3487569189988,33.3478702801098,33.3479893821738,33.347174489558,33.3477376693813,33.3473521991027,33.3484104329268,33.3491230126857,33.3475429320702,33.3478515125131,33.3475410488999,33.3494762889804,33.3493781220709,33.3487949030004,33.3484794341594,33.3473078644236,33.3482739970197,33.3474735445189,33.3481363799328,33.3477008550719,33.3481239939297,33.3471629551539,33.346804415098,33.348872806174,33.348242574984,33.3476399907317,33.348229727485,33.3478831990231,33.3493601977688,33.3480620363025,33.3475503161467,33.348659866452,33.3479628328981,33.3471845084133,33.34865421668,33.349021442422,33.3473152543332,33.3490537617624,33.3478240860363,33.3481609661276,33.3476283406145,33.3479180895327,33.3490615082305,33.3477827291872,33.3483042238751,33.3475843706146,33.3474692939152,33.3475453042806,33.3481403964433,33.3478091841697,33.3484478865699,33.3478468758814,33.3474942108652,33.3480571408137,33.3470681607862,33.348662645152,33.3475577110208,33.3482153985218,33.3488922086725,33.3492725183839,33.3477361542702,33.3479646808549,33.3478656658409,33.3485658048803,33.347351447541,33.3490230732956,33.3488663780693,33.3478517628469,33.3480349790856,33.3480031723902,33.3490442272383,33.3478122710165,33.3495286337598,33.3477059675211,33.3477977866783,33.3476199527686,33.3486242073919,33.3476929604958,33.3486640084223,33.3474200694238,33.3481165884661,33.3479009777745,33.3474409909819,33.3489434257935,33.3477047383509,33.3483877253372,33.348568064773,33.347715256297,33.3487564369943,33.3488381972848,33.347872548073,33.3480579008493,33.3476322198194,33.3490245618497,33.3487516679837,33.3482225693768,33.3474938348355,33.3478734262517,33.3484240782865,33.3474525132357,33.3476915875224,33.3483954076309,33.3494770419468,33.348829225475,33.3477757336141,33.3486745313165,33.3470195726166,33.3490347082994,33.348937544382,33.3479981483166,33.3476139382956,33.3477575415379,33.3483091146957,33.347352950631,33.3477795021115,33.3483944048026,33.347897063638,33.3479114762126,33.3479013581998,33.3491327822888,33.3473321558626,33.348085703643,33.3485991325358,33.3480433227604,33.3484631638145,33.3487471690531,33.3480472585581,33.3485849688068,33.3482685322319,33.348088203525,33.3486441094238,33.3482606089276,33.3477074845735,33.3497767352879,33.3475259015809,33.3490747915059,33.3471589601383,33.3481701149379,33.3487671093353,33.3488389505399]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>ID<\/th>\n      <th>Year<\/th>\n      <th>Xloc<\/th>\n      <th>Yloc<\/th>\n      <th>MaleAluminumBand<\/th>\n      <th>FirstNestID<\/th>\n      <th>NumFledged<\/th>\n      <th>BreedingDensity<\/th>\n      <th>Precip<\/th>\n      <th>lon<\/th>\n      <th>lat<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"scrollX":30,"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8,9,10,11]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":[],"jsHooks":[]}</script>
+<p><br/></p>
+<p>各巣の位置を年ごとに示したのが以下の図である。年ごとにサンプリング場所とその数は異なっている。</p>
+<div class="sourceCode" id="cb556"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb556-1"><a href="Chapter15.html#cb556-1" tabindex="-1"></a>ocw <span class="sc">%&gt;%</span> </span>
+<span id="cb556-2"><a href="Chapter15.html#cb556-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span>lon, <span class="at">y =</span> lat))<span class="sc">+</span></span>
+<span id="cb556-3"><a href="Chapter15.html#cb556-3" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb556-4"><a href="Chapter15.html#cb556-4" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb556-5"><a href="Chapter15.html#cb556-5" tabindex="-1"></a>  <span class="fu">coord_fixed</span>(<span class="at">ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb556-6"><a href="Chapter15.html#cb556-6" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>Year, <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-400-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="poisson-glm" class="section level2 hasAnchor" number="14.2">
+<h2><span class="header-section-number">14.2</span> Poisson GLM<a href="Chapter15.html#poisson-glm" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>まずは、時空間相関を考えずに通常のポワソンGLMを適用する。<code>FL</code>は雛の数、<code>BreedingD</code>は繁殖ペアの密度、<code>Rain</code>は年間降水量である。</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;FL_i \sim Poisson(\mu_i)\\
+&amp;log(\mu_i) = \beta_1 + \beta_2 \times BreedingD_i + \beta_3 \times Rain_i
+\end{aligned}
+\]</span></p>
+<p>モデル化にあたり、変数を標準化する。</p>
+<div class="sourceCode" id="cb557"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb557-1"><a href="Chapter15.html#cb557-1" tabindex="-1"></a>ocw <span class="sc">%&gt;%</span> </span>
+<span id="cb557-2"><a href="Chapter15.html#cb557-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">BD_std =</span> (BreedingDensity <span class="sc">-</span> <span class="fu">mean</span>(BreedingDensity))<span class="sc">/</span><span class="fu">sd</span>(BreedingDensity),</span>
+<span id="cb557-3"><a href="Chapter15.html#cb557-3" tabindex="-1"></a>         <span class="at">Rain_std =</span> (Precip <span class="sc">-</span> <span class="fu">mean</span>(Precip))<span class="sc">/</span><span class="fu">sd</span>(Precip)) <span class="ot">-&gt;</span> ocw</span></code></pre></div>
+<p>モデルは以下のように実行する。</p>
+<div class="sourceCode" id="cb558"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb558-1"><a href="Chapter15.html#cb558-1" tabindex="-1"></a>m15_1 <span class="ot">&lt;-</span> <span class="fu">inla</span>(NumFledged <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> BD_std <span class="sc">+</span> Rain_std,</span>
+<span id="cb558-2"><a href="Chapter15.html#cb558-2" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
+<span id="cb558-3"><a href="Chapter15.html#cb558-3" tabindex="-1"></a>              <span class="at">data =</span> ocw,</span>
+<span id="cb558-4"><a href="Chapter15.html#cb558-4" tabindex="-1"></a>              <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb558-5"><a href="Chapter15.html#cb558-5" tabindex="-1"></a>                                     <span class="at">config =</span> <span class="cn">TRUE</span>))</span></code></pre></div>
+<p>それでは、このモデルの診断を行う。ピアソン残差は以下のように計算できる。</p>
+<div class="sourceCode" id="cb559"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb559-1"><a href="Chapter15.html#cb559-1" tabindex="-1"></a>fit15_1 <span class="ot">&lt;-</span> m15_1<span class="sc">$</span>summary.fitted.values<span class="sc">$</span>mean</span>
+<span id="cb559-2"><a href="Chapter15.html#cb559-2" tabindex="-1"></a>E15_1 <span class="ot">&lt;-</span> (ocw<span class="sc">$</span>NumFledged <span class="sc">-</span> fit15_1)<span class="sc">/</span><span class="fu">sqrt</span>(fit15_1)  </span></code></pre></div>
+<div id="overdispersion--approach-1" class="section level3 hasAnchor" number="14.2.1">
+<h3><span class="header-section-number">14.2.1</span> Overdispersion -approach 1<a href="Chapter15.html#overdispersion--approach-1" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>まずは、過分散を確かめるために分散パラメータを計算する。結果は1.595…であり、やや過分散が生じていることが分かる。</p>
+<div class="sourceCode" id="cb560"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb560-1"><a href="Chapter15.html#cb560-1" tabindex="-1"></a><span class="fu">sum</span>(E15_1<span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span>(<span class="fu">nrow</span>(ocw) <span class="sc">-</span> <span class="fu">nrow</span>(m15_1<span class="sc">$</span>summary.fixed))</span></code></pre></div>
+<pre><code>## [1] 1.595332</code></pre>
+</div>
+<div id="overdispersion--approach-2" class="section level3 hasAnchor" number="14.2.2">
+<h3><span class="header-section-number">14.2.2</span> Overdispersion -approach 2<a href="Chapter15.html#overdispersion--approach-2" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>第<a href="Chapter10.html#s9-1-3-1-2">9.1.3.1.2</a>節で見たように、ベイズモデリングではシミュレーションによって過分散を検討する方がより適切である。以下でシミュレートされたデータと実データを比較する。</p>
+<div class="sourceCode" id="cb562"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb562-1"><a href="Chapter15.html#cb562-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb562-2"><a href="Chapter15.html#cb562-2" tabindex="-1"></a></span>
+<span id="cb562-3"><a href="Chapter15.html#cb562-3" tabindex="-1"></a><span class="do">## 事後分布からサンプリング  </span></span>
+<span id="cb562-4"><a href="Chapter15.html#cb562-4" tabindex="-1"></a>nsim <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb562-5"><a href="Chapter15.html#cb562-5" tabindex="-1"></a>sim_param <span class="ot">&lt;-</span> <span class="fu">inla.posterior.sample</span>(<span class="at">n =</span> nsim,</span>
+<span id="cb562-6"><a href="Chapter15.html#cb562-6" tabindex="-1"></a>                                   <span class="at">result =</span> m15_1)</span>
+<span id="cb562-7"><a href="Chapter15.html#cb562-7" tabindex="-1"></a></span>
+<span id="cb562-8"><a href="Chapter15.html#cb562-8" tabindex="-1"></a><span class="do">## シミュレーションデータのぴ話損残差の平方和を計算</span></span>
+<span id="cb562-9"><a href="Chapter15.html#cb562-9" tabindex="-1"></a>y_sim <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="at">nrow =</span> <span class="fu">nrow</span>(ocw),</span>
+<span id="cb562-10"><a href="Chapter15.html#cb562-10" tabindex="-1"></a>                <span class="at">ncol =</span> nsim)</span>
+<span id="cb562-11"><a href="Chapter15.html#cb562-11" tabindex="-1"></a>sum_E2_sim <span class="ot">&lt;-</span> <span class="fu">vector</span>()</span>
+<span id="cb562-12"><a href="Chapter15.html#cb562-12" tabindex="-1"></a></span>
+<span id="cb562-13"><a href="Chapter15.html#cb562-13" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>){</span>
+<span id="cb562-14"><a href="Chapter15.html#cb562-14" tabindex="-1"></a> y_sim[,i] <span class="ot">&lt;-</span> <span class="fu">rpois</span>(<span class="at">n =</span> <span class="fu">nrow</span>(ocw), <span class="at">lambda =</span> <span class="fu">exp</span>(sim_param[[i]]<span class="sc">$</span>latent[<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(ocw),])) </span>
+<span id="cb562-15"><a href="Chapter15.html#cb562-15" tabindex="-1"></a> E <span class="ot">&lt;-</span> (y_sim[,i] <span class="sc">-</span> fit15_1)<span class="sc">/</span><span class="fu">sqrt</span>(fit15_1)</span>
+<span id="cb562-16"><a href="Chapter15.html#cb562-16" tabindex="-1"></a> sum_E2_sim[i] <span class="ot">&lt;-</span> <span class="fu">sum</span>(E<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb562-17"><a href="Chapter15.html#cb562-17" tabindex="-1"></a>} </span></code></pre></div>
+<p>実データとシミュレーションデータの観測値の頻度を比較したのが図<a href="Chapter15.html#fig:freq-sim-m15-1">14.1</a>である。明らかに観測値の方が0が多く、また分布の裾が狭いことが分かる。1も極端に少ない。</p>
+<div class="sourceCode" id="cb563"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb563-1"><a href="Chapter15.html#cb563-1" tabindex="-1"></a><span class="fu">data.frame</span>(y_sim) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-2"><a href="Chapter15.html#cb563-2" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">everything</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-3"><a href="Chapter15.html#cb563-3" tabindex="-1"></a>  <span class="fu">group_by</span>(name, value) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-4"><a href="Chapter15.html#cb563-4" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">N =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-5"><a href="Chapter15.html#cb563-5" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb563-6"><a href="Chapter15.html#cb563-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Freq =</span> N<span class="sc">/</span><span class="dv">181</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-7"><a href="Chapter15.html#cb563-7" tabindex="-1"></a>  <span class="fu">group_by</span>(value) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-8"><a href="Chapter15.html#cb563-8" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Frequency =</span> <span class="fu">mean</span>(Freq)) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-9"><a href="Chapter15.html#cb563-9" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb563-10"><a href="Chapter15.html#cb563-10" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">NumFledged =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-11"><a href="Chapter15.html#cb563-11" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">&quot;Simulated&quot;</span>) <span class="ot">-&gt;</span> freq_sim</span>
+<span id="cb563-12"><a href="Chapter15.html#cb563-12" tabindex="-1"></a></span>
+<span id="cb563-13"><a href="Chapter15.html#cb563-13" tabindex="-1"></a>ocw <span class="sc">%&gt;%</span> </span>
+<span id="cb563-14"><a href="Chapter15.html#cb563-14" tabindex="-1"></a>  <span class="fu">group_by</span>(NumFledged) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-15"><a href="Chapter15.html#cb563-15" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">N =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-16"><a href="Chapter15.html#cb563-16" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Frequency =</span> N<span class="sc">/</span><span class="dv">181</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-17"><a href="Chapter15.html#cb563-17" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb563-18"><a href="Chapter15.html#cb563-18" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-19"><a href="Chapter15.html#cb563-19" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">&quot;Observed&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-20"><a href="Chapter15.html#cb563-20" tabindex="-1"></a>  <span class="fu">bind_rows</span>(freq_sim) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-21"><a href="Chapter15.html#cb563-21" tabindex="-1"></a>  <span class="fu">complete</span>(NumFledged,  type) <span class="sc">%&gt;%</span> </span>
+<span id="cb563-22"><a href="Chapter15.html#cb563-22" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> NumFledged, <span class="at">y =</span> Frequency))<span class="sc">+</span></span>
+<span id="cb563-23"><a href="Chapter15.html#cb563-23" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="fu">aes</span>(<span class="at">fill =</span> type),</span>
+<span id="cb563-24"><a href="Chapter15.html#cb563-24" tabindex="-1"></a>           <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.95</span>))<span class="sc">+</span></span>
+<span id="cb563-25"><a href="Chapter15.html#cb563-25" tabindex="-1"></a>  <span class="fu">scale_fill_nejm</span>()<span class="sc">+</span></span>
+<span id="cb563-26"><a href="Chapter15.html#cb563-26" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">15</span>,<span class="dv">1</span>))<span class="sc">+</span></span>
+<span id="cb563-27"><a href="Chapter15.html#cb563-27" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb563-28"><a href="Chapter15.html#cb563-28" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.9</span>,<span class="fl">0.9</span>),</span>
+<span id="cb563-29"><a href="Chapter15.html#cb563-29" tabindex="-1"></a>        <span class="at">aspect.ratio =</span> <span class="fl">0.8</span>)<span class="sc">+</span></span>
+<span id="cb563-30"><a href="Chapter15.html#cb563-30" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">&quot;&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Number of fledged chixks&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:freq-sim-m15-1"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/freq-sim-m15-1-1.png" alt="Simulated frequencies (blue) and observed frequencies (red)." width="672" />
+<p class="caption">
+図14.1: Simulated frequencies (blue) and observed frequencies (red).
+</p>
+</div>
+<p><br/></p>
+<p>ピアソン残差の平方和の比較も行う。ヒストグラムがシミュレーションデータのピアソン残差の平方和の分布で、赤い点線が実データのものである。実データでは過分散が生じていることが分かる。</p>
+<div class="sourceCode" id="cb564"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb564-1"><a href="Chapter15.html#cb564-1" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">pr =</span> sum_E2_sim) <span class="sc">%&gt;%</span> </span>
+<span id="cb564-2"><a href="Chapter15.html#cb564-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> pr))<span class="sc">+</span></span>
+<span id="cb564-3"><a href="Chapter15.html#cb564-3" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">&quot;white&quot;</span>,</span>
+<span id="cb564-4"><a href="Chapter15.html#cb564-4" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">&quot;black&quot;</span>)<span class="sc">+</span></span>
+<span id="cb564-5"><a href="Chapter15.html#cb564-5" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb564-6"><a href="Chapter15.html#cb564-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb564-7"><a href="Chapter15.html#cb564-7" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">sum</span>(E15_1<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb564-8"><a href="Chapter15.html#cb564-8" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">&quot;red3&quot;</span>,</span>
+<span id="cb564-9"><a href="Chapter15.html#cb564-9" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb564-10"><a href="Chapter15.html#cb564-10" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">250</span>, <span class="at">y =</span> <span class="dv">80</span>),</span>
+<span id="cb564-11"><a href="Chapter15.html#cb564-11" tabindex="-1"></a>            <span class="at">label =</span> <span class="fu">str_c</span>(<span class="st">&quot;P = &quot;</span>, <span class="fu">mean</span>(<span class="fu">sum</span>(E15_1<span class="sc">^</span><span class="dv">2</span>) <span class="sc">&lt;</span> sum_E2_sim)))<span class="sc">+</span></span>
+<span id="cb564-12"><a href="Chapter15.html#cb564-12" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Pearson residuals&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-406-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="model-with-spatial-correlation" class="section level2 hasAnchor" number="14.3">
+<h2><span class="header-section-number">14.3</span> Model with spatial correlation<a href="Chapter15.html#model-with-spatial-correlation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>続いて、空間相関を考慮したモデルを実行する。モデル式は以下のようになる。共分散行列の成分は、マテルン関数を用いて定義する。</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;FL_i \sim Poisson(\mu_i)\\
+&amp;log(\mu_i) = \beta_1 + \beta_2 \times BreedingD_i + \beta_3 \times Rain_i + u_i\\
+&amp;\mathbf{u} \sim GMRF(0, \mathbf{\Omega})
+\end{aligned}
+\]</span></p>
+<p>それでは、第<a href="Chapter12.html#c12">11</a>でデモンストレーションを行った手順通りに準備を行う。まずは、メッシュを作成する。ひとまずは、以下のように作成する。このメッシュには571個の頂点が存在する。</p>
+<div class="sourceCode" id="cb565"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb565-1"><a href="Chapter15.html#cb565-1" tabindex="-1"></a>Loc <span class="ot">&lt;-</span> <span class="fu">cbind</span>(ocw<span class="sc">$</span>Xloc, ocw<span class="sc">$</span>Yloc)</span>
+<span id="cb565-2"><a href="Chapter15.html#cb565-2" tabindex="-1"></a>ConvHull <span class="ot">&lt;-</span> <span class="fu">inla.nonconvex.hull</span>(Loc)</span>
+<span id="cb565-3"><a href="Chapter15.html#cb565-3" tabindex="-1"></a>mesh15_2 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.2d</span>(<span class="at">boundary =</span> ConvHull,</span>
+<span id="cb565-4"><a href="Chapter15.html#cb565-4" tabindex="-1"></a>                         <span class="at">max.edge =</span> <span class="dv">30</span>, <span class="at">cutoff =</span> <span class="dv">1</span>)</span></code></pre></div>
+<p>続いて、投影マトリックス<span class="math inline">\(\mathbf{A}\)</span>を定義する。</p>
+<div class="sourceCode" id="cb566"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb566-1"><a href="Chapter15.html#cb566-1" tabindex="-1"></a>A15_2 <span class="ot">&lt;-</span> <span class="fu">inla.spde.make.A</span>(mesh15_2, <span class="at">loc =</span> Loc)</span></code></pre></div>
+<p>続いて、Matern関数を用いてSPDEを定義する。</p>
+<div class="sourceCode" id="cb567"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb567-1"><a href="Chapter15.html#cb567-1" tabindex="-1"></a>spde15_2 <span class="ot">&lt;-</span> <span class="fu">inla.spde2.matern</span>(mesh15_2, <span class="at">alpha =</span> <span class="dv">2</span>)</span></code></pre></div>
+<p>また、ランダム空間場<span class="math inline">\(\mathbf{w}\)</span>を定義する。</p>
+<div class="sourceCode" id="cb568"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb568-1"><a href="Chapter15.html#cb568-1" tabindex="-1"></a>w.index15_2 <span class="ot">&lt;-</span> <span class="fu">inla.spde.make.index</span>(<span class="st">&quot;w&quot;</span>, mesh15_2<span class="sc">$</span>n)</span></code></pre></div>
+<p>続いて、(切片を含む)共変量の入った行列<span class="math inline">\(\mathbf{X}\)</span>を作成する。</p>
+<div class="sourceCode" id="cb569"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb569-1"><a href="Chapter15.html#cb569-1" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">nrow</span>(ocw)</span>
+<span id="cb569-2"><a href="Chapter15.html#cb569-2" tabindex="-1"></a></span>
+<span id="cb569-3"><a href="Chapter15.html#cb569-3" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Intercept =</span> <span class="fu">rep</span>(<span class="dv">1</span>, N),</span>
+<span id="cb569-4"><a href="Chapter15.html#cb569-4" tabindex="-1"></a>                <span class="at">BD_std =</span> ocw<span class="sc">$</span>BD_std,</span>
+<span id="cb569-5"><a href="Chapter15.html#cb569-5" tabindex="-1"></a>                <span class="at">Rain_std =</span> ocw<span class="sc">$</span>Rain_std)</span></code></pre></div>
+<p>最後に、全ての情報を対応付ける。</p>
+<div class="sourceCode" id="cb570"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb570-1"><a href="Chapter15.html#cb570-1" tabindex="-1"></a>stk15_2 <span class="ot">&lt;-</span> <span class="fu">inla.stack</span>(<span class="at">tag =</span> <span class="st">&quot;Fit&quot;</span>,</span>
+<span id="cb570-2"><a href="Chapter15.html#cb570-2" tabindex="-1"></a>                      <span class="at">data =</span> <span class="fu">list</span>(<span class="at">y =</span> ocw<span class="sc">$</span>NumFledged),</span>
+<span id="cb570-3"><a href="Chapter15.html#cb570-3" tabindex="-1"></a>                      <span class="at">A =</span> <span class="fu">list</span>(A15_2, <span class="dv">1</span>),</span>
+<span id="cb570-4"><a href="Chapter15.html#cb570-4" tabindex="-1"></a>                      <span class="at">effects =</span> <span class="fu">list</span>(w.index15_2,</span>
+<span id="cb570-5"><a href="Chapter15.html#cb570-5" tabindex="-1"></a>                                     X))</span></code></pre></div>
+<p>以上で作成・定義した行列を用いてモデル式は以下のように書ける。</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbf{FL} \sim Poisson(\mathbf{\mu})\\
+&amp;log(\mathbf{\mu}) = \mathbf{X} \times \mathbf{\beta} + \mathbf{u}\\
+&amp;\mathbf{u} = \mathbf{A_2} \times \mathbf{w}
+\end{aligned}
+\]</span></p>
+<p>それではモデルを実行する。</p>
+<div class="sourceCode" id="cb571"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb571-1"><a href="Chapter15.html#cb571-1" tabindex="-1"></a>f15_2 <span class="ot">&lt;-</span> y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Intercept <span class="sc">+</span> BD_std <span class="sc">+</span> Rain_std <span class="sc">+</span> <span class="fu">f</span>(w, <span class="at">model =</span> spde15_2)</span>
+<span id="cb571-2"><a href="Chapter15.html#cb571-2" tabindex="-1"></a></span>
+<span id="cb571-3"><a href="Chapter15.html#cb571-3" tabindex="-1"></a>m15_2 <span class="ot">&lt;-</span> <span class="fu">inla</span>(f15_2,</span>
+<span id="cb571-4"><a href="Chapter15.html#cb571-4" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
+<span id="cb571-5"><a href="Chapter15.html#cb571-5" tabindex="-1"></a>              <span class="at">data =</span> <span class="fu">inla.stack.data</span>(stk15_2),</span>
+<span id="cb571-6"><a href="Chapter15.html#cb571-6" tabindex="-1"></a>              <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb571-7"><a href="Chapter15.html#cb571-7" tabindex="-1"></a>                                     <span class="at">config =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb571-8"><a href="Chapter15.html#cb571-8" tabindex="-1"></a>              <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">inla.stack.A</span>(stk15_2)))</span></code></pre></div>
+<p>空間相関を考慮しないモデルと比較するとDICはかなり低い。</p>
+<div class="sourceCode" id="cb572"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb572-1"><a href="Chapter15.html#cb572-1" tabindex="-1"></a><span class="fu">c</span>(m15_1<span class="sc">$</span>dic<span class="sc">$</span>dic, m15_2<span class="sc">$</span>dic<span class="sc">$</span>dic)</span></code></pre></div>
+<pre><code>## [1] 540.9787 526.4070</code></pre>
+<div id="model-diagnosis" class="section level3 hasAnchor" number="14.3.1">
+<h3><span class="header-section-number">14.3.1</span> Model diagnosis<a href="Chapter15.html#model-diagnosis" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>それでは、モデル診断を行う。先ほどと同様にシミュレーションによってでシミュレートされたデータと実データを比較する。</p>
+<div class="sourceCode" id="cb574"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb574-1"><a href="Chapter15.html#cb574-1" tabindex="-1"></a>fit15_2 <span class="ot">&lt;-</span> m15_2<span class="sc">$</span>summary.fitted.values<span class="sc">$</span>mean[<span class="dv">1</span><span class="sc">:</span><span class="dv">181</span>]</span>
+<span id="cb574-2"><a href="Chapter15.html#cb574-2" tabindex="-1"></a></span>
+<span id="cb574-3"><a href="Chapter15.html#cb574-3" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb574-4"><a href="Chapter15.html#cb574-4" tabindex="-1"></a></span>
+<span id="cb574-5"><a href="Chapter15.html#cb574-5" tabindex="-1"></a><span class="do">## 事後分布からサンプリング  </span></span>
+<span id="cb574-6"><a href="Chapter15.html#cb574-6" tabindex="-1"></a>nsim <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb574-7"><a href="Chapter15.html#cb574-7" tabindex="-1"></a>sim_param <span class="ot">&lt;-</span> <span class="fu">inla.posterior.sample</span>(<span class="at">n =</span> nsim,</span>
+<span id="cb574-8"><a href="Chapter15.html#cb574-8" tabindex="-1"></a>                                   <span class="at">result =</span> m15_2)</span>
+<span id="cb574-9"><a href="Chapter15.html#cb574-9" tabindex="-1"></a></span>
+<span id="cb574-10"><a href="Chapter15.html#cb574-10" tabindex="-1"></a><span class="do">## シミュレーションデータのぴ話損残差の平方和を計算</span></span>
+<span id="cb574-11"><a href="Chapter15.html#cb574-11" tabindex="-1"></a>y_sim <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="at">nrow =</span> <span class="fu">nrow</span>(ocw),</span>
+<span id="cb574-12"><a href="Chapter15.html#cb574-12" tabindex="-1"></a>                <span class="at">ncol =</span> nsim)</span>
+<span id="cb574-13"><a href="Chapter15.html#cb574-13" tabindex="-1"></a>sum_E2_sim <span class="ot">&lt;-</span> <span class="fu">vector</span>()</span>
+<span id="cb574-14"><a href="Chapter15.html#cb574-14" tabindex="-1"></a></span>
+<span id="cb574-15"><a href="Chapter15.html#cb574-15" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>){</span>
+<span id="cb574-16"><a href="Chapter15.html#cb574-16" tabindex="-1"></a> y_sim[,i] <span class="ot">&lt;-</span> <span class="fu">rpois</span>(<span class="at">n =</span> <span class="fu">nrow</span>(ocw), <span class="at">lambda =</span> <span class="fu">exp</span>(sim_param[[i]]<span class="sc">$</span>latent[<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(ocw),])) </span>
+<span id="cb574-17"><a href="Chapter15.html#cb574-17" tabindex="-1"></a> E <span class="ot">&lt;-</span> (y_sim[,i] <span class="sc">-</span> fit15_2)<span class="sc">/</span><span class="fu">sqrt</span>(fit15_2)</span>
+<span id="cb574-18"><a href="Chapter15.html#cb574-18" tabindex="-1"></a> sum_E2_sim[i] <span class="ot">&lt;-</span> <span class="fu">sum</span>(E<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb574-19"><a href="Chapter15.html#cb574-19" tabindex="-1"></a>} </span></code></pre></div>
+<p>実データとシミュレーションデータの観測値の頻度を比較したのが図<a href="Chapter15.html#fig:freq-sim-m15-2">14.2</a>である。<code>m15_1</code>と同様に明らかに観測値の方が0が多く、また分布の裾が狭いことが分かる。1も極端に少ない。</p>
+<div class="sourceCode" id="cb575"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb575-1"><a href="Chapter15.html#cb575-1" tabindex="-1"></a><span class="fu">data.frame</span>(y_sim) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-2"><a href="Chapter15.html#cb575-2" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">everything</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-3"><a href="Chapter15.html#cb575-3" tabindex="-1"></a>  <span class="fu">group_by</span>(name, value) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-4"><a href="Chapter15.html#cb575-4" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">N =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-5"><a href="Chapter15.html#cb575-5" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb575-6"><a href="Chapter15.html#cb575-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Freq =</span> N<span class="sc">/</span><span class="dv">181</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-7"><a href="Chapter15.html#cb575-7" tabindex="-1"></a>  <span class="fu">group_by</span>(value) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-8"><a href="Chapter15.html#cb575-8" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Frequency =</span> <span class="fu">mean</span>(Freq)) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-9"><a href="Chapter15.html#cb575-9" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb575-10"><a href="Chapter15.html#cb575-10" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">NumFledged =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-11"><a href="Chapter15.html#cb575-11" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">&quot;Simulated&quot;</span>) <span class="ot">-&gt;</span> freq_sim</span>
+<span id="cb575-12"><a href="Chapter15.html#cb575-12" tabindex="-1"></a></span>
+<span id="cb575-13"><a href="Chapter15.html#cb575-13" tabindex="-1"></a>ocw <span class="sc">%&gt;%</span> </span>
+<span id="cb575-14"><a href="Chapter15.html#cb575-14" tabindex="-1"></a>  <span class="fu">group_by</span>(NumFledged) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-15"><a href="Chapter15.html#cb575-15" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">N =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-16"><a href="Chapter15.html#cb575-16" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Frequency =</span> N<span class="sc">/</span><span class="dv">181</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-17"><a href="Chapter15.html#cb575-17" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb575-18"><a href="Chapter15.html#cb575-18" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-19"><a href="Chapter15.html#cb575-19" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">&quot;Observed&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-20"><a href="Chapter15.html#cb575-20" tabindex="-1"></a>  <span class="fu">bind_rows</span>(freq_sim) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-21"><a href="Chapter15.html#cb575-21" tabindex="-1"></a>  <span class="fu">complete</span>(NumFledged,  type) <span class="sc">%&gt;%</span> </span>
+<span id="cb575-22"><a href="Chapter15.html#cb575-22" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> NumFledged, <span class="at">y =</span> Frequency))<span class="sc">+</span></span>
+<span id="cb575-23"><a href="Chapter15.html#cb575-23" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="fu">aes</span>(<span class="at">fill =</span> type),</span>
+<span id="cb575-24"><a href="Chapter15.html#cb575-24" tabindex="-1"></a>           <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.95</span>))<span class="sc">+</span></span>
+<span id="cb575-25"><a href="Chapter15.html#cb575-25" tabindex="-1"></a>  <span class="fu">scale_fill_nejm</span>()<span class="sc">+</span></span>
+<span id="cb575-26"><a href="Chapter15.html#cb575-26" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">15</span>,<span class="dv">1</span>))<span class="sc">+</span></span>
+<span id="cb575-27"><a href="Chapter15.html#cb575-27" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb575-28"><a href="Chapter15.html#cb575-28" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.9</span>,<span class="fl">0.9</span>),</span>
+<span id="cb575-29"><a href="Chapter15.html#cb575-29" tabindex="-1"></a>        <span class="at">aspect.ratio =</span> <span class="fl">0.8</span>)<span class="sc">+</span></span>
+<span id="cb575-30"><a href="Chapter15.html#cb575-30" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">&quot;&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Number of fledged chixks&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:freq-sim-m15-2"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/freq-sim-m15-2-1.png" alt="Simulated frequencies (blue) and observed frequencies (red)." width="672" />
+<p class="caption">
+図14.2: Simulated frequencies (blue) and observed frequencies (red).
+</p>
+</div>
+<p><br/></p>
+<p>ピアソン残差の平方和の比較も行う。ヒストグラムがシミュレーションデータのピアソン残差の平方和の分布で、赤い点線が実データのものである。過分散は有意水準5%レベルでは生じていないが、やや過分散であることが示唆される。</p>
+<div class="sourceCode" id="cb576"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb576-1"><a href="Chapter15.html#cb576-1" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">pr =</span> sum_E2_sim) <span class="sc">%&gt;%</span> </span>
+<span id="cb576-2"><a href="Chapter15.html#cb576-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> pr))<span class="sc">+</span></span>
+<span id="cb576-3"><a href="Chapter15.html#cb576-3" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">&quot;white&quot;</span>,</span>
+<span id="cb576-4"><a href="Chapter15.html#cb576-4" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">&quot;black&quot;</span>)<span class="sc">+</span></span>
+<span id="cb576-5"><a href="Chapter15.html#cb576-5" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb576-6"><a href="Chapter15.html#cb576-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb576-7"><a href="Chapter15.html#cb576-7" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">sum</span>(E15_1<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb576-8"><a href="Chapter15.html#cb576-8" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">&quot;red3&quot;</span>,</span>
+<span id="cb576-9"><a href="Chapter15.html#cb576-9" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb576-10"><a href="Chapter15.html#cb576-10" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">250</span>, <span class="at">y =</span> <span class="dv">80</span>),</span>
+<span id="cb576-11"><a href="Chapter15.html#cb576-11" tabindex="-1"></a>            <span class="at">label =</span> <span class="fu">str_c</span>(<span class="st">&quot;P = &quot;</span>, <span class="fu">mean</span>(<span class="fu">sum</span>(E15_1<span class="sc">^</span><span class="dv">2</span>) <span class="sc">&lt;</span> sum_E2_sim)))<span class="sc">+</span></span>
+<span id="cb576-12"><a href="Chapter15.html#cb576-12" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Pearson residuals&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-416-1.png" width="672" style="display: block; margin: auto;" />
+<br/></p>
+<p>最後に、得られた<span class="math inline">\(w_k\)</span>と<span class="math inline">\(u_i\)</span>の事後平均値を座標上に示す。</p>
+<div class="sourceCode" id="cb577"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb577-1"><a href="Chapter15.html#cb577-1" tabindex="-1"></a><span class="do">## wkの算出</span></span>
+<span id="cb577-2"><a href="Chapter15.html#cb577-2" tabindex="-1"></a>w.pm <span class="ot">&lt;-</span> m15_2<span class="sc">$</span>summary.random<span class="sc">$</span>w<span class="sc">$</span>mean</span>
+<span id="cb577-3"><a href="Chapter15.html#cb577-3" tabindex="-1"></a>w.sd <span class="ot">&lt;-</span> m15_2<span class="sc">$</span>summary.random<span class="sc">$</span>w<span class="sc">$</span>sd</span>
+<span id="cb577-4"><a href="Chapter15.html#cb577-4" tabindex="-1"></a>wproj <span class="ot">&lt;-</span> <span class="fu">inla.mesh.projector</span>(mesh15_2)</span>
+<span id="cb577-5"><a href="Chapter15.html#cb577-5" tabindex="-1"></a>w.pm100_100 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.project</span>(wproj, w.pm)</span>
+<span id="cb577-6"><a href="Chapter15.html#cb577-6" tabindex="-1"></a>w.sd100_100 <span class="ot">&lt;-</span> <span class="fu">inla.mesh.project</span>(wproj, w.sd)</span>
+<span id="cb577-7"><a href="Chapter15.html#cb577-7" tabindex="-1"></a></span>
+<span id="cb577-8"><a href="Chapter15.html#cb577-8" tabindex="-1"></a><span class="fu">expand.grid</span>(<span class="at">X =</span> wproj<span class="sc">$</span>x,</span>
+<span id="cb577-9"><a href="Chapter15.html#cb577-9" tabindex="-1"></a>        　  <span class="at">Y =</span> wproj<span class="sc">$</span>y) <span class="sc">%&gt;%</span> </span>
+<span id="cb577-10"><a href="Chapter15.html#cb577-10" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">w.pm =</span> <span class="fu">as.vector</span>(w.pm100_100),</span>
+<span id="cb577-11"><a href="Chapter15.html#cb577-11" tabindex="-1"></a>         <span class="at">w.sd =</span> <span class="fu">as.vector</span>(w.sd100_100)) <span class="ot">-&gt;</span> w_df</span>
+<span id="cb577-12"><a href="Chapter15.html#cb577-12" tabindex="-1"></a></span>
+<span id="cb577-13"><a href="Chapter15.html#cb577-13" tabindex="-1"></a><span class="do">## uの算出</span></span>
+<span id="cb577-14"><a href="Chapter15.html#cb577-14" tabindex="-1"></a>u.proj <span class="ot">&lt;-</span> <span class="fu">inla.mesh.projector</span>(mesh15_2, <span class="at">loc =</span> Loc)</span>
+<span id="cb577-15"><a href="Chapter15.html#cb577-15" tabindex="-1"></a>u.pm <span class="ot">&lt;-</span> <span class="fu">inla.mesh.project</span>(u.proj,</span>
+<span id="cb577-16"><a href="Chapter15.html#cb577-16" tabindex="-1"></a>                          m15_2<span class="sc">$</span>summary.random<span class="sc">$</span>w<span class="sc">$</span>mean)</span>
+<span id="cb577-17"><a href="Chapter15.html#cb577-17" tabindex="-1"></a></span>
+<span id="cb577-18"><a href="Chapter15.html#cb577-18" tabindex="-1"></a><span class="do">## 作図</span></span>
+<span id="cb577-19"><a href="Chapter15.html#cb577-19" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">X =</span> ocw<span class="sc">$</span>Xloc,</span>
+<span id="cb577-20"><a href="Chapter15.html#cb577-20" tabindex="-1"></a>           <span class="at">Y =</span> ocw<span class="sc">$</span>Yloc,</span>
+<span id="cb577-21"><a href="Chapter15.html#cb577-21" tabindex="-1"></a>           <span class="at">u =</span> u.pm) <span class="sc">%&gt;%</span> </span>
+<span id="cb577-22"><a href="Chapter15.html#cb577-22" tabindex="-1"></a>  <span class="fu">replace_na</span>(<span class="fu">list</span>(<span class="at">u =</span> <span class="dv">0</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb577-23"><a href="Chapter15.html#cb577-23" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> X, <span class="at">y =</span> Y))<span class="sc">+</span></span>
+<span id="cb577-24"><a href="Chapter15.html#cb577-24" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">data =</span> w_df <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>(),</span>
+<span id="cb577-25"><a href="Chapter15.html#cb577-25" tabindex="-1"></a>              <span class="fu">aes</span>(<span class="at">fill =</span> w.pm))<span class="sc">+</span></span>
+<span id="cb577-26"><a href="Chapter15.html#cb577-26" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">shape =</span> u <span class="sc">&gt;</span> <span class="dv">0</span>))<span class="sc">+</span></span>
+<span id="cb577-27"><a href="Chapter15.html#cb577-27" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">16</span>))<span class="sc">+</span></span>
+<span id="cb577-28"><a href="Chapter15.html#cb577-28" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb577-29"><a href="Chapter15.html#cb577-29" tabindex="-1"></a>  <span class="fu">coord_fixed</span>(<span class="at">ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb577-30"><a href="Chapter15.html#cb577-30" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">364900</span>, <span class="dv">365500</span>))<span class="sc">+</span></span>
+<span id="cb577-31"><a href="Chapter15.html#cb577-31" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">high =</span> <span class="fu">muted</span>(<span class="st">&quot;red&quot;</span>), <span class="at">low =</span> <span class="fu">muted</span>(<span class="st">&quot;yellow4&quot;</span>), <span class="at">mid =</span> <span class="st">&quot;ivory&quot;</span>,</span>
+<span id="cb577-32"><a href="Chapter15.html#cb577-32" tabindex="-1"></a>                       <span class="at">midpoint =</span> <span class="dv">0</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-417-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="spatial-temporal-correlation-ar1" class="section level2 hasAnchor" number="14.4">
+<h2><span class="header-section-number">14.4</span> Spatial-temporal correlation: AR1<a href="Chapter15.html#spatial-temporal-correlation-ar1" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>それでは最後に、時間的な相関も考慮したモデルを作成する。先ほどのモデルでは、ランダム場は7年間同じであることを仮定していた。しかし、現実では年によってランダム場は変化すると考えた方が自然である。時間的相関を考慮するモデルとして、本節ではAR1モデルを用いる。</p>
+<div id="explanation-of-the-model" class="section level3 hasAnchor" number="14.4.1">
+<h3><span class="header-section-number">14.4.1</span> Explanation of the model<a href="Chapter15.html#explanation-of-the-model" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>AR1を用いた時空間モデルは以下のようなモデル式で書ける。なお、<span class="math inline">\(t\)</span>は年を(<span class="math inline">\(t = 1,2,3,...,7\)</span>)、<span class="math inline">\(j\)</span>は各年の観察数を表す。<span class="math inline">\(u_{tj}\)</span>は年ごとに独立して得られるランダム場である。</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;FL_{tj} \sim Poisson(\mu_{tj})\\
+&amp;log(\mu_{tj}) = \beta_1 + \beta_2 \times BreedingD_{tj} + \beta_3 \times Rain_{tj} + v_{tj}\\
+&amp;v_{tj} = \phi \times v_{t-1.j} + u_{tj}
+\end{aligned}
+\]</span></p>
+</div>
+<div id="implementation-of-ar1-model-in-r-inla" class="section level3 hasAnchor" number="14.4.2">
+<h3><span class="header-section-number">14.4.2</span> Implementation of AR1 model in R-INLA<a href="Chapter15.html#implementation-of-ar1-model-in-r-inla" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>それでは、実際に<code>INLA</code>で時空間モデルを実装する。</p>
+<p>まず、各観察年に番号<span class="math inline">\(1,2,3,...7\)</span>を割り当てる変数を作成する。</p>
+<div class="sourceCode" id="cb578"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb578-1"><a href="Chapter15.html#cb578-1" tabindex="-1"></a>group3 <span class="ot">&lt;-</span> ocw<span class="sc">$</span>Year <span class="sc">-</span> <span class="dv">2002</span></span>
+<span id="cb578-2"><a href="Chapter15.html#cb578-2" tabindex="-1"></a>ngroups <span class="ot">&lt;-</span> <span class="fu">length</span>(<span class="fu">unique</span>(group3))</span></code></pre></div>
+<p>続いて、投影行列<span class="math inline">\(\mathbf{A}\)</span>を作成する。このとき、<code>group =</code>に先ほど作成した観察年ごとの番号を当てはめる。</p>
+<div class="sourceCode" id="cb579"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb579-1"><a href="Chapter15.html#cb579-1" tabindex="-1"></a>A15_3 <span class="ot">&lt;-</span> <span class="fu">inla.spde.make.A</span>(mesh15_2,</span>
+<span id="cb579-2"><a href="Chapter15.html#cb579-2" tabindex="-1"></a>                          <span class="at">group =</span> group3,</span>
+<span id="cb579-3"><a href="Chapter15.html#cb579-3" tabindex="-1"></a>                          <span class="at">loc =</span> Loc)</span></code></pre></div>
+<p>続いて、ランダム場<span class="math inline">\(\mathbf{w}\)</span>を定義する。このとき、<code>n.group =</code>で観察年の数を指定する。</p>
+<div class="sourceCode" id="cb580"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb580-1"><a href="Chapter15.html#cb580-1" tabindex="-1"></a>w.index15_3 <span class="ot">&lt;-</span> <span class="fu">inla.spde.make.index</span>(<span class="at">name =</span> <span class="st">&quot;w&quot;</span>,</span>
+<span id="cb580-2"><a href="Chapter15.html#cb580-2" tabindex="-1"></a>                                    <span class="at">n.spde =</span> mesh15_2<span class="sc">$</span>n,</span>
+<span id="cb580-3"><a href="Chapter15.html#cb580-3" tabindex="-1"></a>                                    <span class="at">n.group =</span> ngroups)</span></code></pre></div>
+<p>続いて、これらの情報を紐づける。</p>
+<div class="sourceCode" id="cb581"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb581-1"><a href="Chapter15.html#cb581-1" tabindex="-1"></a>stk15_3 <span class="ot">&lt;-</span> <span class="fu">inla.stack</span>(<span class="at">tag =</span> <span class="st">&quot;Fit&quot;</span>,</span>
+<span id="cb581-2"><a href="Chapter15.html#cb581-2" tabindex="-1"></a>                      <span class="at">data =</span> <span class="fu">list</span>(<span class="at">y =</span> ocw<span class="sc">$</span>NumFledged),</span>
+<span id="cb581-3"><a href="Chapter15.html#cb581-3" tabindex="-1"></a>                      <span class="at">A =</span> <span class="fu">list</span>(A15_3, <span class="dv">1</span>),</span>
+<span id="cb581-4"><a href="Chapter15.html#cb581-4" tabindex="-1"></a>                      <span class="at">effects =</span> <span class="fu">list</span>(w.index15_3,</span>
+<span id="cb581-5"><a href="Chapter15.html#cb581-5" tabindex="-1"></a>                                     X))</span></code></pre></div>
+<p>それでは、モデルを実行する。モデル式では<code>group = w.group</code>、<code>control.group = list(model = "ar1")</code>とすることで時間的な相関を考慮した空間モデルを実行できる。</p>
+<div class="sourceCode" id="cb582"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb582-1"><a href="Chapter15.html#cb582-1" tabindex="-1"></a>f15_3 <span class="ot">&lt;-</span> y <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> Intercept <span class="sc">+</span> BD_std <span class="sc">+</span> Rain_std <span class="sc">+</span> <span class="fu">f</span>(w,</span>
+<span id="cb582-2"><a href="Chapter15.html#cb582-2" tabindex="-1"></a>                                                    <span class="at">model =</span> spde15_2,</span>
+<span id="cb582-3"><a href="Chapter15.html#cb582-3" tabindex="-1"></a>                                                    <span class="at">group =</span> w.group,</span>
+<span id="cb582-4"><a href="Chapter15.html#cb582-4" tabindex="-1"></a>                                                    <span class="at">control.group =</span> <span class="fu">list</span>(<span class="at">model =</span> <span class="st">&quot;ar1&quot;</span>))</span>
+<span id="cb582-5"><a href="Chapter15.html#cb582-5" tabindex="-1"></a></span>
+<span id="cb582-6"><a href="Chapter15.html#cb582-6" tabindex="-1"></a>m15_3 <span class="ot">&lt;-</span> <span class="fu">inla</span>(f15_3,</span>
+<span id="cb582-7"><a href="Chapter15.html#cb582-7" tabindex="-1"></a>              <span class="at">family =</span> <span class="st">&quot;poisson&quot;</span>,</span>
+<span id="cb582-8"><a href="Chapter15.html#cb582-8" tabindex="-1"></a>              <span class="at">data =</span> <span class="fu">inla.stack.data</span>(stk15_3),</span>
+<span id="cb582-9"><a href="Chapter15.html#cb582-9" tabindex="-1"></a>              <span class="at">control.compute =</span> <span class="fu">list</span>(<span class="at">dic =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb582-10"><a href="Chapter15.html#cb582-10" tabindex="-1"></a>                                     <span class="at">config =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb582-11"><a href="Chapter15.html#cb582-11" tabindex="-1"></a>              <span class="at">control.predictor =</span> <span class="fu">list</span>(<span class="at">A =</span> <span class="fu">inla.stack.A</span>(stk15_3)))</span></code></pre></div>
+<p>DICを比べると、空間相関のみを考慮したモデルよりも少し良い。</p>
+<div class="sourceCode" id="cb583"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb583-1"><a href="Chapter15.html#cb583-1" tabindex="-1"></a><span class="fu">c</span>(m15_2<span class="sc">$</span>dic<span class="sc">$</span>dic, m15_3<span class="sc">$</span>dic<span class="sc">$</span>dic)</span></code></pre></div>
+<pre><code>## [1] 526.4070 522.5385</code></pre>
+<div id="model-diagnosis-1" class="section level4 hasAnchor" number="14.4.2.1">
+<h4><span class="header-section-number">14.4.2.1</span> Model diagnosis<a href="Chapter15.html#model-diagnosis-1" class="anchor-section" aria-label="Anchor link to header"></a></h4>
+<p>それでは、モデル診断を行う。先ほどと同様にシミュレーションによってでシミュレートされたデータと実データを比較する。</p>
+<div class="sourceCode" id="cb585"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb585-1"><a href="Chapter15.html#cb585-1" tabindex="-1"></a>fit15_3 <span class="ot">&lt;-</span> m15_3<span class="sc">$</span>summary.fitted.values<span class="sc">$</span>mean[<span class="dv">1</span><span class="sc">:</span><span class="dv">181</span>]</span>
+<span id="cb585-2"><a href="Chapter15.html#cb585-2" tabindex="-1"></a></span>
+<span id="cb585-3"><a href="Chapter15.html#cb585-3" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb585-4"><a href="Chapter15.html#cb585-4" tabindex="-1"></a></span>
+<span id="cb585-5"><a href="Chapter15.html#cb585-5" tabindex="-1"></a><span class="do">## 事後分布からサンプリング  </span></span>
+<span id="cb585-6"><a href="Chapter15.html#cb585-6" tabindex="-1"></a>nsim <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb585-7"><a href="Chapter15.html#cb585-7" tabindex="-1"></a>sim_param <span class="ot">&lt;-</span> <span class="fu">inla.posterior.sample</span>(<span class="at">n =</span> nsim,</span>
+<span id="cb585-8"><a href="Chapter15.html#cb585-8" tabindex="-1"></a>                                   <span class="at">result =</span> m15_3)</span>
+<span id="cb585-9"><a href="Chapter15.html#cb585-9" tabindex="-1"></a></span>
+<span id="cb585-10"><a href="Chapter15.html#cb585-10" tabindex="-1"></a><span class="do">## シミュレーションデータのぴ話損残差の平方和を計算</span></span>
+<span id="cb585-11"><a href="Chapter15.html#cb585-11" tabindex="-1"></a>y_sim <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="at">nrow =</span> <span class="fu">nrow</span>(ocw),</span>
+<span id="cb585-12"><a href="Chapter15.html#cb585-12" tabindex="-1"></a>                <span class="at">ncol =</span> nsim)</span>
+<span id="cb585-13"><a href="Chapter15.html#cb585-13" tabindex="-1"></a>sum_E2_sim <span class="ot">&lt;-</span> <span class="fu">vector</span>()</span>
+<span id="cb585-14"><a href="Chapter15.html#cb585-14" tabindex="-1"></a></span>
+<span id="cb585-15"><a href="Chapter15.html#cb585-15" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>){</span>
+<span id="cb585-16"><a href="Chapter15.html#cb585-16" tabindex="-1"></a> y_sim[,i] <span class="ot">&lt;-</span> <span class="fu">rpois</span>(<span class="at">n =</span> <span class="fu">nrow</span>(ocw), <span class="at">lambda =</span> <span class="fu">exp</span>(sim_param[[i]]<span class="sc">$</span>latent[<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(ocw),])) </span>
+<span id="cb585-17"><a href="Chapter15.html#cb585-17" tabindex="-1"></a> E <span class="ot">&lt;-</span> (y_sim[,i] <span class="sc">-</span> fit15_3)<span class="sc">/</span><span class="fu">sqrt</span>(fit15_3)</span>
+<span id="cb585-18"><a href="Chapter15.html#cb585-18" tabindex="-1"></a> sum_E2_sim[i] <span class="ot">&lt;-</span> <span class="fu">sum</span>(E<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb585-19"><a href="Chapter15.html#cb585-19" tabindex="-1"></a>} </span></code></pre></div>
+<p>実データとシミュレーションデータの観測値の頻度を比較したのが図<a href="Chapter15.html#fig:freq-sim-m15-3">14.3</a>である。<code>m15_1</code>、<code>m15_2</code>と同様に明らかに観測値の方が0が多く、また分布の裾が狭いことが分かる。1も極端に少ない。</p>
+<div class="sourceCode" id="cb586"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb586-1"><a href="Chapter15.html#cb586-1" tabindex="-1"></a><span class="fu">data.frame</span>(y_sim) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-2"><a href="Chapter15.html#cb586-2" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">everything</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-3"><a href="Chapter15.html#cb586-3" tabindex="-1"></a>  <span class="fu">group_by</span>(name, value) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-4"><a href="Chapter15.html#cb586-4" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">N =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-5"><a href="Chapter15.html#cb586-5" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb586-6"><a href="Chapter15.html#cb586-6" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Freq =</span> N<span class="sc">/</span><span class="dv">181</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-7"><a href="Chapter15.html#cb586-7" tabindex="-1"></a>  <span class="fu">group_by</span>(value) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-8"><a href="Chapter15.html#cb586-8" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Frequency =</span> <span class="fu">mean</span>(Freq)) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-9"><a href="Chapter15.html#cb586-9" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb586-10"><a href="Chapter15.html#cb586-10" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">NumFledged =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-11"><a href="Chapter15.html#cb586-11" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">&quot;Simulated&quot;</span>) <span class="ot">-&gt;</span> freq_sim</span>
+<span id="cb586-12"><a href="Chapter15.html#cb586-12" tabindex="-1"></a></span>
+<span id="cb586-13"><a href="Chapter15.html#cb586-13" tabindex="-1"></a>ocw <span class="sc">%&gt;%</span> </span>
+<span id="cb586-14"><a href="Chapter15.html#cb586-14" tabindex="-1"></a>  <span class="fu">group_by</span>(NumFledged) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-15"><a href="Chapter15.html#cb586-15" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">N =</span> <span class="fu">n</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-16"><a href="Chapter15.html#cb586-16" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Frequency =</span> N<span class="sc">/</span><span class="dv">181</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-17"><a href="Chapter15.html#cb586-17" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb586-18"><a href="Chapter15.html#cb586-18" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="dv">2</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-19"><a href="Chapter15.html#cb586-19" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">type =</span> <span class="st">&quot;Observed&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-20"><a href="Chapter15.html#cb586-20" tabindex="-1"></a>  <span class="fu">bind_rows</span>(freq_sim) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-21"><a href="Chapter15.html#cb586-21" tabindex="-1"></a>  <span class="fu">complete</span>(NumFledged,  type) <span class="sc">%&gt;%</span> </span>
+<span id="cb586-22"><a href="Chapter15.html#cb586-22" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> NumFledged, <span class="at">y =</span> Frequency))<span class="sc">+</span></span>
+<span id="cb586-23"><a href="Chapter15.html#cb586-23" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="fu">aes</span>(<span class="at">fill =</span> type),</span>
+<span id="cb586-24"><a href="Chapter15.html#cb586-24" tabindex="-1"></a>           <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="fl">0.95</span>))<span class="sc">+</span></span>
+<span id="cb586-25"><a href="Chapter15.html#cb586-25" tabindex="-1"></a>  <span class="fu">scale_fill_nejm</span>()<span class="sc">+</span></span>
+<span id="cb586-26"><a href="Chapter15.html#cb586-26" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">30</span>,<span class="dv">1</span>))<span class="sc">+</span></span>
+<span id="cb586-27"><a href="Chapter15.html#cb586-27" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb586-28"><a href="Chapter15.html#cb586-28" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="fu">c</span>(<span class="fl">0.9</span>,<span class="fl">0.9</span>),</span>
+<span id="cb586-29"><a href="Chapter15.html#cb586-29" tabindex="-1"></a>        <span class="at">aspect.ratio =</span> <span class="fl">0.8</span>)<span class="sc">+</span></span>
+<span id="cb586-30"><a href="Chapter15.html#cb586-30" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">&quot;&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Number of fledged chixks&quot;</span>)</span></code></pre></div>
+<div class="figure" style="text-align: center"><span style="display:block;" id="fig:freq-sim-m15-3"></span>
+<img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/freq-sim-m15-3-1.png" alt="Simulated frequencies (blue) and observed frequencies (red)." width="672" />
+<p class="caption">
+図14.3: Simulated frequencies (blue) and observed frequencies (red).
+</p>
+</div>
+<p><br/></p>
+<p>ピアソン残差の平方和の比較も行う。ヒストグラムがシミュレーションデータのピアソン残差の平方和の分布で、赤い点線が実データのものである。過分散は有意水準5%レベルでは生じていない。<code>m15_2</code>よりも過分散は改善している。</p>
+<div class="sourceCode" id="cb587"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb587-1"><a href="Chapter15.html#cb587-1" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">pr =</span> sum_E2_sim) <span class="sc">%&gt;%</span> </span>
+<span id="cb587-2"><a href="Chapter15.html#cb587-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> pr))<span class="sc">+</span></span>
+<span id="cb587-3"><a href="Chapter15.html#cb587-3" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">&quot;white&quot;</span>,</span>
+<span id="cb587-4"><a href="Chapter15.html#cb587-4" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">&quot;black&quot;</span>)<span class="sc">+</span></span>
+<span id="cb587-5"><a href="Chapter15.html#cb587-5" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
+<span id="cb587-6"><a href="Chapter15.html#cb587-6" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">aspect.ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb587-7"><a href="Chapter15.html#cb587-7" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">sum</span>(E15_1<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb587-8"><a href="Chapter15.html#cb587-8" tabindex="-1"></a>             <span class="at">color =</span> <span class="st">&quot;red3&quot;</span>,</span>
+<span id="cb587-9"><a href="Chapter15.html#cb587-9" tabindex="-1"></a>             <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>)<span class="sc">+</span></span>
+<span id="cb587-10"><a href="Chapter15.html#cb587-10" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">250</span>, <span class="at">y =</span> <span class="dv">80</span>),</span>
+<span id="cb587-11"><a href="Chapter15.html#cb587-11" tabindex="-1"></a>            <span class="at">label =</span> <span class="fu">str_c</span>(<span class="st">&quot;P = &quot;</span>, <span class="fu">mean</span>(<span class="fu">sum</span>(E15_1<span class="sc">^</span><span class="dv">2</span>) <span class="sc">&lt;</span> sum_E2_sim)))<span class="sc">+</span></span>
+<span id="cb587-12"><a href="Chapter15.html#cb587-12" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Pearson residuals&quot;</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-425-1.png" width="672" style="display: block; margin: auto;" />
+<br/></p>
+<p>最後に、得られた<span class="math inline">\(w_k\)</span>の事後平均値を座標上に示す。</p>
+<div class="sourceCode" id="cb588"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb588-1"><a href="Chapter15.html#cb588-1" tabindex="-1"></a><span class="do">## wkの算出</span></span>
+<span id="cb588-2"><a href="Chapter15.html#cb588-2" tabindex="-1"></a>w.pm <span class="ot">&lt;-</span> m15_3<span class="sc">$</span>summary.random<span class="sc">$</span>w<span class="sc">$</span>mean</span>
+<span id="cb588-3"><a href="Chapter15.html#cb588-3" tabindex="-1"></a>w.sd <span class="ot">&lt;-</span> m15_3<span class="sc">$</span>summary.random<span class="sc">$</span>w<span class="sc">$</span>sd</span>
+<span id="cb588-4"><a href="Chapter15.html#cb588-4" tabindex="-1"></a>wproj <span class="ot">&lt;-</span> <span class="fu">inla.mesh.projector</span>(mesh15_2)</span>
+<span id="cb588-5"><a href="Chapter15.html#cb588-5" tabindex="-1"></a></span>
+<span id="cb588-6"><a href="Chapter15.html#cb588-6" tabindex="-1"></a>w7 <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb588-7"><a href="Chapter15.html#cb588-7" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">7</span>){</span>
+<span id="cb588-8"><a href="Chapter15.html#cb588-8" tabindex="-1"></a>   w7[[i]] <span class="ot">&lt;-</span> <span class="fu">inla.mesh.project</span>(</span>
+<span id="cb588-9"><a href="Chapter15.html#cb588-9" tabindex="-1"></a>                      wproj, </span>
+<span id="cb588-10"><a href="Chapter15.html#cb588-10" tabindex="-1"></a>                      w.pm[w.index15_3<span class="sc">$</span>w.group<span class="sc">==</span>i])</span>
+<span id="cb588-11"><a href="Chapter15.html#cb588-11" tabindex="-1"></a>}</span>
+<span id="cb588-12"><a href="Chapter15.html#cb588-12" tabindex="-1"></a></span>
+<span id="cb588-13"><a href="Chapter15.html#cb588-13" tabindex="-1"></a><span class="fu">expand.grid</span>(<span class="at">X =</span> wproj<span class="sc">$</span>x,</span>
+<span id="cb588-14"><a href="Chapter15.html#cb588-14" tabindex="-1"></a>        　  <span class="at">Y =</span> wproj<span class="sc">$</span>y,</span>
+<span id="cb588-15"><a href="Chapter15.html#cb588-15" tabindex="-1"></a>        　  <span class="at">year =</span> <span class="dv">2003</span><span class="sc">:</span><span class="dv">2009</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb588-16"><a href="Chapter15.html#cb588-16" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">w.pm =</span> <span class="fu">c</span>(<span class="fu">as.vector</span>(w7[[<span class="dv">1</span>]]), <span class="fu">as.vector</span>(w7[[<span class="dv">2</span>]]),</span>
+<span id="cb588-17"><a href="Chapter15.html#cb588-17" tabindex="-1"></a>                  <span class="fu">as.vector</span>(w7[[<span class="dv">3</span>]]), <span class="fu">as.vector</span>(w7[[<span class="dv">4</span>]]),</span>
+<span id="cb588-18"><a href="Chapter15.html#cb588-18" tabindex="-1"></a>                  <span class="fu">as.vector</span>(w7[[<span class="dv">5</span>]]), <span class="fu">as.vector</span>(w7[[<span class="dv">6</span>]]), <span class="fu">as.vector</span>(w7[[<span class="dv">7</span>]]))) <span class="ot">-&gt;</span> w_df</span>
+<span id="cb588-19"><a href="Chapter15.html#cb588-19" tabindex="-1"></a></span>
+<span id="cb588-20"><a href="Chapter15.html#cb588-20" tabindex="-1"></a><span class="do">## 作図</span></span>
+<span id="cb588-21"><a href="Chapter15.html#cb588-21" tabindex="-1"></a>w_df <span class="sc">%&gt;%</span> </span>
+<span id="cb588-22"><a href="Chapter15.html#cb588-22" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> X, <span class="at">y =</span> Y))<span class="sc">+</span></span>
+<span id="cb588-23"><a href="Chapter15.html#cb588-23" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">data =</span> w_df <span class="sc">%&gt;%</span> <span class="fu">drop_na</span>(),</span>
+<span id="cb588-24"><a href="Chapter15.html#cb588-24" tabindex="-1"></a>              <span class="fu">aes</span>(<span class="at">fill =</span> w.pm))<span class="sc">+</span></span>
+<span id="cb588-25"><a href="Chapter15.html#cb588-25" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">16</span>))<span class="sc">+</span></span>
+<span id="cb588-26"><a href="Chapter15.html#cb588-26" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb588-27"><a href="Chapter15.html#cb588-27" tabindex="-1"></a>  <span class="fu">coord_fixed</span>(<span class="at">ratio =</span> <span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb588-28"><a href="Chapter15.html#cb588-28" tabindex="-1"></a>  <span class="fu">facet_rep_wrap</span>(<span class="sc">~</span>year, <span class="at">repeat.tick.labels =</span> <span class="cn">TRUE</span>)<span class="sc">+</span></span>
+<span id="cb588-29"><a href="Chapter15.html#cb588-29" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">364900</span>, <span class="dv">365500</span>))<span class="sc">+</span></span>
+<span id="cb588-30"><a href="Chapter15.html#cb588-30" tabindex="-1"></a>  <span class="fu">scale_fill_gradient2</span>(<span class="at">high =</span> <span class="fu">muted</span>(<span class="st">&quot;red&quot;</span>), <span class="at">low =</span> <span class="fu">muted</span>(<span class="st">&quot;yellow4&quot;</span>), <span class="at">mid =</span> <span class="st">&quot;ivory&quot;</span>,</span>
+<span id="cb588-31"><a href="Chapter15.html#cb588-31" tabindex="-1"></a>                       <span class="at">midpoint =</span> <span class="fl">0.1</span>)</span></code></pre></div>
+<p><img src="Introduction-to-Spatial-temporal-analysis-in-R_files/figure-html/unnamed-chunk-426-1.png" width="672" style="display: block; margin: auto;" /></p>
+
+</div>
+</div>
+</div>
+</div>
+<h3>References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Sofaer2014" class="csl-entry">
+Sofaer HR, Sillett TS, Langin KM, et al (2014) Partitioning the sources of demographic variation reveals density-dependent nest predation in an island bird population. Ecol Evol 4:2738–2748
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="Chapter14.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="sessioninfo.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

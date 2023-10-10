@@ -128,7 +128,7 @@ phi <- sum(E^2)/(N-p)
 phi
 ```
 
-##### Bayesian method for looking for over/under-dispersion  
+##### Bayesian method for looking for over/under-dispersion {#s9-1-3-1-2}   
 ただし、ベイズモデリングの場合、事前分布が無情報ではない場合には分散パラメータがそのまま解釈できない可能性がある。そこで、ベイズモデリングでは異なる方法で確認を行う。  
 
 MCMCの場合には、各MCMCサンプルごとにデータをシミュレートして実データと比べることで過分散の検討を行える[@Zuur2016]。`INLA`ではMCMCをしていないので、事後分布から新たなデータをシミュレートし、これを実測値と比較することで過分散がないかを確認する。具体的には、以下の手順を行う。  
