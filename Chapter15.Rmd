@@ -168,7 +168,7 @@ mesh15_2 <- inla.mesh.2d(boundary = ConvHull,
                          max.edge = 30, cutoff = 1)
 ```
 
-続いて、揺曳マトリックス$\mathbf{A}$を定義する。  
+続いて、投影マトリックス$\mathbf{A}$を定義する。  
 ```{r}
 A15_2 <- inla.spde.make.A(mesh15_2, loc = Loc)
 ```
@@ -178,4 +178,346 @@ A15_2 <- inla.spde.make.A(mesh15_2, loc = Loc)
 spde15_2 <- inla.spde2.matern(mesh15_2, alpha = 2)
 ```
 
-また、ランダム空間場$\mathbf{w}$を定義する。
+また、ランダム空間場$\mathbf{w}$を定義する。  
+```{r}
+w.index15_2 <- inla.spde.make.index("w", mesh15_2$n)
+```
+
+続いて、(切片を含む)共変量の入った行列$\mathbf{X}$を作成する。  
+```{r}
+N <- nrow(ocw)
+
+X <- data.frame(Intercept = rep(1, N),
+                BD_std = ocw$BD_std,
+                Rain_std = ocw$Rain_std)
+```
+
+最後に、全ての情報を対応付ける。  
+```{r}
+stk15_2 <- inla.stack(tag = "Fit",
+                      data = list(y = ocw$NumFledged),
+                      A = list(A15_2, 1),
+                      effects = list(w.index15_2,
+                                     X))
+```
+
+
+以上で作成・定義した行列を用いてモデル式は以下のように書ける。  
+
+$$
+\begin{aligned}
+&\mathbf{FL} \sim Poisson(\mathbf{\mu})\\
+&log(\mathbf{\mu}) = \mathbf{X} \times \mathbf{\beta} + \mathbf{u}\\
+&\mathbf{u} = \mathbf{A_2} \times \mathbf{w}
+\end{aligned}
+$$
+
+それではモデルを実行する。  
+```{r}
+f15_2 <- y ~ -1 + Intercept + BD_std + Rain_std + f(w, model = spde15_2)
+
+m15_2 <- inla(f15_2,
+              family = "poisson",
+              data = inla.stack.data(stk15_2),
+              control.compute = list(dic = TRUE,
+                                     config = TRUE),
+              control.predictor = list(A = inla.stack.A(stk15_2)))
+```
+
+空間相関を考慮しないモデルと比較するとDICはかなり低い。  
+```{r}
+c(m15_1$dic$dic, m15_2$dic$dic)
+```
+
+### Model diagnosis  
+それでは、モデル診断を行う。先ほどと同様にシミュレーションによってでシミュレートされたデータと実データを比較する。  
+
+```{r}
+fit15_2 <- m15_2$summary.fitted.values$mean[1:181]
+
+set.seed(123)
+
+## 事後分布からサンプリング  
+nsim <- 1000
+sim_param <- inla.posterior.sample(n = nsim,
+                                   result = m15_2)
+
+## シミュレーションデータのぴ話損残差の平方和を計算
+y_sim <- matrix(nrow = nrow(ocw),
+                ncol = nsim)
+sum_E2_sim <- vector()
+
+for(i in 1:1000){
+ y_sim[,i] <- rpois(n = nrow(ocw), lambda = exp(sim_param[[i]]$latent[1:nrow(ocw),])) 
+ E <- (y_sim[,i] - fit15_2)/sqrt(fit15_2)
+ sum_E2_sim[i] <- sum(E^2)
+} 
+```
+
+実データとシミュレーションデータの観測値の頻度を比較したのが図\@ref(fig:freq-sim-m15-2)である。`m15_1`と同様に明らかに観測値の方が0が多く、また分布の裾が狭いことが分かる。1も極端に少ない。      
+```{r freq-sim-m15-2, fig.cap = "Simulated frequencies (blue) and observed frequencies (red)."}
+data.frame(y_sim) %>% 
+  pivot_longer(everything()) %>% 
+  group_by(name, value) %>% 
+  summarise(N = n()) %>% 
+  ungroup() %>% 
+  mutate(Freq = N/181) %>% 
+  group_by(value) %>% 
+  summarise(Frequency = mean(Freq)) %>% 
+  ungroup() %>% 
+  rename(NumFledged = 1) %>% 
+  mutate(type = "Simulated") -> freq_sim
+
+ocw %>% 
+  group_by(NumFledged) %>% 
+  summarise(N = n()) %>% 
+  mutate(Frequency = N/181) %>% 
+  ungroup() %>% 
+  select(-2) %>% 
+  mutate(type = "Observed") %>% 
+  bind_rows(freq_sim) %>% 
+  complete(NumFledged,  type) %>% 
+  ggplot(aes(x = NumFledged, y = Frequency))+
+  geom_col(aes(fill = type),
+           position = position_dodge(0.95))+
+  scale_fill_nejm()+
+  scale_x_continuous(breaks = seq(0,15,1))+
+  theme_bw()+
+  theme(legend.position = c(0.9,0.9),
+        aspect.ratio = 0.8)+
+  labs(fill = "", x = "Number of fledged chixks")
+```
+<br/>  
+
+ピアソン残差の平方和の比較も行う。ヒストグラムがシミュレーションデータのピアソン残差の平方和の分布で、赤い点線が実データのものである。過分散は有意水準5%レベルでは生じていないが、やや過分散であることが示唆される。  
+```{r}
+data.frame(pr = sum_E2_sim) %>% 
+  ggplot(aes(x = pr))+
+  geom_histogram(fill = "white",
+                 color = "black")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  geom_vline(xintercept = sum(E15_1^2),
+             color = "red3",
+             linetype = "dashed")+
+  geom_text(aes(x = 250, y = 80),
+            label = str_c("P = ", mean(sum(E15_1^2) < sum_E2_sim)))+
+  labs(x = "Pearson residuals")
+```
+<br/>  
+
+最後に、得られた$w_k$と$u_i$の事後平均値を座標上に示す。  
+```{r}
+## wkの算出
+w.pm <- m15_2$summary.random$w$mean
+w.sd <- m15_2$summary.random$w$sd
+wproj <- inla.mesh.projector(mesh15_2)
+w.pm100_100 <- inla.mesh.project(wproj, w.pm)
+w.sd100_100 <- inla.mesh.project(wproj, w.sd)
+
+expand.grid(X = wproj$x,
+        　  Y = wproj$y) %>% 
+  mutate(w.pm = as.vector(w.pm100_100),
+         w.sd = as.vector(w.sd100_100)) -> w_df
+
+## uの算出
+u.proj <- inla.mesh.projector(mesh15_2, loc = Loc)
+u.pm <- inla.mesh.project(u.proj,
+                          m15_2$summary.random$w$mean)
+
+## 作図
+data.frame(X = ocw$Xloc,
+           Y = ocw$Yloc,
+           u = u.pm) %>% 
+  replace_na(list(u = 0)) %>% 
+  ggplot(aes(x = X, y = Y))+
+  geom_tile(data = w_df %>% drop_na(),
+              aes(fill = w.pm))+
+  geom_point(aes(shape = u > 0))+
+  scale_shape_manual(values = c(1,16))+
+  theme_bw() +
+  coord_fixed(ratio = 1)+
+  coord_cartesian(xlim = c(364900, 365500))+
+  scale_fill_gradient2(high = muted("red"), low = muted("yellow4"), mid = "ivory",
+                       midpoint = 0)
+```
+
+
+## Spatial-temporal correlation: AR1  
+それでは最後に、時間的な相関も考慮したモデルを作成する。先ほどのモデルでは、ランダム場は7年間同じであることを仮定していた。しかし、現実では年によってランダム場は変化すると考えた方が自然である。時間的相関を考慮するモデルとして、本節ではAR1モデルを用いる。    
+
+### Explanation of the model  
+AR1を用いた時空間モデルは以下のようなモデル式で書ける。なお、$t$は年を($t = 1,2,3,...,7$)、$j$は各年の観察数を表す。$u_{tj}$は年ごとに独立して得られるランダム場である。    
+
+$$
+\begin{aligned}
+&FL_{tj} \sim Poisson(\mu_{tj})\\
+&log(\mu_{tj}) = \beta_1 + \beta_2 \times BreedingD_{tj} + \beta_3 \times Rain_{tj} + v_{tj}\\
+&v_{tj} = \phi \times v_{t-1.j} + u_{tj}
+\end{aligned}
+$$
+
+### Implementation of AR1 model in R-INLA  
+それでは、実際に`INLA`で時空間モデルを実装する。  
+
+まず、各観察年に番号$1,2,3,...7$を割り当てる変数を作成する。  
+```{r}
+group3 <- ocw$Year - 2002
+ngroups <- length(unique(group3))
+```
+
+続いて、投影行列$\mathbf{A}$を作成する。このとき、`group = `に先ほど作成した観察年ごとの番号を当てはめる。  
+```{r}
+A15_3 <- inla.spde.make.A(mesh15_2,
+                          group = group3,
+                          loc = Loc)
+```
+
+続いて、ランダム場$\mathbf{w}$を定義する。このとき、`n.group = `で観察年の数を指定する。  
+```{r}
+w.index15_3 <- inla.spde.make.index(name = "w",
+                                    n.spde = mesh15_2$n,
+                                    n.group = ngroups)
+```
+
+続いて、これらの情報を紐づける。  
+```{r}
+stk15_3 <- inla.stack(tag = "Fit",
+                      data = list(y = ocw$NumFledged),
+                      A = list(A15_3, 1),
+                      effects = list(w.index15_3,
+                                     X))
+```
+
+それでは、モデルを実行する。モデル式では`group = w.group`、`control.group = list(model = "ar1")`とすることで時間的な相関を考慮した空間モデルを実行できる。  
+
+```{r}
+f15_3 <- y ~ -1 + Intercept + BD_std + Rain_std + f(w,
+                                                    model = spde15_2,
+                                                    group = w.group,
+                                                    control.group = list(model = "ar1"))
+
+m15_3 <- inla(f15_3,
+              family = "poisson",
+              data = inla.stack.data(stk15_3),
+              control.compute = list(dic = TRUE,
+                                     config = TRUE),
+              control.predictor = list(A = inla.stack.A(stk15_3)))
+```
+
+DICを比べると、空間相関のみを考慮したモデルよりも少し良い。  
+```{r}
+c(m15_2$dic$dic, m15_3$dic$dic)
+```
+
+#### Model diagnosis  
+それでは、モデル診断を行う。先ほどと同様にシミュレーションによってでシミュレートされたデータと実データを比較する。  
+
+```{r}
+fit15_3 <- m15_3$summary.fitted.values$mean[1:181]
+
+set.seed(123)
+
+## 事後分布からサンプリング  
+nsim <- 1000
+sim_param <- inla.posterior.sample(n = nsim,
+                                   result = m15_3)
+
+## シミュレーションデータのぴ話損残差の平方和を計算
+y_sim <- matrix(nrow = nrow(ocw),
+                ncol = nsim)
+sum_E2_sim <- vector()
+
+for(i in 1:1000){
+ y_sim[,i] <- rpois(n = nrow(ocw), lambda = exp(sim_param[[i]]$latent[1:nrow(ocw),])) 
+ E <- (y_sim[,i] - fit15_3)/sqrt(fit15_3)
+ sum_E2_sim[i] <- sum(E^2)
+} 
+```
+
+実データとシミュレーションデータの観測値の頻度を比較したのが図\@ref(fig:freq-sim-m15-3)である。`m15_1`、`m15_2`と同様に明らかに観測値の方が0が多く、また分布の裾が狭いことが分かる。1も極端に少ない。      
+```{r freq-sim-m15-3, fig.cap = "Simulated frequencies (blue) and observed frequencies (red)."}
+data.frame(y_sim) %>% 
+  pivot_longer(everything()) %>% 
+  group_by(name, value) %>% 
+  summarise(N = n()) %>% 
+  ungroup() %>% 
+  mutate(Freq = N/181) %>% 
+  group_by(value) %>% 
+  summarise(Frequency = mean(Freq)) %>% 
+  ungroup() %>% 
+  rename(NumFledged = 1) %>% 
+  mutate(type = "Simulated") -> freq_sim
+
+ocw %>% 
+  group_by(NumFledged) %>% 
+  summarise(N = n()) %>% 
+  mutate(Frequency = N/181) %>% 
+  ungroup() %>% 
+  select(-2) %>% 
+  mutate(type = "Observed") %>% 
+  bind_rows(freq_sim) %>% 
+  complete(NumFledged,  type) %>% 
+  ggplot(aes(x = NumFledged, y = Frequency))+
+  geom_col(aes(fill = type),
+           position = position_dodge(0.95))+
+  scale_fill_nejm()+
+  scale_x_continuous(breaks = seq(0,30,1))+
+  theme_bw()+
+  theme(legend.position = c(0.9,0.9),
+        aspect.ratio = 0.8)+
+  labs(fill = "", x = "Number of fledged chixks")
+```
+<br/>  
+
+ピアソン残差の平方和の比較も行う。ヒストグラムがシミュレーションデータのピアソン残差の平方和の分布で、赤い点線が実データのものである。過分散は有意水準5%レベルでは生じていない。`m15_2`よりも過分散は改善している。    
+```{r}
+data.frame(pr = sum_E2_sim) %>% 
+  ggplot(aes(x = pr))+
+  geom_histogram(fill = "white",
+                 color = "black")+
+  theme_bw()+
+  theme(aspect.ratio = 1)+
+  geom_vline(xintercept = sum(E15_1^2),
+             color = "red3",
+             linetype = "dashed")+
+  geom_text(aes(x = 250, y = 80),
+            label = str_c("P = ", mean(sum(E15_1^2) < sum_E2_sim)))+
+  labs(x = "Pearson residuals")
+```
+<br/>  
+
+最後に、得られた$w_k$の事後平均値を座標上に示す。  
+```{r}
+## wkの算出
+w.pm <- m15_3$summary.random$w$mean
+w.sd <- m15_3$summary.random$w$sd
+wproj <- inla.mesh.projector(mesh15_2)
+
+w7 <- list()
+for (i in 1:7){
+   w7[[i]] <- inla.mesh.project(
+                      wproj, 
+                      w.pm[w.index15_3$w.group==i])
+}
+
+expand.grid(X = wproj$x,
+        　  Y = wproj$y,
+        　  year = 2003:2009) %>% 
+  mutate(w.pm = c(as.vector(w7[[1]]), as.vector(w7[[2]]),
+                  as.vector(w7[[3]]), as.vector(w7[[4]]),
+                  as.vector(w7[[5]]), as.vector(w7[[6]]), as.vector(w7[[7]]))) -> w_df
+
+## 作図
+w_df %>% 
+  ggplot(aes(x = X, y = Y))+
+  geom_tile(data = w_df %>% drop_na(),
+              aes(fill = w.pm))+
+  scale_shape_manual(values = c(1,16))+
+  theme_bw() +
+  coord_fixed(ratio = 1)+
+  facet_rep_wrap(~year, repeat.tick.labels = TRUE)+
+  coord_cartesian(xlim = c(364900, 365500))+
+  scale_fill_gradient2(high = muted("red"), low = muted("yellow4"), mid = "ivory",
+                       midpoint = 0.1)
+```

@@ -101,6 +101,9 @@ fig:fit-m14-9e
 eq:AR1
 fig:CO2
 fig:fit-m14-11
+fig:freq-sim-m15-1
+fig:freq-sim-m15-2
+fig:freq-sim-m15-3
 c2
 pseudoreplication
 疑似反復とは
@@ -227,7 +230,7 @@ data-exploration-2
 poisson-glm-an-r-inla
 s10-1-3-1
 calculating-dispersion-parameter
-bayesian-method-for-looking-for-overunder-dispersion
+s9-1-3-1-2
 negative-binomial-glm-in-r-inla
 model-selection-for-the-nb-glm
 visualization-of-the-nb-glm
@@ -245,7 +248,7 @@ mesh
 finite-element-approach
 simulation-study-with-five-points
 weighting-factors-again
-linear-regression-model-with-spatial-dependency-for-the-irish-ph-data
+c12
 introduction-2
 model-formulation-3
 linear-regression-results
@@ -317,3 +320,14 @@ mixing-poisson-and-negative-binomial-distributions
 ar1-trends
 ar1-trend-regularly-spaced-time-series-data
 ar1-trend-for-irregularly-spaced-time-series-data
+spatial-temporal-models-for-orange-crowned-warblers-count-data
+introduction-4
+poisson-glm
+overdispersion--approach-1
+overdispersion--approach-2
+model-with-spatial-correlation
+model-diagnosis
+spatial-temporal-correlation-ar1
+explanation-of-the-model
+implementation-of-ar1-model-in-r-inla
+model-diagnosis-1

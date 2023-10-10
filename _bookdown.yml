@@ -14,7 +14,8 @@ rmd_files:
   - Chapter11.Rmd  
   - Chapter12.Rmd  
   - Chapter13.Rmd  
-  - Chapter14.Rmd
+  - Chapter14.Rmd  
+  - Chapter15.Rmd  
   - sessioninfo.Rmd
 output_dir: "docs"  
 language:
